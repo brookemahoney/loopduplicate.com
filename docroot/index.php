@@ -33,14 +33,20 @@
 
 				container = document.getElementById( 'container' );
 
-				camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 25000 );
+				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 25000 );
 				camera.position.z = 15000;
 
 				scene = new THREE.Scene();
 
-				light = new THREE.DirectionalLight( 0xffffff );
+				light = new THREE.DirectionalLight( 0xff5400 );
 				light.position.set( 0, 0, 1 ).normalize();
 				scene.add( light );
+				light1 = new THREE.DirectionalLight( 0xff5400 );
+				light1.position.set( 1, 0, 0 ).normalize();
+				scene.add( light1 );
+				light2 = new THREE.DirectionalLight( 0xff5400 );
+				light2.position.set( 0, 1, 0 ).normalize();
+				scene.add( light2 );
 
 				var loader = new THREE.JSONLoader();
 
@@ -81,7 +87,7 @@
 				mesh = new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) );
 				mesh.position.y = 0;
 				mesh.rotation.x = 90;
-				mesh.scale.x = mesh.scale.y = mesh.scale.z = 500;
+				mesh.scale.x = mesh.scale.y = mesh.scale.z = 400;
 				scene.add( mesh );
 
 			}
@@ -106,15 +112,15 @@
 
 			function render() {
 
-				camera.position.x += ( mouseX - camera.position.x ) * 1.9;
-				camera.position.y += ( - mouseY - camera.position.y ) * 1.9;
+				camera.position.x += ( mouseX - camera.position.x ) * 0.05;
+				camera.position.y += ( - mouseY - camera.position.y ) * 0.05;
 
 				camera.lookAt( scene.position );
 
 				if ( mesh ) {
 
-					mesh.rotation.x += 0.01;
-					mesh.rotation.y += 0.01;
+					mesh.rotation.x += 0.005;
+					mesh.rotation.y += 0.005;
 				}
 
 				renderer.render( scene, camera );
