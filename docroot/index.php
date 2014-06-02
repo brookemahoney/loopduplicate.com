@@ -10,7 +10,7 @@
     <script type="text/javascript" src="/sites/all/themes/jeffytheme/js/stats.min.js"></script>
   </head>
   <body>
-    <div id="container"></div>
+    <a href="http://www.burningtokenrecords.com/artist/loop-duplicate"><div id="container"></div></a>
     <script>
 
 			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
