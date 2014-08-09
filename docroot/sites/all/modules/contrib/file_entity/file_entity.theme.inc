@@ -142,8 +142,10 @@ function theme_file_entity_file_video($variables) {
   if ($variables['muted']) {
     $video_attributes['muted'] = 'muted';
   }
-  if ($variables['width'] && $variables['height']) {
+  if ($variables['width']) {
     $video_attributes['width'] = $variables['width'];
+  }
+  if ($variables['height']) {
     $video_attributes['height'] = $variables['height'];
   }
 

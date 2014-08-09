@@ -2,12 +2,20 @@
 
 /**
  * Implements hook_install().
+ * 
+ * Uninstalls some modules.
  */
 function loopduplicateutils_install() {
-  $utils = new LoopduplicateutilsModule();
-  $module_list = array(
-    'overlay'
+  $uninstall_module_list = array(
+    'overlay',
+    'color',
+    'comment',
+    'dashboard',
+    'dblog',
+    'help',
+    'syslog',
   );
-  $utils->uninstall($module_list);
+  $utils = new LoopduplicateutilsModule();
+  $utils->uninstall($uninstall_module_list);
   cache_clear_all();
 }

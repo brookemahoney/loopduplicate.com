@@ -169,27 +169,43 @@ function media_attach_browser_js(&$element) {
 function media_browser_js() {
   $settings = array(
     'browserUrl' => url('media/browser', array(
-        'query' => array('render' => 'media-popup'),
-      )
+      'query' => array(
+        'render' => 'media-popup'
+      ))
     ),
     'styleSelectorUrl' => url('media/-media_id-/format-form', array(
-        'query' => array('render' => 'media-popup'),
-      )
+      'query' => array(
+        'render' => 'media-popup'
+      ))
+    ),
+    'dialogOptions' => array(
+      'dialogclass' => variable_get('media_dialogclass', 'media-wrapper'),
+      'modal' => (boolean)variable_get('media_modal', TRUE),
+      'draggable' => (boolean)variable_get('media_draggable', FALSE),
+      'resizable' => (boolean)variable_get('media_resizable', FALSE),
+      'minwidth' => (int)variable_get('media_minwidth', 500),
+      'width' => (int)variable_get('media_width', 670),
+      'height' => (int)variable_get('media_height', 280),
+      'position' => variable_get('media_position', 'center'),
+      'overlay' => array(
+        'backgroundcolor' => variable_get('media_backgroundcolor', '#000000'),
+        'opacity' => (float)variable_get('media_opacity', 0.4),
+      ),
+      'zindex' => (int)variable_get('media_zindex', 10000),
     ),
   );
 
-  $js = array(
+  return array(
     'library' => array(
       array('media', 'media_browser'),
     ),
     'js' => array(
       array(
-        'data' => array('media' => $settings),
-        'type' => 'setting',
+       'data' => array('media' => $settings),
+       'type' => 'setting',
       ),
     ),
   );
-  return $js;
 }
 
 /**

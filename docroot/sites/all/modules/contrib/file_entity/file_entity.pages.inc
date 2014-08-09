@@ -52,7 +52,19 @@ function file_entity_download_page($file) {
   // Let other modules know the file is being downloaded.
   module_invoke_all('file_transfer', $file->uri, $headers);
 
-  file_transfer($file->uri, $headers);
+  if (file_entity_file_is_local($file)) {
+    // For local files, transfer the file and do not reveal the actual URL.
+    file_transfer($file->uri, $headers);
+  }
+  else {
+    // For remote files, just redirect the user to that file's actual URL.
+    $headers['Location'] = file_create_url($file->uri);
+    foreach ($headers as $name => $value) {
+      drupal_add_http_header($name, $value);
+    }
+    drupal_send_headers();
+    drupal_exit();
+  }
 }
 
 /**

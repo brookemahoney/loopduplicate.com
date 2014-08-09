@@ -129,18 +129,6 @@ function media_menu() {
     'file' => 'includes/media.browser.inc',
   );
 
-  // We could re-use the file/%file/edit path for the modal callback, but
-  // it is just easier to use our own namespace here.
-  $items['media/%file/edit/%ctools_js'] = array(
-    'title' => 'Edit',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('media_file_edit_modal', 1, 3),
-    'access callback' => 'file_entity_access',
-    'access arguments' => array('update', 1),
-    'file' => 'includes/media.pages.inc',
-    'type' => MENU_CALLBACK,
-  );
-
   return $items;
 }
 
@@ -635,9 +623,6 @@ function media_element_info() {
  * Process callback for the media form element.
  */
 function media_element_process($element, &$form_state, $form) {
-  ctools_include('modal');
-  ctools_include('ajax');
-  ctools_modal_add_js();
   $fid = isset($element['#value']['fid']) ? $element['#value']['fid'] : 0;
 
   // Set some default element properties.
@@ -704,20 +689,6 @@ function media_element_process($element, &$form_state, $form) {
   $ajax_settings['progress']['type'] = 'throbber';
   $ajax_settings['progress']['message'] = NULL;
   $ajax_settings['effect'] = 'none';
-  $element['edit'] = array(
-    '#type' => 'link',
-    '#href' => 'media/' . $fid . '/edit/nojs',
-    '#title' => t('Edit'),
-    '#attributes' => array(
-      'class' => array(
-        // Required for CTools modal to work.
-        'ctools-use-modal', 'use-ajax',
-        'ctools-modal-media-file-edit', 'button', 'edit',
-      ),
-    ),
-    '#weight' => 20,
-    '#access' => $element['#file'] ? file_entity_access('update', $element['#file']) : FALSE,
-  );
   $element['remove_button'] = array(
     '#name' => implode('_', $element['#parents']) . '_remove_button',
     '#type' => 'submit',
@@ -755,23 +726,6 @@ function media_element_process($element, &$form_state, $form) {
   $element['#suffix'] = '</div>';
 
   return $element;
-}
-
-/**
- * Implements hook_form_FORM_ID_alter().
- */
-function media_form_file_entity_edit_alter(&$form, &$form_state) {
-  // Make adjustments to the file edit form when used in a CTools modal.
-  if (!empty($form_state['ajax'])) {
-    // Remove the preview and the delete button.
-    $form['preview']['#access'] = FALSE;
-    $form['actions']['delete']['#access'] = FALSE;
-
-    // Convert the cancel link to a button which triggers a modal close.
-    $form['actions']['cancel']['#attributes']['class'][] = 'button';
-    $form['actions']['cancel']['#attributes']['class'][] = 'button-no';
-    $form['actions']['cancel']['#attributes']['class'][] = 'ctools-close-modal';
-  }
 }
 
 /**
