@@ -26,4 +26,16 @@ class LoopduplicateutilsModule extends Loopduplicateutils {
     return $this;
   }
 
+  public function getDevModules() {
+    $modules = array(
+      'devel',
+      'devel_themer',
+      'search_krumo',
+      'simplehtmldom',
+      'stage_file_proxy',
+      'temppp',
+    );
+    return $modules;
+  }
+  
 }
