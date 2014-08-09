@@ -26,6 +26,9 @@ class LoopduplicateutilsModule extends Loopduplicateutils {
     return $this;
   }
 
+  /**
+   * Gets an array of development modules suitable for module_enable().
+   */
   public function getDevModules() {
     $modules = array(
       'devel',
