@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function loopduplicateutils_install() {
+  $utils = new LoopduplicateutilsModule();
+  $module_list = array(
+    'overlay'
+  );
+  $utils->uninstall($module_list);
+  cache_clear_all();
+}
