@@ -17,6 +17,7 @@ dependencies[] = field_group
 dependencies[] = fieldable_panels_panes
 dependencies[] = file_entity
 dependencies[] = flag
+dependencies[] = globalredirect
 dependencies[] = jquery_update
 dependencies[] = libraries
 dependencies[] = link
