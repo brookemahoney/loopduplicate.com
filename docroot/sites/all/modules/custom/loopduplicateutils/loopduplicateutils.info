@@ -29,6 +29,7 @@ dependencies[] = module_filter
 dependencies[] = panels
 dependencies[] = panels_everywhere
 dependencies[] = pathauto
+dependencies[] = reroute_email
 dependencies[] = search_api
 dependencies[] = search_api_db
 dependencies[] = search_api_solr
