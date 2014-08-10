@@ -34,7 +34,6 @@ dependencies[] = search_api_db
 dependencies[] = search_api_solr
 dependencies[] = search_api_views
 dependencies[] = strongarm
-dependencies[] = syslog
 dependencies[] = token
 dependencies[] = views
 dependencies[] = views_bulk_operations
