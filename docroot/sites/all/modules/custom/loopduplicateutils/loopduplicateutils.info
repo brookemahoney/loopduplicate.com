@@ -9,6 +9,7 @@ dependencies[] = defaultconfig
 dependencies[] = diff
 dependencies[] = entity
 dependencies[] = entity_token
+dependencies[] = entity_view_mode
 dependencies[] = entityreference
 dependencies[] = facetapi
 dependencies[] = features
