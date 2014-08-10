@@ -2,20 +2,28 @@
 
 /**
  * Implements hook_install().
- * 
- * Uninstalls some modules.
  */
 function loopduplicateutils_install() {
+  // Uninstalls some modules.
   $uninstall_module_list = array(
-    'overlay',
+    'block',
     'color',
     'comment',
     'dashboard',
     'dblog',
     'help',
+    'overlay',
     'toolbar',
   );
   $utils = new LoopduplicateutilsModule();
   $utils->uninstall($uninstall_module_list);
+
+  // Enables custom theme.
+  theme_enable(array('loopduplicatetheme'));
+  // Sets custom theme as default.
+  variable_set('theme_default','loopduplicatetheme');
+  // Sets custom theme as admin theme.
+  variable_set('admin_theme', 'loopduplicatetheme');
+  
   cache_clear_all();
 }

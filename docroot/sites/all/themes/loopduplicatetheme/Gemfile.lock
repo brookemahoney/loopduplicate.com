@@ -1,0 +1,30 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    breakpoint (2.0.7)
+      compass (>= 0.12.1)
+      sass (>= 3.2.0)
+    chunky_png (1.3.1)
+    compass (0.12.6)
+      chunky_png (~> 1.2)
+      fssm (>= 0.2.7)
+      sass (~> 3.2.19)
+    fssm (0.2.10)
+    oily_png (1.1.1)
+      chunky_png (~> 1.3.0)
+    sass (3.2.19)
+    sass-globbing (1.1.1)
+      sass (>= 3.1)
+    zen-grids (1.4)
+      sass (>= 3.1)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  breakpoint (~> 2.0.7)
+  compass (~> 0.12.2)
+  oily_png (~> 1.1.1)
+  sass (~> 3.2.13)
+  sass-globbing (~> 1.1.1)
+  zen-grids (~> 1.4)

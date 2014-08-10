@@ -1,0 +1,88 @@
+h1 {
+  color: $btorange-dark;
+  font-weight: bold;
+  @include breakpoint(max-width $screen-sm) {
+    font-size: 24px;
+  }
+}
+h2, h3, h4, h5, h6 {
+  color: $dark;
+  font-weight: bold;
+  line-height: 1.3em;
+}
+textarea {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  @include border-radius(0);
+  padding: 4px 6px;
+}
+input {
+  &[type="color"],
+  &[type="date"],
+  &[type="datetime"],
+  &[type="datetime-local"],
+  &[type="email"],
+  &[type="month"],
+  &[type="number"],
+  &[type="password"],
+  &[type="search"],
+  &[type="tel"],
+  &[type="text"],
+  &[type="time"],
+  &[type="url"],
+  &[type="week"] {
+    @extend textarea;
+  }
+}
+button {
+  background-color: $btorange;
+  @include background-image(linear-gradient($btorange, $btorange-dark));
+  border: 1px solid #ddd;
+  @include border-radius(5px);
+  color: #fff;
+  font-size: 16px;
+  height: 30px;
+  min-width: 60px;
+  padding: 3px 10px;
+  text-align: center;
+  text-decoration: none;
+}
+input {
+  &[type="submit"] {
+    @extend button;
+  }
+}
+input[disabled="disabled"] {
+  @include opacity(.5);
+}
+select,
+textarea,
+input[type="color"],
+input[type="date"],
+input[type="datetime"],
+input[type="datetime-local"],
+input[type="email"],
+input[type="month"],
+input[type="number"],
+input[type="password"],
+input[type="search"],
+input[type="tel"],
+input[type="text"],
+input[type="time"],
+input[type="url"],
+input[type="week"] {
+  color: #666;
+  display: inline-block;
+  padding: 4px 6px;
+  vertical-align: middle;
+}
+small {
+  color: #666;
+  font-size: 11px;
+}
+select {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  height: 30px;
+  line-height: 30px;
+}

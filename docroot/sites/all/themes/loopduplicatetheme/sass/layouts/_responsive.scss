@@ -1,0 +1,87 @@
+/**
+ * @file
+ * Positioning for a responsive layout.
+ *
+ * Define CSS classes to create a fluid grid layout.
+ *
+ * This layout uses the Zen Grids plugin for Compass: http://zengrids.com
+ */
+
+// We are going to create a fluid grid with 1 or 12 columns and 20px gutters
+// between columns (applied as 10px of left/right padding on each column).
+$zen-column-count:  1;
+$zen-gutter-width:  20px;
+
+// If you need IE6/7 support for box-sizing: border-box (default), see _init.scss
+//$zen-box-sizing: content-box;
+
+// You can generate more efficient CSS if you manually apply the
+// zen-grid-item-base mixin to all grid items from within a single ruleset.
+$zen-auto-include-item-base: false;
+// $zen-auto-include-flow-item-base: false;
+
+// Suppress this section of CSS for RTL layouts since it contains no LTR-specific styles.
+@if $zen-reverse-all-floats == false {
+
+  /**
+   * Center the page.
+   *
+   * For large screen sizes, prevent excessively long lines of text
+   * by setting a max-width.
+   */
+  #page,
+  .region-bottom {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: $screen-lg;
+  }
+
+  /* Apply the shared properties of grid items in a single, efficient ruleset. */
+  #header,
+  #content,
+  #navigation,
+  #footer {
+    // See the note about $zen-auto-include-item-base above.
+    @include zen-grid-item-base();
+  }
+
+  /* Removes padding on #content */
+  #content {
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  /* Containers for grid items and flow items. */
+  #header,
+  #main,
+  #footer {
+    @include zen-grid-container();
+  }
+
+  /* Navigation bar */
+  #main {
+    /* Move all the children of #main down to make room. */
+    padding-top: $nav-height;
+    @include breakpoint($screen-sm) {
+      padding-top: $nav-height-sm;
+    }
+    @include breakpoint($screen-md) {
+      padding-top: $nav-height-md;
+    }
+    position: relative;
+  }
+  #navigation {
+    /* Move the navbar up inside #main's padding. */
+    position: absolute;
+    top: 0;
+    height: $nav-height;
+    @include breakpoint($screen-sm) {
+      height: $nav-height-sm;
+    }
+    @include breakpoint($screen-md) {
+      height: $nav-height-md;
+    }
+    width: $zen-grid-width;
+  }
+
+} // End of @if $zen-reverse-all-floats == true
