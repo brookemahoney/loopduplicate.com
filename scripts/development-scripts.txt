@@ -1,0 +1,57 @@
+###
+ # Terminal commands useful for development.
+ # 
+ # Uses gpg library to generate a random admin password.
+ # @see https://www.gnupg.org/documentation/manpage.html
+ #
+ # Aliases used in this script, add these to ~/.bash_profile :
+ # alias loopduplicatedrush='cd /Applications/MAMP/htdocs/loopduplicate/docroot; drush use devlocal.loopduplicate.com;'
+ # alias randompassword="gpg --gen-random --armor 1 12";
+ ##
+
+## Backs up local db.
+cd ~/projects/loopduplicate/dbdumps/local
+DATEVAR=`date +%Y-%m-%d--%H-%M-%S`
+mysqldump -uloopduplicate -ploopduplicate loopduplicate > loopduplicate_local_$DATEVAR.sql
+gzip loopduplicate_local_$DATEVAR.sql;
+
+## Drops all tables in the local db.
+mysql -uloopduplicate -ploopduplicate
+DROP DATABASE loopduplicate;
+CREATE DATABASE loopduplicate;
+exit
+
+## Restores site from latest backup and logs in.
+## Remember to backup and/or drop db first.
+cd ~/projects/loopduplicate/dbdumps/local
+LATESTFILE=$(ls -t | head -1);
+gunzip $LATESTFILE;
+LATESTFILE=$(ls -t | head -1);
+pv $LATESTFILE | mysql -uloopduplicate -ploopduplicate loopduplicate
+gzip $LATESTFILE;
+loopduplicatedrush
+# Lines that are commented out below are usually not necessary.
+# Drush RR may throw errors if db updates are needed.
+#drush rr;
+#drush updb -y;
+#drush fra -y;
+#drush vset preprocess_css 0;
+#drush vset preprocess_js 0;
+drush loopddevon;
+#drush cron;
+drush uli;
+
+###
+ # Installs a fresh copy of site and turns on development mode.
+ #
+ # Uses the standard profile and enables a custom module for initial
+ # configuration. In the future, this may be done with an installation profile.
+ ##
+RANDOMPASS=$(randompassword);
+loopduplicatecd chmod -R u+w sites;
+drush si standard --db-url=mysql://loopduplicate:loopduplicate@localhost/loopduplicate --site-name=LoopDuplicate --account-mail="noreply@loopduplicate.com" --account-name=loopduplicate --account-pass=$RANDOMPASS --site-mail="noreply@loopduplicate.com" -y;
+drush use devlocal.loopduplicate.com;
+drush en loopduplicateutils -y;
+drush loopddevon;
+drush uli;
+echo "Password is "$RANDOMPASS;
