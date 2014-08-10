@@ -3,6 +3,7 @@ description = Miscellaneous.
 core = 7.x
 dependencies[] = admin_menu
 dependencies[] = admin_menu_toolbar
+dependencies[] = context_admin
 dependencies[] = ctools
 dependencies[] = date
 dependencies[] = date_popup
