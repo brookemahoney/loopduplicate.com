@@ -49,9 +49,8 @@ drush uli;
  ##
 RANDOMPASS=$(randompassword);
 loopduplicatecd chmod -R u+w sites;
-drush si standard --db-url=mysql://loopduplicate:loopduplicate@localhost/loopduplicate --site-name=LoopDuplicate --account-mail="noreply@loopduplicate.com" --account-name=loopduplicate --account-pass=$RANDOMPASS --site-mail="noreply@loopduplicate.com" -y;
+drush si loopduplicateprofile --db-url=mysql://loopduplicate:loopduplicate@localhost/loopduplicate --site-name=LoopDuplicate --account-mail="noreply@loopduplicate.com" --account-name=loopduplicate --account-pass=$RANDOMPASS --site-mail="noreply@loopduplicate.com" -y;
 drush use devlocal.loopduplicate.com;
-drush en loopduplicateutils -y;
 drush loopddevon;
 drush uli;
 echo "Password is "$RANDOMPASS;

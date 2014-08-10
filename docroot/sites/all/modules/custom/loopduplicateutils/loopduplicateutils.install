@@ -4,15 +4,4 @@
  * Implements hook_install().
  */
 function loopduplicateutils_install() {
-  $module_utils = new LoopduplicateutilsModule();
-  $install_utils = new LoopduplicateutilsInstall($module_utils);
-
-  // Uninstalls some modules.
-  $install_utils->modulesUninstall()
-      // Sets up theme.
-      ->themeSetup()
-      // Deletes unused content types.
-      ->contentTypesDelete();
-  // Clears cache.
-  cache_clear_all();
 }

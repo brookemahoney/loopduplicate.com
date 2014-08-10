@@ -1,0 +1,11 @@
+/**
+ * Stylesheet for LoopDuplicate Profile
+ */
+
+body.maintenance-page #logo {
+  background:transparent url(logo.png) no-repeat top left;
+  height:0;
+  overflow:hidden;
+  padding-top: 64px; /* height of logo  */
+  width: 57px; /* width of logo  */
+}

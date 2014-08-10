@@ -1,0 +1,11 @@
+<?php
+/**
+ * @file loopduplicateprofile.install
+ * Install, update and uninstall functions.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function loopduplicateprofile_install() {
+}

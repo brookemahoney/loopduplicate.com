@@ -1,0 +1,80 @@
+name = LoopDuplicate
+distribution_name = "loopduplicateprofile"
+description = "An installation profile for LoopDuplicate."
+core = "7.x"
+exclusive = 1
+
+files[] = loopduplicateprofile.install
+files[] = loopduplicateprofile.profile
+
+; ------------
+; Dependencies
+;
+; Drupal loads these from the bottom up, or so I've been told :)
+; ------------
+
+;
+; Core
+;
+
+dependencies[] = syslog
+
+;
+; Custom
+;
+
+dependencies[] = loopduplicategeneralnode
+dependencies[] = loopduplicatepanelseverywhere
+dependencies[] = loopduplicateutils
+
+;
+; Contrib
+;
+
+dependencies[] = admin_menu
+dependencies[] = admin_menu_toolbar
+dependencies[] = context_admin
+dependencies[] = ctools
+dependencies[] = date
+dependencies[] = date_popup
+dependencies[] = diff
+dependencies[] = entity
+dependencies[] = entity_token
+dependencies[] = entity_view_mode
+dependencies[] = entityreference
+dependencies[] = facetapi
+dependencies[] = features
+dependencies[] = field_group
+dependencies[] = field_ui
+dependencies[] = fieldable_panels_panes
+dependencies[] = file_entity
+dependencies[] = flag
+dependencies[] = globalredirect
+dependencies[] = jquery_update
+dependencies[] = libraries
+dependencies[] = link
+dependencies[] = media
+dependencies[] = media_vimeo
+dependencies[] = media_wysiwyg
+dependencies[] = media_youtube
+dependencies[] = message
+dependencies[] = message_notify
+dependencies[] = message_subscribe
+dependencies[] = module_filter
+dependencies[] = panels
+dependencies[] = panels_everywhere
+dependencies[] = pathauto
+dependencies[] = reroute_email
+dependencies[] = save_draft
+dependencies[] = search_api
+dependencies[] = search_api_db
+dependencies[] = search_api_solr
+dependencies[] = search_api_views
+dependencies[] = strongarm
+dependencies[] = token
+dependencies[] = transliteration
+dependencies[] = views
+dependencies[] = views_bulk_operations
+dependencies[] = views_content
+dependencies[] = views_ui
+dependencies[] = wysiwyg

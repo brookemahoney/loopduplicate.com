@@ -7,10 +7,9 @@
 /**
  * Utilities related to modules.
  */
-class LoopduplicateutilsModule extends Loopduplicateutils {
+class LoopduplicateutilsModule {
 
   public function __construct() {
-    parent::__construct();
   }
 
   /**
