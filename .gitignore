@@ -1,0 +1,12 @@
+.DS_Store
+.DS_Store?
+.Spotlight-V100
+.Trashes
+Thumbs.db
+.idea
+.sass-cache
+.bundle
+sites/default/files
+*devlocal*
+*temppp*
+*node_modules*
