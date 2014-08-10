@@ -34,7 +34,7 @@ function loopduplicateutils_drush_command() {
 /**
  * Drush command callback to enable dev mode.
  */
-function drush_loopduplicateutils_loopd_enabledevmode($bundle = '') {
+function drush_loopduplicateutils_loopd_devmode_on() {
   $module_utils = new LoopduplicateutilsModule();
   $module_list = $module_utils->getDevModules();
   module_enable($module_list);
@@ -44,7 +44,7 @@ function drush_loopduplicateutils_loopd_enabledevmode($bundle = '') {
 /**
  * Drush command callback to disable dev mode.
  */
-function drush_loopduplicateutils_loopd_disabledevmode() {
+function drush_loopduplicateutils_loopd_devmode_off() {
   $module_utils = new LoopduplicateutilsModule();
   $module_list = $module_utils->getDevModules();
   $module_utils->uninstall($module_list);

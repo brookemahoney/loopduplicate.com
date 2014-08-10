@@ -1,0 +1,60 @@
+<?php
+/**
+ * @file
+ * Installation, update and uninstall hooks for Panels Everywhere.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function panels_everywhere_uninstall() {
+  // Delete the variables.
+  variable_del('panels_everywhere_provide_sample');
+  variable_del('panels_everywhere_site_template_enabled');
+  variable_del('panels_everywhere_site_template_enabled_admin');
+  variable_del('panels_everywhere_site_template_per_theme');
+  foreach (list_themes() as $theme) {
+    variable_get('panels_everywhere_override_theme_' . $theme->name);
+  }
+
+  // @todo Delete the variant(s).
+  // Steps (to be confirmed):
+  // 1. Query {page_manager_handlers} for any records with 'task' ==
+  //   'site_template'.
+  // 2. Extra the 'conf' field using unserialize(), obtain the 'did' value.
+  // 3. Delete records in {panels_display} with the did value identified above.
+  // 3. Delete records in {panels_pane} with the did value identified above.
+}
+
+/**
+ * Implementations of hook_update_N().
+ */
+
+/**
+ * The site_template variants should not use the IPE, so change them to use the
+ * standard render pipeline.
+ */
+function panels_everywhere_update_7100() {
+  $table = 'page_manager_handlers';
+  $handlers = db_select($table, 'h')
+    ->fields('h')
+    ->condition('task', 'site_template')
+    ->execute();
+  $converted = 0;
+  if (!empty($handlers)) {
+    foreach($handlers as $handler) {
+      if (!empty($handler->conf)) {
+        $handler->conf = unserialize($handler->conf);
+        if (is_array($handler->conf) && isset($handler->conf['pipeline']) && $handler->conf['pipeline'] == 'ipe') {
+          $handler->conf['pipeline'] = 'standard';
+          drupal_write_record($table, $handler, array('did'));
+          $converted++;
+          drupal_set_message(t('Converted the @display site template to use the standard renderer.', array('@display' => $handler->conf['title'])));
+        }
+      }
+    }
+  }
+  if (empty($converted)) {
+    drupal_set_message(t('No Panels Everywhere displays needed to have their settings updated.'));
+  }
+}
