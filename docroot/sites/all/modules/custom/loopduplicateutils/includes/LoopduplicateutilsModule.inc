@@ -36,6 +36,7 @@ class LoopduplicateutilsModule extends Loopduplicateutils {
       'search_krumo',
       'simplehtmldom',
       'stage_file_proxy',
+      'syslog',
       'temppp',
     );
     return $modules;
