@@ -35,6 +35,7 @@ dependencies[] = search_api_solr
 dependencies[] = search_api_views
 dependencies[] = strongarm
 dependencies[] = token
+dependencies[] = transliteration
 dependencies[] = views
 dependencies[] = views_bulk_operations
 dependencies[] = wysiwyg
