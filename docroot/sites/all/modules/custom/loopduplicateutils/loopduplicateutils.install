@@ -13,7 +13,7 @@ function loopduplicateutils_install() {
     'dashboard',
     'dblog',
     'help',
-    'syslog',
+    'toolbar',
   );
   $utils = new LoopduplicateutilsModule();
   $utils->uninstall($uninstall_module_list);
