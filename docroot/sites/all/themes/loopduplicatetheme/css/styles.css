@@ -1581,6 +1581,11 @@ tr.selected td {
 
 /* No files to import found in components/fields/* */
 /* No files to import found in components/nodes/* */
+/* line 1, ../sass/components/_page.scss */
+#page-header {
+  overflow: hidden;
+}
+
 /* No files to import found in components/panes/* */
 /**
  * @file
