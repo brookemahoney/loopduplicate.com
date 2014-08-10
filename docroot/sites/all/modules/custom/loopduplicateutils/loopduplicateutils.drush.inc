@@ -37,7 +37,7 @@ function loopduplicateutils_drush_command() {
 function drush_loopduplicateutils_loopd_devmode_on() {
   $module_utils = new LoopduplicateutilsModule();
   $module_list = $module_utils->getDevModules();
-  module_enable($module_list);
+  $module_utils->enable($module_list);
   drupal_set_message('Dev Mode Enabled.');
 }
 
