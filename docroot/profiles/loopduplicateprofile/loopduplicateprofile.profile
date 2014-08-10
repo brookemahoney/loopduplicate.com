@@ -55,6 +55,10 @@ function loopduplicateprofile_install_set_variables() {
   variable_set('views_ui_show_advanced_help_warning', 0);
   // Transliterates URLs prior to creating path aliases
   variable_set('pathauto_transliterate', 1);
+  // Disables the secondary menu.
+  variable_set('menu_secondary_links_source', '');
+  // Disables "Keep menu at top of page" for admin menu.
+  variable_set('admin_menu_position_fixed', 0);
 }
 
 /**

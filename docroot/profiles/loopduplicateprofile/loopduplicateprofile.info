@@ -17,7 +17,11 @@ files[] = loopduplicateprofile.profile
 ; Core
 ;
 
+dependencies[] = menu
+dependencies[] = number
+dependencies[] = search
 dependencies[] = syslog
+dependencies[] = taxonomy
 
 ;
 ; Custom

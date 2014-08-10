@@ -53,4 +53,5 @@ drush si loopduplicateprofile --db-url=mysql://loopduplicate:loopduplicate@local
 drush use devlocal.loopduplicate.com;
 drush loopddevon;
 drush uli;
+drush cc all;
 echo "Password is "$RANDOMPASS;
