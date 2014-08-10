@@ -423,24 +423,10 @@ legend {
  * 5. Keep form elements constrained in their containers.
  */
 /* line 416, ../sass/_normalize.scss */
-button, input[type="submit"],
+button,
 input,
 select,
-textarea,
-input[type="color"],
-input[type="date"],
-input[type="datetime"],
-input[type="datetime-local"],
-input[type="email"],
-input[type="month"],
-input[type="number"],
-input[type="password"],
-input[type="search"],
-input[type="tel"],
-input[type="text"],
-input[type="time"],
-input[type="url"],
-input[type="week"] {
+textarea {
   font-family: inherit;
   /* 1 */
   font-size: 100%;
@@ -460,7 +446,7 @@ input[type="week"] {
  * the UA stylesheet.
  */
 /* line 433, ../sass/_normalize.scss */
-button, input[type="submit"],
+button,
 input {
   line-height: normal;
 }
@@ -472,7 +458,7 @@ input {
  * Correct `select` style inheritance in Firefox 4+ and Opera.
  */
 /* line 444, ../sass/_normalize.scss */
-button, input[type="submit"],
+button,
 select {
   text-transform: none;
 }
@@ -487,7 +473,7 @@ select {
  *    Known issue: inner spacing remains in IE 6.
  */
 /* line 460, ../sass/_normalize.scss */
-button, input[type="submit"],
+button,
 html input[type="button"],
 input[type="reset"],
 input[type="submit"] {
@@ -501,7 +487,7 @@ input[type="submit"] {
  * Re-set default cursor for disabled elements.
  */
 /* line 472, ../sass/_normalize.scss */
-button[disabled], input[disabled][type="submit"],
+button[disabled],
 html input[disabled] {
   cursor: default;
 }
@@ -550,7 +536,7 @@ input[type="search"]::-webkit-search-decoration {
 
 /* Remove inner padding and border in Firefox 4+. */
 /* line 513, ../sass/_normalize.scss */
-button::-moz-focus-inner, input[type="submit"]::-moz-focus-inner,
+button::-moz-focus-inner,
 input::-moz-focus-inner {
   border: 0;
   padding: 0;
@@ -561,7 +547,7 @@ input::-moz-focus-inner {
  * 2. Improve readability and alignment in all browsers.
  */
 /* line 522, ../sass/_normalize.scss */
-textarea, input[type="color"], input[type="date"], input[type="datetime"], input[type="datetime-local"], input[type="email"], input[type="month"], input[type="number"], input[type="password"], input[type="search"], input[type="tel"], input[type="text"], input[type="time"], input[type="url"], input[type="week"] {
+textarea {
   overflow: auto;
   /* 1 */
   vertical-align: top;
@@ -609,20 +595,9 @@ h2, h3, h4, h5, h6 {
   line-height: 1.3em;
 }
 
-/* line 13, ../sass/_base.scss */
-textarea, input[type="color"], input[type="date"], input[type="datetime"], input[type="datetime-local"], input[type="email"], input[type="month"], input[type="number"], input[type="password"], input[type="search"], input[type="tel"], input[type="text"], input[type="time"], input[type="url"], input[type="week"] {
-  background-color: #fff;
-  border: 1px solid #ddd;
-  -webkit-border-radius: 0;
-  -moz-border-radius: 0;
-  -ms-border-radius: 0;
-  -o-border-radius: 0;
-  border-radius: 0;
-  padding: 4px 6px;
-}
-
-/* line 37, ../sass/_base.scss */
-button, input[type="submit"] {
+/* line 14, ../sass/_base.scss */
+button,
+.button {
   background-color: #ff5400;
   background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ff5400), color-stop(100%, #bf3f00));
   background-image: -webkit-linear-gradient(#ff5400, #bf3f00);
@@ -644,61 +619,10 @@ button, input[type="submit"] {
   text-decoration: none;
 }
 
-/* line 55, ../sass/_base.scss */
+/* line 27, ../sass/_base.scss */
 input[disabled="disabled"] {
   filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
   opacity: 0.5;
-}
-
-/* line 73, ../sass/_base.scss */
-select,
-textarea,
-input[type="color"],
-input[type="date"],
-input[type="datetime"],
-input[type="datetime-local"],
-input[type="email"],
-input[type="month"],
-input[type="number"],
-input[type="password"],
-input[type="search"],
-input[type="tel"],
-input[type="text"],
-input[type="time"],
-input[type="url"],
-input[type="week"],
-input[type="color"],
-input[type="date"],
-input[type="datetime"],
-input[type="datetime-local"],
-input[type="email"],
-input[type="month"],
-input[type="number"],
-input[type="password"],
-input[type="search"],
-input[type="tel"],
-input[type="text"],
-input[type="time"],
-input[type="url"],
-input[type="week"] {
-  color: #666;
-  display: inline-block;
-  padding: 4px 6px;
-  vertical-align: middle;
-}
-
-/* line 79, ../sass/_base.scss */
-small {
-  color: #666;
-  font-size: 11px;
-}
-
-/* line 83, ../sass/_base.scss */
-select {
-  background-color: #fff;
-  border: 1px solid #ccc;
-  height: 30px;
-  line-height: 30px;
 }
 
 /* Layout rules */
@@ -1425,20 +1349,6 @@ tr.odd .form-item, tr.even .form-item {
 /* line 601, ../sass/components/_misc.scss */
 .form-item input.error,
 .form-item textarea.error,
-.form-item input.error[type="color"],
-.form-item input.error[type="date"],
-.form-item input.error[type="datetime"],
-.form-item input.error[type="datetime-local"],
-.form-item input.error[type="email"],
-.form-item input.error[type="month"],
-.form-item input.error[type="number"],
-.form-item input.error[type="password"],
-.form-item input.error[type="search"],
-.form-item input.error[type="tel"],
-.form-item input.error[type="text"],
-.form-item input.error[type="time"],
-.form-item input.error[type="url"],
-.form-item input.error[type="week"],
 .form-item select.error {
   border: 1px solid #c00;
 }
