@@ -43,9 +43,6 @@ drush uli;
 
 ###
  # Installs a fresh copy of site and turns on development mode.
- #
- # Uses the standard profile and enables a custom module for initial
- # configuration. In the future, this may be done with an installation profile.
  ##
 RANDOMPASS=$(randompassword);
 loopduplicatecd chmod -R u+w sites;
