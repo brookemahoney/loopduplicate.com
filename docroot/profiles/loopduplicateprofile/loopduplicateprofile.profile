@@ -114,6 +114,11 @@ function loopduplicateprofile_install_set_variables() {
   variable_set('admin_menu_position_fixed', 0);
   // Turns caching on for anonymous users.
   variable_set('cache', 1);
+  // Sets an anoymous maintenance mode message so that if the site's name is
+  // ever changed, the message won't contain the original name.
+  $maintenance_message = t('We are currently under maintenance and should be back shortly.'
+      . ' Thank you for your patience.');
+  variable_set('maintenance_mode_message', $maintenance_message);
 }
 
 /**
