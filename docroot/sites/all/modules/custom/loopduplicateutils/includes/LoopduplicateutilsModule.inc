@@ -64,7 +64,8 @@ class LoopduplicateutilsModule {
       'devel',
       'search_krumo',
       'simplehtmldom',
-      'stage_file_proxy',
+      // @todo Enable Stage File Proxy once there is a production site URI.
+      // 'stage_file_proxy',
       'temppp',
     );
   }
