@@ -31,6 +31,7 @@ dependencies[] = loopduplicategeneralnode
 dependencies[] = loopduplicatepanelseverywhere
 dependencies[] = loopduplicateperms
 dependencies[] = loopduplicateutils
+dependencies[] = loopduplicatewysiwyg
 
 ;
 ; Contrib
