@@ -89,9 +89,9 @@ function loopduplicateprofile_install_tasks($install_state) {
     'run' => INSTALL_TASK_RUN_IF_NOT_COMPLETED,
   );
 
-  // Configures Panels Everywhere.
-  $tasks['loopduplicateprofile_install_panelseverywhere'] = array(
-    'display_name' => 'Configure Panels Everywhere',
+  // Reverts some features.
+  $tasks['loopduplicateprofile_install_features'] = array(
+    'display_name' => 'Configure Features',
     'display' => FALSE,
     'type' => 'normal',
     'run' => INSTALL_TASK_RUN_IF_NOT_COMPLETED,
@@ -157,8 +157,8 @@ function loopduplicateprofile_install_set_theme() {
 }
 
 /**
- * Configures Panels Everywhere
+ * Configures Features.
  */
-function loopduplicateprofile_install_panelseverywhere() {
-  features_revert_module('loopduplicatepanelseverywhere');
+function loopduplicateprofile_install_features() {
+  features_revert();
 }
