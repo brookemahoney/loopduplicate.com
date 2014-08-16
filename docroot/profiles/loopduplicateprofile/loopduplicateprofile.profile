@@ -116,11 +116,18 @@ function loopduplicateprofile_install_set_variables() {
   variable_set('cache', 1);
   // Sets an anoymous maintenance mode message so that if the site's name is
   // ever changed, the message won't contain the original name.
-  $maintenance_message = t('We are currently under maintenance and should be back shortly.'
-      . ' Thank you for your patience.');
+  $maintenance_message = t('We are currently under maintenance and should be'
+      . ' back shortly. Thank you for your patience.');
   variable_set('maintenance_mode_message', $maintenance_message);
   // Sets maximum upload size.
   variable_set('file_entity_max_filesize', '50 MB');
+  // Sets Pathauto update behavior; Creates a new alias and leave the existing
+  // alias functioning.
+  variable_set('pathauto_update_action', 1);
+  // Use all words in title when creating a path alias.
+  // Default: a, an, as, at, before, but, by, for, from, is, in, into, like, of,
+  // off, on, onto, per, since, than, the, this, that, to, up, via, with
+  variable_set('pathauto_ignore_words', '');
 }
 
 /**
