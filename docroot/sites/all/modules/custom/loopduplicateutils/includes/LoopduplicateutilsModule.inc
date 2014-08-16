@@ -10,6 +10,9 @@
 class LoopduplicateutilsModule {
 
   public function __construct() {
+    // Nothing yet. I this method here so that if another class extends this
+    // class, parent::__construct() can be called in the constructor for that
+    // class.
   }
 
   /**
@@ -28,7 +31,7 @@ class LoopduplicateutilsModule {
       module_disable($module_single, $uninstall_dependents);
       if (!drupal_uninstall_modules($module_single, $uninstall_dependents)) {
         $message = t('Module @module could not be uninstalled.', array(
-          '@module' => $module_single));
+          '@module' => current($module_single)));
         drupal_set_message($message, 'warning');
       }
     }
@@ -61,13 +64,19 @@ class LoopduplicateutilsModule {
    */
   public function getDevModules() {
     return array(
-      'devel',
+      // Modules which depend on other modules should be listed first.
       'search_krumo',
+      'devel',
       'simplehtmldom',
+      
       // @todo Enable Stage File Proxy once there is a production site URI.
       // 'stage_file_proxy',
+      
+      // This is a module that I have ignored in .gitignore. It is good for
+      // local development. I also have a local git commit pre-commit hook which
+      // checks the diff for the text "temppp" and stops the commit if it finds
+      // it.
       'temppp',
     );
   }
-
 }
