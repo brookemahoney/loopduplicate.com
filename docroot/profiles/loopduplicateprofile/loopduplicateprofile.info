@@ -29,6 +29,7 @@ dependencies[] = taxonomy
 
 dependencies[] = loopduplicategeneralnode
 dependencies[] = loopduplicatepanelseverywhere
+dependencies[] = loopduplicateperms
 dependencies[] = loopduplicateutils
 
 ;

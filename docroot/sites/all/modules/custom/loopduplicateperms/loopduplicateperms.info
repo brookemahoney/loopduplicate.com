@@ -1,0 +1,8 @@
+name = LoopDuplicate Perms
+description = Drupal roles and permissions.
+core = 7.x
+package = LoopDuplicate
+dependencies[] = features
+features[features_api][] = api:2
+features[user_role][] = administrator
+project path = sites/all/modules/custom
