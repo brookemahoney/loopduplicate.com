@@ -50,7 +50,7 @@ function loopduplicategeneralnode_field_default_field_instances() {
         'summary_rows' => 5,
       ),
       'type' => 'text_textarea_with_summary',
-      'weight' => 31,
+      'weight' => 6,
     ),
   );
 
@@ -104,7 +104,7 @@ function loopduplicategeneralnode_field_default_field_instances() {
       'module' => 'link',
       'settings' => array(),
       'type' => 'link_field',
-      'weight' => 34,
+      'weight' => 4,
     ),
   );
 
@@ -177,7 +177,7 @@ function loopduplicategeneralnode_field_default_field_instances() {
         ),
       ),
       'type' => 'media_generic',
-      'weight' => 35,
+      'weight' => 5,
     ),
   );
 
@@ -216,7 +216,7 @@ function loopduplicategeneralnode_field_default_field_instances() {
       'module' => 'options',
       'settings' => array(),
       'type' => 'options_buttons',
-      'weight' => 33,
+      'weight' => 3,
     ),
   );
 
@@ -253,7 +253,7 @@ function loopduplicategeneralnode_field_default_field_instances() {
       'module' => 'options',
       'settings' => array(),
       'type' => 'options_buttons',
-      'weight' => 32,
+      'weight' => 2,
     ),
   );
 
