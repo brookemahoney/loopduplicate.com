@@ -5,6 +5,22 @@
  */
 
 /**
+ * Implements hook_default_cer().
+ */
+function loopduplicategeneralnode_default_cer() {
+  $items = array();
+  $items['node:generalnode:field_internal_references*node:generalnode:field_internal_references'] = entity_import('cer', '{
+    "identifier" : "node:generalnode:field_internal_references*node:generalnode:field_internal_references",
+    "cer_bidirectional" : { "und" : [ { "value" : "1" } ] },
+    "cer_enabled" : { "und" : [ { "value" : "1" } ] },
+    "cer_weight" : { "und" : [ { "value" : "0" } ] },
+    "cer_left" : { "und" : [ { "path" : "node:generalnode:field_internal_references" } ] },
+    "cer_right" : { "und" : [ { "path" : "node:generalnode:field_internal_references" } ] }
+  }');
+  return $items;
+}
+
+/**
  * Implements hook_ctools_plugin_api().
  */
 function loopduplicategeneralnode_ctools_plugin_api($module = NULL, $api = NULL) {
