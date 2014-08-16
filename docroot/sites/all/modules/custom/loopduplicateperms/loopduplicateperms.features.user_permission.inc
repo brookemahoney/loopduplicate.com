@@ -978,6 +978,15 @@ function loopduplicateperms_user_default_permissions() {
     'module' => 'panels',
   );
 
+  // Exported permission: 'use text format full_html_no_linebreaks'.
+  $permissions['use text format full_html_no_linebreaks'] = array(
+    'name' => 'use text format full_html_no_linebreaks',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'filter',
+  );
+
   // Exported permission: 'view files'.
   $permissions['view files'] = array(
     'name' => 'view files',
