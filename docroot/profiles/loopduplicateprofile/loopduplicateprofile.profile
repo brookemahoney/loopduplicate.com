@@ -4,6 +4,59 @@
  */
 
 /**
+ * Implements hook_form_FORM_ID_alter()
+ * 
+ * Alters the installation form.
+ */
+function loopduplicateprofile_form_install_configure_form_alter(&$form, $form_state) {
+
+  // Hide status and warning messages.
+  drupal_get_messages('status');
+  drupal_get_messages('warning');
+
+  // Set defaults for site configuration form
+  $form['site_information']['site_name']['#default_value'] = 'LoopDuplicate';
+  $form['admin_account']['account']['name']['#default_value'] = 'loopduplicate';
+  $form['server_settings']['site_default_country']['#default_value'] = 'US';
+  $form['server_settings']['date_default_timezone']['#default_value'] = 'America/Los_Angeles';
+  $form['site_information']['site_mail']['#default_value'] = 'noreply@' . $_SERVER['HTTP_HOST'];
+  $form['admin_account']['account']['mail']['#default_value'] = 'noreply@' . $_SERVER['HTTP_HOST'];
+}
+
+/**
+ * Implements hook_install_tasks_alter()
+ */
+function loopduplicateprofile_install_tasks_alter(&$tasks, $install_state) {
+  // Uses Panopoly's method of dependency handling.
+  $tasks['install_load_profile']['function'] = 'loopduplicateprofile_install_load_profile';
+}
+
+/**
+ * Improved dependency checking.
+ * 
+ * Code originally in Panopoly.
+ * @see http://cgit.drupalcode.org/panopoly_core/tree/panopoly_core.profile.inc.
+ */
+function loopduplicateprofile_install_load_profile(&$install_state) {
+
+  // Loading the install profile normally
+  install_load_profile($install_state);
+
+  // Include any dependencies that we might have missed...
+  $dependencies = $install_state['profile_info']['dependencies'];
+  foreach ($dependencies as $module) {
+    $module_info = drupal_parse_info_file(drupal_get_path('module', $module) . '/' . $module . '.info');
+    if (!empty($module_info['dependencies'])) {
+      foreach ($module_info['dependencies'] as $dependency) {
+        $parts = explode(' (', $dependency, 2);
+        $dependencies[] = array_shift($parts);
+      }
+    }
+  }
+  $install_state['profile_info']['dependencies'] = array_unique($dependencies);
+}
+
+/**
  * Implements hook_install_tasks().
  *
  * Note, these tasks run after the "Configure site" step (where the admin
@@ -37,7 +90,7 @@ function loopduplicateprofile_install_tasks($install_state) {
   );
 
   // Configures Panels Everywhere.
-  $tasks['loopduplicateprofile_panelseverywhere'] = array(
+  $tasks['loopduplicateprofile_install_panelseverywhere'] = array(
     'display_name' => 'Configure Panels Everywhere',
     'display' => FALSE,
     'type' => 'normal',
@@ -88,61 +141,8 @@ function loopduplicateprofile_install_set_theme() {
 }
 
 /**
- * Implements hook_install_tasks_alter()
- */
-function loopduplicateprofile_install_tasks_alter(&$tasks, $install_state) {
-  // Uses Panopoly's method of dependency handling.
-  $tasks['install_load_profile']['function'] = 'loopduplicateprofile_install_load_profile';
-}
-
-/**
- * Implements hook_form_FORM_ID_alter()
- * 
- * Alters the installation form.
- */
-function loopduplicateprofile_form_install_configure_form_alter(&$form, $form_state) {
-
-  // Hide status and warning messages.
-  drupal_get_messages('status');
-  drupal_get_messages('warning');
-
-  // Set defaults for site configuration form
-  $form['site_information']['site_name']['#default_value'] = 'LoopDuplicate';
-  $form['admin_account']['account']['name']['#default_value'] = 'loopduplicate';
-  $form['server_settings']['site_default_country']['#default_value'] = 'US';
-  $form['server_settings']['date_default_timezone']['#default_value'] = 'America/Los_Angeles';
-  $form['site_information']['site_mail']['#default_value'] = 'noreply@' . $_SERVER['HTTP_HOST'];
-  $form['admin_account']['account']['mail']['#default_value'] = 'noreply@' . $_SERVER['HTTP_HOST'];
-}
-
-/**
  * Configures Panels Everywhere
  */
-function loopduplicateprofile_panelseverywhere() {
+function loopduplicateprofile_install_panelseverywhere() {
   features_revert_module('loopduplicatepanelseverywhere');
-}
-
-/**
- * Improved dependency checking.
- * 
- * Code originally in Panopoly.
- * @see http://cgit.drupalcode.org/panopoly_core/tree/panopoly_core.profile.inc.
- */
-function loopduplicateprofile_install_load_profile(&$install_state) {
-
-  // Loading the install profile normally
-  install_load_profile($install_state);
-
-  // Include any dependencies that we might have missed...
-  $dependencies = $install_state['profile_info']['dependencies'];
-  foreach ($dependencies as $module) {
-    $module_info = drupal_parse_info_file(drupal_get_path('module', $module) . '/' . $module . '.info');
-    if (!empty($module_info['dependencies'])) {
-      foreach ($module_info['dependencies'] as $dependency) {
-        $parts = explode(' (', $dependency, 2);
-        $dependencies[] = array_shift($parts);
-      }
-    }
-  }
-  $install_state['profile_info']['dependencies'] = array_unique($dependencies);
 }
