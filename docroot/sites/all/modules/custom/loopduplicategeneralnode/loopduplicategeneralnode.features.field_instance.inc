@@ -220,6 +220,46 @@ function loopduplicategeneralnode_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'node-generalnode-field_short_teaser'
+  $field_instances['node-generalnode-field_short_teaser'] = array(
+    'bundle' => 'generalnode',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => 'This field should be kept under 100 Chars.',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 5,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_short_teaser',
+    'label' => 'Short Teaser',
+    'required' => 0,
+    'settings' => array(
+      'text_processing' => 1,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'rows' => 3,
+      ),
+      'type' => 'text_textarea',
+      'weight' => 7,
+    ),
+  );
+
   // Exported field_instance: 'node-generalnode-field_tags'
   $field_instances['node-generalnode-field_tags'] = array(
     'bundle' => 'generalnode',
@@ -263,7 +303,9 @@ function loopduplicategeneralnode_field_default_field_instances() {
   t('External References');
   t('Featured Image');
   t('Internal References');
+  t('Short Teaser');
   t('Tags');
+  t('This field should be kept under 100 Chars.');
 
   return $field_instances;
 }
