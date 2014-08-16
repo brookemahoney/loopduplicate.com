@@ -31,7 +31,10 @@ To enable this module do the following:
 1. Go to Admin -> Modules, and enable reroute email.
 
 2. Go to Admin -> Configuration -> Development -> Reroute email, and enter an
-   email address to route all email to.
+   email address to route all email to. If the field is empty and no value is
+   provided for rerouted email addresses, all outgoing emails would be aborted
+   and recorded in the recent log entries, with a full dump of the email
+   variables, which could provide an additional debugging method.
 
 Tips and Tricks
 ---------------

@@ -10,10 +10,11 @@ files[] = includes/MediaInternetBaseHandler.inc
 files[] = includes/MediaInternetFileHandler.inc
 files[] = includes/MediaInternetNoHandlerException.inc
 files[] = includes/MediaInternetValidationException.inc
+files[] = tests/media_internet.test
 
-; Information added by Drupal.org packaging script on 2014-07-29
-version = "7.x-2.0-alpha3+100-dev"
+; Information added by Drupal.org packaging script on 2014-08-15
+version = "7.x-2.0-alpha3+106-dev"
 core = "7.x"
 project = "media"
-datestamp = "1406659428"
+datestamp = "1408131532"
 

@@ -6,6 +6,7 @@
  */
 
 define('REROUTE_EMAIL_ADDRESS', 'reroute_email_address');
+define('REROUTE_EMAIL_ADDRESS_EMPTY_PLACEHOLDER', t('[No reroute email address configured]'));
 define('REROUTE_EMAIL_ENABLE_MESSAGE', 'reroute_email_enable_message');
 define('REROUTE_EMAIL_ENABLE', 'reroute_email_enable');
 
@@ -70,11 +71,6 @@ function reroute_email_mail_alter(&$message) {
   if (variable_get(REROUTE_EMAIL_ENABLE, 0)) {
     global $base_url;
 
-    if (!variable_get(REROUTE_EMAIL_ADDRESS, '')) {
-      // If email address not in settings, then do nothing.
-      return;
-    }
-
     if (empty($message)) {
       return;
     }
@@ -119,7 +115,7 @@ function reroute_email_mail_alter(&$message) {
     if (!in_array($to, $addresslist)) {
       // Not on the list, so reroute to the first address in the list.
       $message['headers']['X-Rerouted-Original-To'] = $to;
-      $message['to'] = $addresslist[0];
+      $message['to'] = !empty($addresslist[0]) ? $addresslist[0] : REROUTE_EMAIL_ADDRESS_EMPTY_PLACEHOLDER;
 
       if (variable_get(REROUTE_EMAIL_ENABLE_MESSAGE, 1)) {
         // Format a message to show at the top.
@@ -140,6 +136,14 @@ function reroute_email_mail_alter(&$message) {
           array_unshift($message['body'], $msg);
         }
       }
+    }
+    // Abort sending of the email only if the address is an empty string.
+    if (variable_get(REROUTE_EMAIL_ADDRESS, NULL) === '') {
+      $message['send'] = FALSE;
+      // Record a variable dump of the email in the recent log entries.
+      watchdog('reroute_email', 'Aborted email sending for <em>@message_id</em>. <br/>Detailed email data: Array $message <pre>@message</pre>', array('@message_id' => $message['id'], '@message' => print_r($message, TRUE)));
+      // Let users know email has been aborted, but logged.
+      drupal_set_message(t('<em>@message_id</em> was aborted by reroute email, please check the <a href="@dblog">recent log entries</a> for complete details on the rerouted email.', array('@message_id' => $message['id'], '@dblog' => url('admin/reports/dblog'))));
     }
   }
 }
