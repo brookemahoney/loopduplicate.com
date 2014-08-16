@@ -1,0 +1,13 @@
+name="Bundle Copy Commerce"
+description="Import and exports Commerce fields through the UI."
+core=7.x
+dependencies[] = bundle_copy
+dependencies[] = commerce_product
+package="Fields"
+files[] = bundle_copy_commerce.module
+; Information added by drupal.org packaging script on 2013-09-30
+version = "7.x-2.x-dev"
+core = "7.x"
+project = "bundle_copy"
+datestamp = "1380557163"
+

@@ -1,0 +1,12 @@
+name="Bundle copy"
+description="Import and exports bundles through the UI."
+core=7.x
+dependencies[] = ctools
+package="Fields"
+files[] = bundle_copy.module
+; Information added by drupal.org packaging script on 2013-09-30
+version = "7.x-2.x-dev"
+core = "7.x"
+project = "bundle_copy"
+datestamp = "1380557163"
+
