@@ -152,5 +152,6 @@ features[user_permission][] = view private files
 features[user_permission][] = view revisions
 features[user_permission][] = view the administration theme
 features[user_role][] = administrator
+features[variable][] = user_admin_role
 features[variable][] = user_register
 project path = sites/all/modules/custom

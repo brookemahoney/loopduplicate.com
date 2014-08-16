@@ -119,6 +119,8 @@ function loopduplicateprofile_install_set_variables() {
   $maintenance_message = t('We are currently under maintenance and should be back shortly.'
       . ' Thank you for your patience.');
   variable_set('maintenance_mode_message', $maintenance_message);
+  // Sets maximum upload size.
+  variable_set('file_entity_max_filesize', '50 MB');
 }
 
 /**
