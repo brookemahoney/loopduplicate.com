@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the LoopDuplicate Drupal Module feature.
+ */
+
+include_once 'loopduplicatedrupalmodule.features.inc';
