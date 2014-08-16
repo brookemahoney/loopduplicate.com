@@ -112,6 +112,8 @@ function loopduplicateprofile_install_set_variables() {
   variable_set('menu_secondary_links_source', '');
   // Disables "Keep menu at top of page" for admin menu.
   variable_set('admin_menu_position_fixed', 0);
+  // Turns caching on for anonymous users.
+  variable_set('cache', 1);
 }
 
 /**
