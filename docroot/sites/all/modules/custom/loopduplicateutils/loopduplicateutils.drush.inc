@@ -8,8 +8,6 @@ function loopduplicateutils_drush_command() {
 
   $items['loopd-devmode-on'] = array(
     'description' => t('Turns on developer mode.'),
-//    'required-arguments' => TRUE,
-//    'arguments' => array(),
     'examples' => array(
       'drush loopddevon' => t('Turns on developer mode.'),
     ),
@@ -19,8 +17,6 @@ function loopduplicateutils_drush_command() {
   
   $items['loopd-devmode-off'] = array(
     'description' => t('Turns off developer mode.'),
-//    'required-arguments' => TRUE,
-//    'arguments' => array(),
     'examples' => array(
       'drush loopddevoff' => t('Turns off developer mode.'),
     ),
