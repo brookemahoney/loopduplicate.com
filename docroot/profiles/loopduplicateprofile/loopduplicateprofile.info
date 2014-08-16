@@ -30,6 +30,7 @@ dependencies[] = taxonomy
 dependencies[] = loopduplicategeneralnode
 dependencies[] = loopduplicatepanelseverywhere
 dependencies[] = loopduplicateperms
+dependencies[] = loopduplicatetaxonomy
 dependencies[] = loopduplicateutils
 dependencies[] = loopduplicatewysiwyg
 
