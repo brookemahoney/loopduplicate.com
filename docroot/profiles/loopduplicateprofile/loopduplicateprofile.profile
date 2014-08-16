@@ -97,6 +97,8 @@ function loopduplicateprofile_install_tasks_alter(&$tasks, $install_state) {
 
 /**
  * Implements hook_form_FORM_ID_alter()
+ * 
+ * Alters the installation form.
  */
 function loopduplicateprofile_form_install_configure_form_alter(&$form, $form_state) {
 
