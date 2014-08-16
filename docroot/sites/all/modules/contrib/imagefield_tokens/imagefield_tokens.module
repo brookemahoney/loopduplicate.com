@@ -1,0 +1,225 @@
+<?php
+/**
+ * @file
+ * Implements image Alt and Title field defaults with support for tokens.
+ */
+
+/**
+ * Implements hook_field_info_alter().
+ */
+function imagefield_tokens_field_info_alter(&$info) {
+  $info['image']['instance_settings'] += array(
+    'alt_field_default' => '',
+    'alt_field_sync_title' => 0,
+    'alt_field_update_on_edit' => 0,
+    'alt_field_hide' => 0,
+    'title_field_default' => '',
+    'title_field_update_on_edit' => 0,
+    'title_field_hide' => 0,
+  );
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for field-ui-field-edit-form.
+ */
+function imagefield_tokens_form_field_ui_field_edit_form_alter(&$form, &$form_state) {
+  $field = $form['#field'];
+  if ($field['type'] == 'image') {
+    $instance = $form['#instance'];
+    $settings = $instance['settings'];
+    $form_settings = &$form['instance']['settings'];
+
+    $form_settings['alt_settings'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('<em>Alt</em> field settings'),
+      '#weight' => 11,
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#parents' => array('instance', 'settings'),
+      '#states' => array(
+        'visible' => array(
+          '#edit-instance-settings-alt-field' => array('checked' => TRUE),
+        ),
+      ),
+    );
+    $form_settings['alt_settings']['alt_field_sync_title'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Synchronize with <em>Title</em> field'),
+      '#description' => t('Replaces <em>Alt</em> field value with the <em>Title</em> field value (below) during node_save().'),
+      '#default_value' => $settings['alt_field_sync_title'],
+      '#states' => array(
+        'disabled' => array(
+          '#edit-instance-settings-title-field' => array('checked' => FALSE),
+        ),
+      ),
+    );
+    $form_settings['alt_settings']['alt_field_update_on_edit'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Update every edit'),
+      '#description' => t('Reevaluate the default value and replace <em>Alt</em> field value after each edit; recommended with tokens. Requires non-empty Default value.'),
+      '#default_value' => $settings['alt_field_update_on_edit'],
+    );
+    $form_settings['alt_settings']['alt_field_hide'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Hide field'),
+      '#description' => t('Hide the <em>Alt</em> field on node edit forms. Use with a Default value.'),
+      '#default_value' => $settings['alt_field_hide'],
+    );
+    $form_settings['alt_settings']['alt_field_default'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Default value'),
+      '#description' => t('Default field value. Used after image upload, and during node_save() when <em>Alt</em> field is empty. Tokens are replaced only during node_save().'),
+      '#default_value' => $settings['alt_field_default'],
+      '#size' => 60,
+      '#maxlength' => 128,
+    );
+    if (module_exists('token')) {
+      $form_settings['alt_settings']['token_help'] = array(
+        '#theme' => 'token_tree',
+        '#token_types' => array('node'),
+      );
+    }
+
+    $form_settings['title_field']['#weight'] = 12;
+    $form_settings['title_settings'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('<em>Title</em> field settings'),
+      '#weight' => 13,
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#parents' => array('instance', 'settings'),
+      '#states' => array(
+        'visible' => array(
+          '#edit-instance-settings-title-field' => array('checked' => TRUE),
+        ),
+      ),
+    );
+    $form_settings['title_settings']['title_field_update_on_edit'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Update every edit'),
+      '#description' => t('Reevaluate the default value and replace <em>Title</em> field value after each edit; recommended with tokens. Requires non-empty Default value.'),
+      '#default_value' => $settings['title_field_update_on_edit'],
+    );
+    $form_settings['title_settings']['title_field_hide'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Hide field'),
+      '#description' => t('Hide the <em>Title</em> field on node edit forms. Use with a Default value.'),
+      '#default_value' => $settings['title_field_hide'],
+    );
+    $form_settings['title_settings']['title_field_default'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Default value'),
+      '#description' => t('Default field value. Used after image upload, and during node_save() when <em>Title</em> field is empty. Tokens are replaced only during node_save().'),
+      '#default_value' => $settings['title_field_default'],
+      '#size' => 60,
+      '#maxlength' => 128,
+    );
+    if (module_exists('token')) {
+      $form_settings['title_settings']['token_help'] = array(
+        '#theme' => 'token_tree',
+        '#token_types' => array('node'),
+      );
+    }
+  }
+}
+
+/**
+ * Implements hook_field_widget_form_alter().
+ */
+function imagefield_tokens_field_widget_form_alter(&$element, &$form_state, $context) {
+  if ($context['field']['type'] == 'image') {
+    //$settings = $context['instance']['settings'];
+    foreach (element_children($element) as $delta) {
+      $element[$delta]['#process'][] = 'imagefield_tokens_field_widget_process';
+    }
+  }
+}
+
+/**
+ * An element #process callback for the image_image field type.
+ */
+function imagefield_tokens_field_widget_process($element, &$form_state, $form) {
+  $instance = field_info_instance($element['#entity_type'], $element['#field_name'], $element['#bundle']);
+  $settings = $instance['settings'];
+  $item = $element['#value'];
+
+  // Possibly prefill the alt and title fields.
+  $element['alt']['#default_value'] = isset($item['alt']) ? $item['alt'] : $settings['alt_field_default'];
+  $element['title']['#default_value'] = isset($item['title']) ? $item['title'] : $settings['title_field_default'];
+
+  // Possibly hide the alt and title fields.
+  if ($settings['alt_field_hide']) {
+    $element['alt']['#access'] = FALSE;
+  }
+  if ($settings['title_field_hide']) {
+    $element['title']['#access'] = FALSE;
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_field_attach_presave().
+ */
+function imagefield_tokens_field_attach_presave($entity_type, $entity) {
+  // Includes interation code from _field_invoke().
+
+  $options = array(
+    'default' => FALSE,
+    'deleted' => FALSE,
+    'language' => NULL,
+  );
+
+  // Get list of image fields
+  $image_fields = array();
+  foreach (field_info_fields() as $field) {
+    if ($field['type'] == 'image') {
+      $image_fields[] = $field['field_name'];
+    }
+  }
+
+  // Determine the list of instances to iterate on.
+  list(, , $bundle) = entity_extract_ids($entity_type, $entity);
+  $instances = _field_invoke_get_instances($entity_type, $bundle, $options);
+
+  foreach ($instances as $instance) {
+    if (in_array($instance['field_name'], $image_fields)) {
+      $field_name = $instance['field_name'];
+      $field = field_info_field($field_name);
+
+      // Determine the list of languages to iterate on.
+      $available_languages = field_available_languages($entity_type, $field);
+      $languages = _field_language_suggestion($available_languages, $options['language'], $field_name);
+
+      foreach ($languages as $langcode) {
+        if (isset($entity->{$field_name}[$langcode])) {
+          foreach ($entity->{$field_name}[$langcode] as &$field_data) {
+            $settings = $instance['settings'];
+
+            // If ("Update every edit" or title is empty) and a default is specified
+            if (($settings['title_field_update_on_edit'] || empty($field_data['title'])) && !empty($settings['title_field_default'])) {
+              $field_data['title'] = $settings['title_field_default'];
+            }
+            $field_data['title'] = token_replace($field_data['title'], array($entity_type => $entity), array('sanitize' => TRUE, 'clear' => TRUE));
+
+            // If Alt should equal title field, else same as above.
+            if ($settings['alt_field_sync_title']) {
+              $field_data['alt'] = $field_data['title'];
+            }
+            else {
+              if (($settings['alt_field_update_on_edit'] || empty($field_data['alt'])) && !empty($settings['alt_field_default'])) {
+                $field_data['alt'] = $settings['alt_field_default'];
+              }
+              $field_data['alt'] = token_replace($field_data['alt'], array($entity_type => $entity), array('sanitize' => TRUE, 'clear' => TRUE));
+            }
+
+            // Truncate fields to max allowed length. alt=512, title=1024 per image.install
+            $field_data['title'] = truncate_utf8($field_data['title'], 1024, TRUE, TRUE);
+            $field_data['alt'] = truncate_utf8($field_data['alt'], 512, TRUE, TRUE);
+          }
+        }
+      }
+    }
+  }
+}
+

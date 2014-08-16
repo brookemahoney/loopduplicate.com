@@ -57,6 +57,7 @@ dependencies[] = file_entity
 dependencies[] = flag
 dependencies[] = globalredirect
 dependencies[] = image_resize_filter
+dependencies[] = imagefield_tokens
 dependencies[] = jquery_update
 dependencies[] = libraries
 dependencies[] = link

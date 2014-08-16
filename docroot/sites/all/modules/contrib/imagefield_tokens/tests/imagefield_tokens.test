@@ -1,0 +1,49 @@
+<?php
+
+/**
+ * @file
+ * This file implements tests for ImageFiled Tokens.
+ */
+
+if (class_exists('FileFieldPathsTestCase') && class_exists('FileFieldTestCase') && class_exists('ImageFieldTestCase')) {
+  class ImageFieldTokensTestCase extends FileFieldTestCase {
+    /**
+     * Implementation of getInfo().
+     */
+    public static function getInfo() {
+      return array(
+        'name' => t('ImageField Tokens functionality'),
+        'description' => t('Test ImageField using ImageField Tokens in ALT and Title fields.'),
+        'group' => t('ImageField Tokens'),
+      );
+    }
+
+    /**
+     * Implementation of setUp().
+     */
+    function setUp() {
+      parent::setUp('imagefield', 'filefield_paths', 'imagefield_tokens');
+    }
+
+    function testUploadImage() {
+      // Create content type.
+      $type = $this->drupalCreateContentType();
+
+      // Create ImageField.
+      $field_name = 'field_'. drupal_strtolower($this->randomName());
+      ImageFieldTestCase::createImageField($field_name, $type->name, array(), array('alt' => '[title-raw]', 'title' => '[title-raw]'));
+
+      // Create a new node with the uploaded file.
+      $test_file = $this->getTestFile('image');
+      $nid = $this->uploadNodeFile($test_file, $field_name, $type->name);
+
+      // Load file.
+      $node = node_load($nid, NULL, TRUE);
+      $node_file = $node->{$field_name}[0];
+
+      // Check ALT and Title values.
+      $this->assertEqual($node_file['data']['alt'], $node->title, t('Make sure ALT field has been processed.'), 'ImageField Tokens');
+      $this->assertEqual($node_file['data']['title'], $node->title, t('Make sure Title field has been processed.'), 'ImageField Tokens');
+    }
+  }
+}
