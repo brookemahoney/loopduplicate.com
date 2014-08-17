@@ -27,6 +27,7 @@ dependencies[] = taxonomy
 ; Custom
 ;
 
+dependencies[] = loopduplicatedrupalmodule
 dependencies[] = loopduplicategeneralnode
 dependencies[] = loopduplicatepanelseverywhere
 dependencies[] = loopduplicateperms
