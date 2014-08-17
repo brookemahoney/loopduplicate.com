@@ -330,9 +330,17 @@ function loopduplicategeneralnode_field_default_field_instances() {
     ),
     'widget' => array(
       'active' => 1,
-      'module' => 'options',
-      'settings' => array(),
-      'type' => 'options_buttons',
+      'module' => 'select_or_other',
+      'settings' => array(
+        'available_options' => '',
+        'available_options_php' => '',
+        'markup_available_options_php' => '&lt;none&gt;',
+        'other' => 'Other',
+        'other_size' => 60,
+        'other_title' => '',
+        'other_unknown_defaults' => 'other',
+      ),
+      'type' => 'select_or_other_buttons',
       'weight' => 2,
     ),
   );

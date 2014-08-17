@@ -10,6 +10,7 @@ dependencies[] = link
 dependencies[] = loopduplicatetaxonomy
 dependencies[] = media
 dependencies[] = options
+dependencies[] = select_or_other
 dependencies[] = strongarm
 dependencies[] = taxonomy
 dependencies[] = text
