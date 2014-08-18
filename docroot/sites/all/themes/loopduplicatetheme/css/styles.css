@@ -6,6 +6,10 @@
  * of these @include files will be combined into a single file.
  */
 /* Import Sass mixins, variables, Compass modules, etc. */
+/**
+ * Placeholder selectors.
+ * @see http://sass-lang.com/documentation/file.SASS_REFERENCE.html#placeholder_selectors_
+ */
 /* HTML element (SMACSS base) rules */
 /**
  * @file
@@ -177,11 +181,11 @@ blockquote {
 /* line 182, ../sass/_normalize.scss */
 h1 {
   /* Set the font-size and line-height while keeping a proper vertical rhythm. */
-  font-size: 2.28571em;
-  line-height: 1.3125em;
+  font-size: 2em;
+  line-height: 1.5em;
   /* Set 1 unit of vertical rhythm on the top and bottom margins. */
-  margin-top: 0.65625em;
-  margin-bottom: 0.65625em;
+  margin-top: 0.75em;
+  margin-bottom: 0.75em;
 }
 
 /* line 190, ../sass/_normalize.scss */
@@ -194,10 +198,10 @@ h2 {
 
 /* line 195, ../sass/_normalize.scss */
 h3 {
-  font-size: 1.28571em;
-  line-height: 2.33333em;
-  margin-top: 1.16667em;
-  margin-bottom: 1.16667em;
+  font-size: 1.17em;
+  line-height: 1.28205em;
+  margin-top: 1.28205em;
+  margin-bottom: 1.28205em;
 }
 
 /* line 200, ../sass/_normalize.scss */
@@ -826,8 +830,8 @@ input[disabled="disabled"] {
 /* line 98, ../sass/components/_misc.scss */
 .header__site-name {
   margin: 0;
-  font-size: 2.28571em;
-  line-height: 1.3125em;
+  font-size: 2em;
+  line-height: 1.5em;
 }
 
 /* The link around the name of the website. */
