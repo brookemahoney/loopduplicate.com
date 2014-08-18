@@ -25,3 +25,7 @@
     }
   }
 }
+
+#page-header {
+  @include clearfix();
+}

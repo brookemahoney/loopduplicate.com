@@ -1575,6 +1575,11 @@ tr.selected td {
   outline: 1px solid #ccc;
 }
 
+/* line 29, ../sass/components/_zentheme.scss */
+#page-header {
+  overflow: hidden;
+}
+
 /* Print rules */
 /**
  * @file
