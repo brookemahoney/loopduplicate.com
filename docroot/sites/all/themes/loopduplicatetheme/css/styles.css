@@ -5,12 +5,33 @@
  * When you turn on CSS aggregation at admin/config/development/performance, all
  * of these @include files will be combined into a single file.
  */
-/* Import Sass mixins, variables, Compass modules, etc. */
+/* Variables and mixins. */
 /**
- * Placeholder selectors.
- * @see http://sass-lang.com/documentation/file.SASS_REFERENCE.html#placeholder_selectors_
+ * @file
+ * Custom sass mixins
+ * 
+ * Define the custom mixins for your project here.
+ * http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#defining_a_mixin
  */
-/* HTML element (SMACSS base) rules */
+/**
+ * Makes an element visually hidden, but accessible.
+ * @see http://snook.ca/archives/html_and_css/hiding-content-for-accessibility
+ */
+/* Turns off the element-invisible effect. */
+/* Makes an element visually hidden by default, but visible when focused. */
+/**
+ * Base rules.
+ * 
+ * 1. _normalize.scss
+ * It's suggested that you read the _normalize.scss file and customise it to
+ * meet your needs, rather then including the file in your project and
+ * overriding the defaults later in your CSS.
+ * @see http://nicolasgallagher.com/about-normalize-css/
+ * Uses the normalize file included in the Zen theme.
+ * 
+ * 2. _base.scss
+ * Base rules not asscociated with normalization.
+ */
 /**
  * @file
  * Normalize.css is intended to be used as an alternative to CSS resets.
@@ -580,6 +601,20 @@ table {
   margin-bottom: 1.5em;
 }
 
+/**
+ * @file
+ * from http://smacss.com/book/categorizing
+ * Base rules are the defaults. They are almost exclusively single element
+ * selectors but it could include attribute selectors, pseudo-class selectors,
+ * child selectors or sibling selectors. Essentially, a base style says that
+ * wherever this element is on the page, it should look like this.
+ */
+/* line 11, ../sass/_base.scss */
+input[disabled="disabled"] {
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
+  opacity: 0.5;
+}
+
 /* Layout rules */
 /**
  * @file
@@ -686,7 +721,7 @@ table {
 /* Component (SMACSS module) rules */
 /**
  * @file
- * SMACSS Modules
+ * Drupal SMACSS Modules
  *
  * Adds modular sets of styles.
  *
@@ -694,25 +729,10 @@ table {
  * https://drupal.org/node/1707736
  */
 /**
- * Wireframes.
- */
-/* line 22, ../sass/components/_misc.scss */
-.with-wireframes #header,
-.with-wireframes #main,
-.with-wireframes #content,
-.with-wireframes #navigation,
-.with-wireframes .region-sidebar-first,
-.with-wireframes .region-sidebar-second,
-.with-wireframes #footer,
-.with-wireframes .region-bottom {
-  outline: 1px solid #ccc;
-}
-
-/**
  * Accessibility features.
  */
 /* element-invisible as defined by http://snook.ca/archives/html_and_css/hiding-content-for-accessibility */
-/* line 40, ../sass/components/_misc.scss */
+/* line 17, ../sass/components/_drupalcore.scss */
 .element-invisible,
 .element-focusable,
 #navigation .block-menu .block__title,
@@ -725,7 +745,7 @@ table {
 }
 
 /* Turns off the element-invisible effect. */
-/* line 45, ../sass/components/_misc.scss */
+/* line 22, ../sass/components/_drupalcore.scss */
 .element-focusable:active, .element-focusable:focus {
   position: static !important;
   clip: auto;
@@ -737,11 +757,11 @@ table {
 /*
  * The skip-link link will be completely hidden until a user tabs to the link.
  */
-/* line 62, ../sass/components/_misc.scss */
+/* line 39, ../sass/components/_drupalcore.scss */
 #skip-link {
   margin: 0;
 }
-/* line 66, ../sass/components/_misc.scss */
+/* line 43, ../sass/components/_drupalcore.scss */
 #skip-link a,
 #skip-link a:visited {
   display: block;
@@ -756,7 +776,7 @@ table {
  * Branding header.
  */
 /* Wrapping link for logo. */
-/* line 81, ../sass/components/_misc.scss */
+/* line 58, ../sass/components/_drupalcore.scss */
 .header__logo {
   float: left;
   /* LTR */
@@ -765,19 +785,19 @@ table {
 }
 
 /* Logo image. */
-/* line 88, ../sass/components/_misc.scss */
+/* line 65, ../sass/components/_drupalcore.scss */
 .header__logo-image {
   vertical-align: bottom;
 }
 
 /* Wrapper for website name and slogan. */
-/* line 93, ../sass/components/_misc.scss */
+/* line 70, ../sass/components/_drupalcore.scss */
 .header__name-and-slogan {
   float: left;
 }
 
 /* The name of the website. */
-/* line 98, ../sass/components/_misc.scss */
+/* line 75, ../sass/components/_drupalcore.scss */
 .header__site-name {
   margin: 0;
   font-size: 2em;
@@ -785,31 +805,31 @@ table {
 }
 
 /* The link around the name of the website. */
-/* line 106, ../sass/components/_misc.scss */
+/* line 83, ../sass/components/_drupalcore.scss */
 .header__site-link:link, .header__site-link:visited {
   color: #000;
   text-decoration: none;
 }
-/* line 112, ../sass/components/_misc.scss */
+/* line 89, ../sass/components/_drupalcore.scss */
 .header__site-link:hover, .header__site-link:focus {
   text-decoration: underline;
 }
 
 /* The slogan (or tagline) of a website. */
-/* line 118, ../sass/components/_misc.scss */
+/* line 95, ../sass/components/_drupalcore.scss */
 .header__site-slogan {
   margin: 0;
 }
 
 /* The secondary menu (login, etc.) */
-/* line 123, ../sass/components/_misc.scss */
+/* line 100, ../sass/components/_drupalcore.scss */
 .header__secondary-menu {
   float: right;
   /* LTR */
 }
 
 /* Wrapper for any blocks placed in the header region. */
-/* line 128, ../sass/components/_misc.scss */
+/* line 105, ../sass/components/_drupalcore.scss */
 .header__region {
   /* Clear the logo. */
   clear: both;
@@ -818,17 +838,17 @@ table {
 /**
  * Navigation bar.
  */
-/* line 136, ../sass/components/_misc.scss */
+/* line 113, ../sass/components/_drupalcore.scss */
 #navigation {
   /* Sometimes you want to prevent overlapping with main div. */
   /* overflow: hidden; */
   /* Main menu and secondary menu links and menu block links. */
 }
-/* line 140, ../sass/components/_misc.scss */
+/* line 117, ../sass/components/_drupalcore.scss */
 #navigation .block {
   margin-bottom: 0;
 }
-/* line 151, ../sass/components/_misc.scss */
+/* line 128, ../sass/components/_drupalcore.scss */
 #navigation .links,
 #navigation .menu {
   margin: 0;
@@ -836,7 +856,7 @@ table {
   text-align: left;
   /* LTR */
 }
-/* line 156, ../sass/components/_misc.scss */
+/* line 133, ../sass/components/_drupalcore.scss */
 #navigation .links li,
 #navigation .menu li {
   /* A simple method to get navigation links to appear in one line. */
@@ -851,12 +871,12 @@ table {
 /**
  * Breadcrumb navigation.
  */
-/* line 170, ../sass/components/_misc.scss */
+/* line 147, ../sass/components/_drupalcore.scss */
 .breadcrumb ol {
   margin: 0;
   padding: 0;
 }
-/* line 174, ../sass/components/_misc.scss */
+/* line 151, ../sass/components/_drupalcore.scss */
 .breadcrumb li {
   display: inline;
   list-style-type: none;
@@ -867,7 +887,7 @@ table {
 /**
  * Titles.
  */
-/* line 190, ../sass/components/_misc.scss */
+/* line 167, ../sass/components/_drupalcore.scss */
 .page__title,
 .node__title,
 .block__title,
@@ -881,7 +901,7 @@ table {
 /**
  * Messages.
  */
-/* line 197, ../sass/components/_misc.scss */
+/* line 174, ../sass/components/_drupalcore.scss */
 .messages, .messages--status, .messages--warning, .messages--error {
   margin: 1.5em 0;
   padding: 10px 10px 10px 50px;
@@ -893,50 +913,50 @@ table {
   border: 1px solid #be7;
 }
 
-/* line 212, ../sass/components/_misc.scss */
+/* line 189, ../sass/components/_drupalcore.scss */
 .messages--warning {
   background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAACuElEQVRIiWP4//8/Ay0xSYqntTpnT252zqeJBf0Njhsykrz/pyd6/e9vcNpGVQv6q2wlm0qc/r0+IPD/3UG+/61l9v9mdrjIUc2C7hqHUzc3S///eZwBjO9tF/vfWe1wjioWTKixVm8otPn38wQT3IKfxxn/t5Va/utpsNSg2ILWcttrNzdJgQ3+dpQRjEHs+9tE/zeXWt+gyILOamuTqlxrsOtPLub+7+emBsSq/88v5wL7oqHQ9H9nmbkF2RbUF1rev7lJEuziuU3i/90ddcB4UZsoJC62ifyvK7R4QJYFrcUGrmUZ5v9hYb9hosh/bzcDMN42VRgeF9W5hv8bi/XdSbagKtfs2c1NEvCIPbaQ/7+/pwkYn17Ki0hR24T/l2eZPCfJgsZ83dCiNOP/yCnn7iau/8G+5mD8aBsHSoqqyNL9X5erHUm0BcVpRm9ubhZHMoTh/4eDzP/DA23+RwTZ/P96hAlF7t5Wof8FyfpvibKgNk8noyDZ4D9quofg1Bjr/1kJlhjiIF+Upmn/r83RzCJoQXaC3qcbm8SwGMLwvybP/H8jMGlik7u7VeB/Zqz2J7wWVGdr1uTG62J1PQgfWST1/+hiCaxyIF8UJqv9r8hQrcVpQVqkzrcbG0WwGvB2H/P/lnx5MAaxsam5vYn3f2KY+jesFpSlqfZnxWjidP2OGWL/g/0swBjExu4Lhv958Ur/i5KU+lEsCA1lYI4JUv95bZ0gTo2Pt3P+z0myBmMQG5e6mxu4/kf4Kf8EmQm3oCRNebKrvSawIGPBqRG9sMOp5hjjfwdrlf/58bKT4RaUpWvtcLZV/39iscD/H0AFP46jYwYiMeP/44u4/9tbKQODSXUH3II9G7v18hI0n8YGKv+IDVT6joxj/BVx4mgcOCde/SnITPRUJAHEGlTCEkQV19TAAN8FC67hZdFXAAAAAElFTkSuQmCC');
   border-color: #ed5;
 }
 
-/* line 221, ../sass/components/_misc.scss */
+/* line 198, ../sass/components/_drupalcore.scss */
 .messages--error {
   background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAACpElEQVR42rWWTUgbQRiGQ0Tx4MWDeFM8eBA9iKAoggiCoCiiIiL4L3oQV1CJB0UEf6iRYFpK7UniTw9VSqL2kvQsVDBpSZrtRo35czVNW3oprRf17exSl4yzu1ikAy9h59vvedhkMrMGAGoxknAk2w8MJ/WosXThiZkZt9jdLeglPjn5ATc3mhJNuNjbK0QbG3ExMICL/n6IfX0gcxB7ekDAELu6IHZ2IlJbi1hLS1BLogmPtbUhMTv7oMSamzUlqnByMxLT0/8STQkDj9TV4ZLj5OysrODl8jIu5Gs68dFR7JG6dWkJ0fFx+TpSX89IDMnwcHU1yKec12Yz3rlc4HkeLwjkXJpPip3U3+7vIx6P4ymph4eG5PlwTQ0lMdytlmBxMWKtrXLeT0zA5XTibvj9fjxfXETkb/3N/Dz2dneVuiTZtliU/rPSUsQ5ziuxZYG03IIlJdKKUPJjdRUAKMmzuTnskB/VYbdTtd9HR4g2NCi9Z2VliDY1BSnBaUEBzsrLqXyzWCiQ9HU5HA4afniIUFWV0hOqqMBpURErOM7NxWlhIZOvCwvA7S3Uxq+DA5AnZ3pO8vJYQSArC8c5Oeqx2Rj4udeLQH6+6v2B7GxW8DkjA0JmJpONwUHY7XZGIAgCzCYTeJUewmIFfqMRfEoKlQ2yJbza2oLWcLvdeDI2hk/3+iQWKzAYkJzNjg5srq9TwJ9OJ76YTNScx+ORJT66X1/grKyEbW2NgfPp6XKd/JMZySrHaQsSU1Oe+0/w3WpVgyu5HBlR6lc+H8gioevDwz6JrWwV5+3txyoSFk5DcOX1MnCyJ4Vwfb1zt1UY9SR8aioDpuppaVpwZbPTl+hHF04dOKzk8XBF8DgJC3/woU/W/EciOtELOWi8DDwp//215Q+p7kiKh2lQSAAAAABJRU5ErkJggg==');
   border-color: #ed541d;
 }
 
-/* line 231, ../sass/components/_misc.scss */
+/* line 208, ../sass/components/_drupalcore.scss */
 .messages__list {
   margin: 0;
 }
 
-/* line 234, ../sass/components/_misc.scss */
+/* line 211, ../sass/components/_drupalcore.scss */
 .messages__item {
   list-style-image: none;
 }
 
 /* Core/module installation error messages. */
-/* line 239, ../sass/components/_misc.scss */
+/* line 216, ../sass/components/_drupalcore.scss */
 .messages--error p.error {
   color: #333;
 }
 
 /* System status report. */
-/* line 245, ../sass/components/_misc.scss */
+/* line 222, ../sass/components/_drupalcore.scss */
 .ok,
 .messages--status {
   background-color: #f8fff0;
   color: #234600;
 }
 
-/* line 250, ../sass/components/_misc.scss */
+/* line 227, ../sass/components/_drupalcore.scss */
 .warning,
 .messages--warning {
   background-color: #fffce5;
   color: #840;
 }
 
-/* line 255, ../sass/components/_misc.scss */
+/* line 232, ../sass/components/_drupalcore.scss */
 .error,
 .messages--error {
   background-color: #fef5f1;
@@ -947,7 +967,7 @@ table {
  * Tabs.
  */
 /* Basic positioning styles shared by primary and secondary tabs. */
-/* line 265, ../sass/components/_misc.scss */
+/* line 242, ../sass/components/_drupalcore.scss */
 .tabs-primary, .tabs-secondary {
   overflow: hidden;
   background-image: -webkit-gradient(linear, 50% 100%, 50% 0%, color-stop(100%, #bbbbbb), color-stop(100%, transparent));
@@ -963,7 +983,7 @@ table {
   white-space: nowrap;
 }
 
-/* line 275, ../sass/components/_misc.scss */
+/* line 252, ../sass/components/_drupalcore.scss */
 .tabs-primary__tab, .tabs-primary__tab.is-active, .tabs-secondary__tab,
 .tabs-secondary__tab.is-active {
   float: left;
@@ -971,7 +991,7 @@ table {
   margin: 0 3px;
 }
 
-/* line 279, ../sass/components/_misc.scss */
+/* line 256, ../sass/components/_drupalcore.scss */
 a.tabs-primary__tab-link, a.tabs-primary__tab-link.is-active, a.tabs-secondary__tab-link, a.tabs-secondary__tab-link.is-active {
   border: 1px solid #e9e9e9;
   border-right: 0;
@@ -982,7 +1002,7 @@ a.tabs-primary__tab-link, a.tabs-primary__tab-link.is-active, a.tabs-secondary__
 }
 
 /* Primary tabs. */
-/* line 292, ../sass/components/_misc.scss */
+/* line 269, ../sass/components/_drupalcore.scss */
 .tabs-primary__tab, .tabs-primary__tab.is-active {
   -moz-border-radius-topleft: 4px;
   -webkit-border-top-left-radius: 4px;
@@ -997,12 +1017,12 @@ a.tabs-primary__tab-link, a.tabs-primary__tab-link.is-active, a.tabs-secondary__
   border-bottom: 0 \0/ie;
 }
 
-/* line 301, ../sass/components/_misc.scss */
+/* line 278, ../sass/components/_drupalcore.scss */
 .is-active.tabs-primary__tab {
   border-bottom-color: white;
 }
 
-/* line 307, ../sass/components/_misc.scss */
+/* line 284, ../sass/components/_drupalcore.scss */
 a.tabs-primary__tab-link, a.tabs-primary__tab-link.is-active {
   -moz-border-radius-topleft: 4px;
   -webkit-border-top-left-radius: 4px;
@@ -1021,13 +1041,13 @@ a.tabs-primary__tab-link, a.tabs-primary__tab-link.is-active {
   text-align: center;
 }
 
-/* line 317, ../sass/components/_misc.scss */
+/* line 294, ../sass/components/_drupalcore.scss */
 a.tabs-primary__tab-link:hover, a.tabs-primary__tab-link:focus {
   background-color: #e9e9e9;
   border-color: #f2f2f2;
 }
 
-/* line 321, ../sass/components/_misc.scss */
+/* line 298, ../sass/components/_drupalcore.scss */
 a.tabs-primary__tab-link:active, a.tabs-primary__tab-link.is-active {
   background-color: transparent;
   filter: progid:DXImageTransform.Microsoft.gradient(gradientType=0, startColorstr='#FFE9E9E9', endColorstr='#00E9E9E9');
@@ -1040,20 +1060,20 @@ a.tabs-primary__tab-link:active, a.tabs-primary__tab-link.is-active {
 }
 
 /* Secondary tabs. */
-/* line 345, ../sass/components/_misc.scss */
+/* line 322, ../sass/components/_drupalcore.scss */
 .tabs-secondary {
   font-size: .9em;
   /* Collapse bottom margin of ul.primary. */
   margin-top: -1.5em;
 }
 
-/* line 352, ../sass/components/_misc.scss */
+/* line 329, ../sass/components/_drupalcore.scss */
 .tabs-secondary__tab,
 .tabs-secondary__tab.is-active {
   margin: 0.75em 3px;
 }
 
-/* line 358, ../sass/components/_misc.scss */
+/* line 335, ../sass/components/_drupalcore.scss */
 a.tabs-secondary__tab-link, a.tabs-secondary__tab-link.is-active {
   -webkit-border-radius: 0.75em;
   -moz-border-radius: 0.75em;
@@ -1070,14 +1090,14 @@ a.tabs-secondary__tab-link, a.tabs-secondary__tab-link.is-active {
   padding: 0 .5em;
 }
 
-/* line 367, ../sass/components/_misc.scss */
+/* line 344, ../sass/components/_drupalcore.scss */
 a.tabs-secondary__tab-link:hover, a.tabs-secondary__tab-link:focus {
   background-color: #dedede;
   border-color: #999;
   color: #333;
 }
 
-/* line 372, ../sass/components/_misc.scss */
+/* line 349, ../sass/components/_drupalcore.scss */
 a.tabs-secondary__tab-link:active, a.tabs-secondary__tab-link.is-active {
   text-shadow: 1px 1px 0 #333333;
   background-color: #666;
@@ -1089,12 +1109,12 @@ a.tabs-secondary__tab-link:active, a.tabs-secondary__tab-link.is-active {
  * Inline styles.
  */
 /* List of links generated by theme_links(). */
-/* line 400, ../sass/components/_misc.scss */
+/* line 377, ../sass/components/_drupalcore.scss */
 .inline {
   display: inline;
   padding: 0;
 }
-/* line 404, ../sass/components/_misc.scss */
+/* line 381, ../sass/components/_drupalcore.scss */
 .inline li {
   display: inline;
   list-style-type: none;
@@ -1103,7 +1123,7 @@ a.tabs-secondary__tab-link:active, a.tabs-secondary__tab-link.is-active {
 }
 
 /* The inline field label used by the Fences module. */
-/* line 412, ../sass/components/_misc.scss */
+/* line 389, ../sass/components/_drupalcore.scss */
 span.field-label {
   padding: 0 1em 0 0;
   /* LTR */
@@ -1112,19 +1132,19 @@ span.field-label {
 /**
  * "More" links.
  */
-/* line 419, ../sass/components/_misc.scss */
+/* line 396, ../sass/components/_drupalcore.scss */
 .more-link {
   text-align: right;
   /* LTR */
 }
 
-/* line 422, ../sass/components/_misc.scss */
+/* line 399, ../sass/components/_drupalcore.scss */
 .more-help-link {
   text-align: right;
   /* LTR */
 }
 
-/* line 425, ../sass/components/_misc.scss */
+/* line 402, ../sass/components/_drupalcore.scss */
 .more-help-link a {
   background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA7UlEQVR42qWTPQqDQBCFcwSPkCNITpAj5AjeIm1uYpkyR7Cy2Mot7OwsBAsRwUKwmOwLGRle3EIy8PyBfZ/z3J2TiPylz8VWWZZpUB40BonRKyizaxkA88MYYiqCEgv4MTvnZJom0VqWRbz3FlJZgLYtqmEY1Lg9r+sKsIXcLSC3AC019H0vqLquLeC5AfiHYSGkcdAJimKIBQiJ4+CO92OAtm0FNc8zOjkMwE5Q63FAtbeg6zpAYvG8BWR7i5qmQYwY4MIHqYhE2DOPQWcGJBQF2XU72ZzyUeZ5GCNt5/hybJgYdAXsq5sOEE/jG6dC5IOqCXTmAAAAAElFTkSuQmCC');
   background-position: 0 50%;
@@ -1138,14 +1158,14 @@ span.field-label {
  * Pager.
  */
 /* A list of page numbers when more than 1 page of content is available. */
-/* line 440, ../sass/components/_misc.scss */
+/* line 417, ../sass/components/_drupalcore.scss */
 .pager {
   clear: both;
   padding: 0;
   text-align: center;
 }
 
-/* line 445, ../sass/components/_misc.scss */
+/* line 422, ../sass/components/_drupalcore.scss */
 .pager-item,
 .pager-first,
 .pager-previous,
@@ -1158,7 +1178,7 @@ span.field-label {
   background-image: none;
 }
 
-/* line 457, ../sass/components/_misc.scss */
+/* line 434, ../sass/components/_drupalcore.scss */
 .pager-item,
 .pager-first,
 .pager-previous,
@@ -1169,7 +1189,7 @@ span.field-label {
 }
 
 /* The current page's list item. */
-/* line 462, ../sass/components/_misc.scss */
+/* line 439, ../sass/components/_drupalcore.scss */
 .pager-current {
   font-weight: bold;
 }
@@ -1178,7 +1198,7 @@ span.field-label {
  * Blocks.
  */
 /* Block wrapper. */
-/* line 472, ../sass/components/_misc.scss */
+/* line 449, ../sass/components/_drupalcore.scss */
 .block {
   margin-bottom: 1.5em;
 }
@@ -1186,19 +1206,19 @@ span.field-label {
 /**
  * Menus.
  */
-/* line 479, ../sass/components/_misc.scss */
+/* line 456, ../sass/components/_drupalcore.scss */
 .menu__item.is-leaf {
   list-style-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHBAMAAAA2fErgAAAAD1BMVEX///+/v7+Li4sAAADAwMBFvsw8AAAAAXRSTlMAQObYZgAAAB1JREFUCFtjYAADYwMGBmYVZSDhKAwkFJWhYiAAAB2+Aa/9ugeaAAAAAElFTkSuQmCC');
   list-style-type: square;
 }
 
-/* line 486, ../sass/components/_misc.scss */
+/* line 463, ../sass/components/_drupalcore.scss */
 .menu__item.is-expanded {
   list-style-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHAQMAAAD+nMWQAAAABlBMVEX///8AAABVwtN+AAAAAXRSTlMAQObYZgAAABJJREFUeJxj+MdQw2DBIMAABgAUsAHD3c3BpwAAAABJRU5ErkJggg==');
   list-style-type: circle;
 }
 
-/* line 493, ../sass/components/_misc.scss */
+/* line 470, ../sass/components/_drupalcore.scss */
 .menu__item.is-collapsed {
   list-style-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHAQMAAAD+nMWQAAAABlBMVEX///8AAABVwtN+AAAAAXRSTlMAQObYZgAAABFJREFUCB1jVmCGQClmEWYOAAZ8AMy3HPLXAAAAAElFTkSuQmCC');
   /* LTR */
@@ -1206,7 +1226,7 @@ span.field-label {
 }
 
 /* The active item in a Drupal menu. */
-/* line 502, ../sass/components/_misc.scss */
+/* line 479, ../sass/components/_drupalcore.scss */
 .menu a.active {
   color: #000;
 }
@@ -1215,7 +1235,7 @@ span.field-label {
  * Marker.
  */
 /* The "new" or "updated" marker. */
-/* line 512, ../sass/components/_misc.scss */
+/* line 489, ../sass/components/_drupalcore.scss */
 .new,
 .update {
   color: #c00;
@@ -1227,7 +1247,7 @@ span.field-label {
  * Unpublished note.
  */
 /* The word "Unpublished" displayed underneath the content. */
-/* line 523, ../sass/components/_misc.scss */
+/* line 500, ../sass/components/_drupalcore.scss */
 .unpublished {
   height: 0;
   overflow: visible;
@@ -1248,31 +1268,31 @@ span.field-label {
  * Comments.
  */
 /* Wrapper for the list of comments and its title. */
-/* line 551, ../sass/components/_misc.scss */
+/* line 528, ../sass/components/_drupalcore.scss */
 .comments {
   margin: 1.5em 0;
 }
 
 /* Preview of the comment before submitting new or updated comment. */
-/* line 556, ../sass/components/_misc.scss */
+/* line 533, ../sass/components/_drupalcore.scss */
 .comment-preview {
   /* Drupal core will use a #ffffea background. See #1110842. */
   background-color: #ffffea;
 }
 
 /* Wrapper for a single comment. */
-/* line 562, ../sass/components/_misc.scss */
+/* line 539, ../sass/components/_drupalcore.scss */
 .comment {
   /* Comment's permalink wrapper. */
 }
-/* line 565, ../sass/components/_misc.scss */
+/* line 542, ../sass/components/_drupalcore.scss */
 .comment .permalink {
   text-transform: uppercase;
   font-size: 75%;
 }
 
 /* Nested comments are indented. */
-/* line 572, ../sass/components/_misc.scss */
+/* line 549, ../sass/components/_drupalcore.scss */
 .indented {
   /* Drupal core uses a 25px left margin. */
   margin-left: 30px;
@@ -1283,7 +1303,7 @@ span.field-label {
  * Forms.
  */
 /* Wrapper for a form element (or group of form elements) and its label. */
-/* line 582, ../sass/components/_misc.scss */
+/* line 559, ../sass/components/_drupalcore.scss */
 .form-item {
   margin: 1.5em 0;
   /* Pack groups of checkboxes and radio buttons closer together. */
@@ -1291,47 +1311,47 @@ span.field-label {
   /* Highlight the form elements that caused a form submission error. */
   /* The descriptive help text (separate from the label). */
 }
-/* line 587, ../sass/components/_misc.scss */
+/* line 564, ../sass/components/_drupalcore.scss */
 .form-checkboxes .form-item, .form-radios .form-item {
   /* Drupal core uses "0.4em 0". */
   margin: 0;
 }
-/* line 594, ../sass/components/_misc.scss */
+/* line 571, ../sass/components/_drupalcore.scss */
 tr.odd .form-item, tr.even .form-item {
   margin: 0;
 }
-/* line 601, ../sass/components/_misc.scss */
+/* line 578, ../sass/components/_drupalcore.scss */
 .form-item input.error,
 .form-item textarea.error,
 .form-item select.error {
   border: 1px solid #c00;
 }
-/* line 606, ../sass/components/_misc.scss */
+/* line 583, ../sass/components/_drupalcore.scss */
 .form-item .description {
   font-size: 0.85em;
 }
 
-/* line 613, ../sass/components/_misc.scss */
+/* line 590, ../sass/components/_drupalcore.scss */
 .form-type-radio .description,
 .form-type-checkbox .description {
   margin-left: 2.4em;
 }
 
 /* The part of the label that indicates a required field. */
-/* line 619, ../sass/components/_misc.scss */
+/* line 596, ../sass/components/_drupalcore.scss */
 .form-required {
   color: #c00;
 }
 
 /* Labels for radios and checkboxes. */
-/* line 624, ../sass/components/_misc.scss */
+/* line 601, ../sass/components/_drupalcore.scss */
 label.option {
   display: inline;
   font-weight: normal;
 }
 
 /* Buttons used by contrib modules like Media. */
-/* line 630, ../sass/components/_misc.scss */
+/* line 607, ../sass/components/_drupalcore.scss */
 a.button {
   -webkit-appearance: button;
   -moz-appearance: button;
@@ -1339,14 +1359,14 @@ a.button {
 }
 
 /* Password confirmation. */
-/* line 636, ../sass/components/_misc.scss */
+/* line 613, ../sass/components/_drupalcore.scss */
 .password-parent,
 .confirm-parent {
   margin: 0;
 }
 
 /* Drupal's default login form block. */
-/* line 641, ../sass/components/_misc.scss */
+/* line 618, ../sass/components/_drupalcore.scss */
 #user-login-form {
   text-align: left;
   /* LTR */
@@ -1359,20 +1379,20 @@ a.button {
  * styling of list items.
  */
 /* OpenID creates a new ul above the login form's links. */
-/* line 653, ../sass/components/_misc.scss */
+/* line 630, ../sass/components/_drupalcore.scss */
 .openid-links {
   /* Position OpenID's ul next to the rest of the links. */
   margin-bottom: 0;
 }
 
 /* The "Log in using OpenID" and "Cancel OpenID login" links. */
-/* line 660, ../sass/components/_misc.scss */
+/* line 637, ../sass/components/_drupalcore.scss */
 .openid-link,
 .user-link {
   margin-top: 1.5em;
 }
 
-/* line 664, ../sass/components/_misc.scss */
+/* line 641, ../sass/components/_drupalcore.scss */
 html.js #user-login-form li.openid-link,
 #user-login-form li.openid-link {
   /* Un-do some of the padding on the ul list. */
@@ -1380,7 +1400,7 @@ html.js #user-login-form li.openid-link,
   /* LTR */
 }
 
-/* line 668, ../sass/components/_misc.scss */
+/* line 645, ../sass/components/_drupalcore.scss */
 #user-login ul {
   margin: 1.5em 0;
 }
@@ -1388,7 +1408,7 @@ html.js #user-login-form li.openid-link,
 /**
  * Drupal admin tables.
  */
-/* line 676, ../sass/components/_misc.scss */
+/* line 653, ../sass/components/_drupalcore.scss */
 form th {
   text-align: left;
   /* LTR */
@@ -1396,16 +1416,16 @@ form th {
   /* LTR */
   border-bottom: 3px solid #ccc;
 }
-/* line 681, ../sass/components/_misc.scss */
+/* line 658, ../sass/components/_drupalcore.scss */
 form tbody {
   border-top: 1px solid #ccc;
 }
-/* line 684, ../sass/components/_misc.scss */
+/* line 661, ../sass/components/_drupalcore.scss */
 form table ul {
   margin: 0;
 }
 
-/* line 689, ../sass/components/_misc.scss */
+/* line 666, ../sass/components/_drupalcore.scss */
 tr.even,
 tr.odd {
   background-color: #eee;
@@ -1413,26 +1433,26 @@ tr.odd {
   padding: 0.1em 0.6em;
 }
 
-/* line 694, ../sass/components/_misc.scss */
+/* line 671, ../sass/components/_drupalcore.scss */
 tr.even {
   background-color: #fff;
 }
 
 /* Markup generated by theme_tablesort_indicator(). */
-/* line 709, ../sass/components/_misc.scss */
+/* line 686, ../sass/components/_drupalcore.scss */
 td.active {
   background-color: #ddd;
 }
 
 /* Center checkboxes inside table cell. */
-/* line 715, ../sass/components/_misc.scss */
+/* line 692, ../sass/components/_drupalcore.scss */
 td.checkbox,
 th.checkbox {
   text-align: center;
 }
 
 /* Drupal core wrongly puts this in system.menus.css. Since we override that, add it back. */
-/* line 720, ../sass/components/_misc.scss */
+/* line 697, ../sass/components/_drupalcore.scss */
 td.menu-disabled {
   background: #ccc;
 }
@@ -1443,7 +1463,7 @@ td.menu-disabled {
  * @see autocomplete.js
  */
 /* Suggestion list. */
-/* line 731, ../sass/components/_misc.scss */
+/* line 708, ../sass/components/_drupalcore.scss */
 #autocomplete .selected {
   background: #0072b9;
   color: #fff;
@@ -1454,7 +1474,7 @@ td.menu-disabled {
  *
  * @see collapse.js
  */
-/* line 742, ../sass/components/_misc.scss */
+/* line 719, ../sass/components/_drupalcore.scss */
 html.js .collapsible .fieldset-legend {
   background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHAQMAAAD+nMWQAAAABlBMVEX///8AAABVwtN+AAAAAXRSTlMAQObYZgAAABJJREFUeJxj+MdQw2DBIMAABgAUsAHD3c3BpwAAAABJRU5ErkJggg==');
   background-position: 5px 65%;
@@ -1463,14 +1483,14 @@ html.js .collapsible .fieldset-legend {
   padding-left: 15px;
   /* LTR */
 }
-/* line 751, ../sass/components/_misc.scss */
+/* line 728, ../sass/components/_drupalcore.scss */
 html.js .collapsed .fieldset-legend {
   background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHAQMAAAD+nMWQAAAABlBMVEX///8AAABVwtN+AAAAAXRSTlMAQObYZgAAABFJREFUCB1jVmCGQClmEWYOAAZ8AMy3HPLXAAAAAElFTkSuQmCC');
   /* LTR */
   background-position: 5px 50%;
   /* LTR */
 }
-/* line 758, ../sass/components/_misc.scss */
+/* line 735, ../sass/components/_drupalcore.scss */
 .fieldset-legend .summary {
   color: #999;
   font-size: 0.9em;
@@ -1482,17 +1502,17 @@ html.js .collapsed .fieldset-legend {
  *
  * @see tabledrag.js
  */
-/* line 770, ../sass/components/_misc.scss */
+/* line 747, ../sass/components/_drupalcore.scss */
 tr.drag {
   background-color: #fffff0;
 }
 
-/* line 773, ../sass/components/_misc.scss */
+/* line 750, ../sass/components/_drupalcore.scss */
 tr.drag-previous {
   background-color: #ffd;
 }
 
-/* line 776, ../sass/components/_misc.scss */
+/* line 753, ../sass/components/_drupalcore.scss */
 .tabledrag-toggle-weight {
   font-size: 0.9em;
 }
@@ -1502,7 +1522,7 @@ tr.drag-previous {
  *
  * @see tableselect.js
  */
-/* line 785, ../sass/components/_misc.scss */
+/* line 762, ../sass/components/_drupalcore.scss */
 tr.selected td {
   background: #ffc;
 }
@@ -1512,11 +1532,11 @@ tr.selected td {
  *
  * @see progress.js
  */
-/* line 794, ../sass/components/_misc.scss */
+/* line 771, ../sass/components/_drupalcore.scss */
 .progress {
   font-weight: bold;
 }
-/* line 797, ../sass/components/_misc.scss */
+/* line 774, ../sass/components/_drupalcore.scss */
 .progress .bar {
   background: #ccc;
   border-color: #666;
@@ -1527,7 +1547,7 @@ tr.selected td {
   -o-border-radius: 3px;
   border-radius: 3px;
 }
-/* line 803, ../sass/components/_misc.scss */
+/* line 780, ../sass/components/_drupalcore.scss */
 .progress .filled {
   background-color: #0072b9;
   background-image: url('../images/progress.gif?1407638986');
@@ -1535,12 +1555,26 @@ tr.selected td {
 
 /* No files to import found in components/fields/* */
 /* No files to import found in components/nodes/* */
-/* line 1, ../sass/components/_page.scss */
-#page-header {
-  overflow: hidden;
+/* No files to import found in components/panes/* */
+/**
+ * @file
+ * Rules for Zen theme's features.
+ */
+/**
+ * Wireframes.
+ */
+/* line 17, ../sass/components/_zentheme.scss */
+.with-wireframes #header,
+.with-wireframes #main,
+.with-wireframes #content,
+.with-wireframes #navigation,
+.with-wireframes .region-sidebar-first,
+.with-wireframes .region-sidebar-second,
+.with-wireframes #footer,
+.with-wireframes .region-bottom {
+  outline: 1px solid #ccc;
 }
 
-/* No files to import found in components/panes/* */
 /* Print rules */
 /**
  * @file

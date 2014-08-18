@@ -1,35 +1,12 @@
 /**
  * @file
- * SMACSS Modules
+ * Drupal SMACSS Modules
  *
  * Adds modular sets of styles.
  *
  * Additional useful selectors can be found in Zen's online documentation.
  * https://drupal.org/node/1707736
  */
-
-/**
- * Wireframes.
- */
-.with-wireframes {
-  #header,
-  #main,
-  #content,
-  #navigation,
-  .region-sidebar-first,
-  .region-sidebar-second,
-  #footer,
-  .region-bottom {
-    outline: 1px solid #ccc;
-
-    @if $legacy-support-for-ie6 or $legacy-support-for-ie7 {
-      .lt-ie8 & {
-        /* IE6/7 do not support the outline property. */
-        border: 1px solid #ccc;
-      }
-    }
-  }
-}
 
 /**
  * Accessibility features.
