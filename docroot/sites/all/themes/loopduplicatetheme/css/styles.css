@@ -580,55 +580,6 @@ table {
   margin-bottom: 1.5em;
 }
 
-/* line 1, ../sass/_base.scss */
-h1 {
-  color: #bf3f00;
-  font-weight: bold;
-}
-@media (max-width: 600px) {
-  /* line 1, ../sass/_base.scss */
-  h1 {
-    font-size: 24px;
-  }
-}
-
-/* line 8, ../sass/_base.scss */
-h2, h3, h4, h5, h6 {
-  color: #111c24;
-  font-weight: bold;
-  line-height: 1.3em;
-}
-
-/* line 14, ../sass/_base.scss */
-button,
-.button {
-  background-color: #ff5400;
-  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ff5400), color-stop(100%, #bf3f00));
-  background-image: -webkit-linear-gradient(#ff5400, #bf3f00);
-  background-image: -moz-linear-gradient(#ff5400, #bf3f00);
-  background-image: -o-linear-gradient(#ff5400, #bf3f00);
-  background-image: linear-gradient(#ff5400, #bf3f00);
-  border: 1px solid #ddd;
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  -ms-border-radius: 5px;
-  -o-border-radius: 5px;
-  border-radius: 5px;
-  color: #fff;
-  font-size: 16px;
-  height: 30px;
-  min-width: 60px;
-  padding: 3px 10px;
-  text-align: center;
-  text-decoration: none;
-}
-
-/* line 27, ../sass/_base.scss */
-input[disabled="disabled"] {
-  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
-  opacity: 0.5;
-}
-
 /* Layout rules */
 /**
  * @file
@@ -733,7 +684,6 @@ input[disabled="disabled"] {
 }
 
 /* Component (SMACSS module) rules */
-/* Loads misc first as it contains many @extends */
 /**
  * @file
  * SMACSS Modules
@@ -1591,6 +1541,7 @@ tr.selected td {
 }
 
 /* No files to import found in components/panes/* */
+/* Print rules */
 /**
  * @file
  * Print styling

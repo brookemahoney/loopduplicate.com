@@ -11,23 +11,24 @@
 
 /* HTML element (SMACSS base) rules */
 @import "normalize";
-@import "base";
 
 /* Layout rules */
 @import "layouts/responsive";
 
 /* Component (SMACSS module) rules */
-/* Loads misc first as it contains many @extends */
 @import "components/misc";
 
 @import "components/comment";
+@import "components/field";
 @import "components/fields/*";
 @import "components/flag";
 @import "components/menu";
+@import "components/node";
 @import "components/nodes/*";
 @import "components/page";
 @import "components/pane";
 @import "components/panes/*";
 @import "components/search";
-// Optionally, add your own components here.
+
+/* Print rules */
 @import "print";

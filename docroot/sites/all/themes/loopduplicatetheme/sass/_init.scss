@@ -7,7 +7,7 @@
 // This initialization partial is organized in this way:
 // - First we set any shared Sass variables.
 // - Next we import Compass plug-ins (Sass mixin libraries).
-// - Last we define our custom mixins for this theme.
+// - Last we define our custom mixins and placeholder selectors.
 //
 
 
@@ -112,7 +112,6 @@ $screen-md: 768px;
 $screen-lg: 960px;
 
 // Colors.
-$dark: #111c24;
 $btorange: #ff5400;
 $btorange-dark: mix(black, $btorange, 25%);
 
