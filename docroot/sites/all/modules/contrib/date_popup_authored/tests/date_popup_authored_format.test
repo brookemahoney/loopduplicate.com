@@ -87,7 +87,7 @@ class DatePopupAuthoredTestCase extends PageEditTestCase {
     debug($node_date->format($time_format), 'Node time');
 
     // Extract the date and time parts as seen on the node submission form
-    $default_format = variable_get('date_popup_authored_format_page', 'm/d/Y - H:i');
+    $default_format = variable_get('date_popup_authored_format_page', variable_get('date_format_short', 'm/d/Y - H:i'));
     variable_set('date_popup_authored_format_page', $format);
 
     $this->drupalGet('node/' . $node->nid . '/edit');

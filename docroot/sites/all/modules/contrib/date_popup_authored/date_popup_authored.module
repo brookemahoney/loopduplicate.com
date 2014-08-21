@@ -133,7 +133,7 @@ function date_popup_authored_form_node_form_alter(&$form, $form_state, $form_id)
   // Set options specific to date_popup.
   $year_range = variable_get('date_popup_authored_year_range_' . $form['type']['#value'], 3);
   $form['author']['date']['#date_year_range'] = '-' . $year_range . ':+' . $year_range;
-  $form['author']['date']['#date_format'] = variable_get('date_popup_authored_format_' . $form['type']['#value'], 'm/d/Y - H:i');
+  $form['author']['date']['#date_format'] = variable_get('date_popup_authored_format_' . $form['type']['#value'], variable_get('date_format_short', 'm/d/Y - H:i'));
 
   // Unset options that are not relevant to date_popup
   unset($form['author']['date']['#maxlength']);
