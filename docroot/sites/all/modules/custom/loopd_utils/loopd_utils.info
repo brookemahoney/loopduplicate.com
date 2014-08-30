@@ -1,0 +1,5 @@
+name = LoopDuplicate Utilities
+description = Miscellaneous.
+core = 7.x
+files[] = includes/LoopDUtilsModule.inc
+package = LoopDuplicate

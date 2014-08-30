@@ -1,0 +1,11 @@
+<?php
+/**
+ * @file loopd_profile.install
+ * Install, update and uninstall functions.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function loopd_profile_install() {
+}

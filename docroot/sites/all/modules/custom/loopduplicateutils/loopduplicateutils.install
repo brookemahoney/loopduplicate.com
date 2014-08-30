@@ -1,7 +1,0 @@
-<?php
-
-/**
- * Implements hook_install().
- */
-function loopduplicateutils_install() {
-}
