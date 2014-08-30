@@ -41,6 +41,7 @@ dependencies[] = loopduplicatewysiwyg
 
 dependencies[] = admin_menu
 dependencies[] = admin_menu_toolbar
+dependencies[] = block_class
 dependencies[] = context_admin
 dependencies[] = cer
 dependencies[] = ctools
