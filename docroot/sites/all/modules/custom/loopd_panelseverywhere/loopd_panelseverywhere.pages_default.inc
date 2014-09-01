@@ -56,7 +56,18 @@ function loopd_panelseverywhere_default_page_manager_handlers() {
     $pane->configuration = array();
     $pane->cache = array();
     $pane->style = array(
-      'settings' => NULL,
+      'settings' => array(
+        'clean_markup' => array(
+          'pane_wrapper' => 'header',
+          'additional_pane_classes' => 'panel-pane',
+          'additional_pane_attributes' => '',
+          'enable_inner_div' => 0,
+          'title_wrapper' => 'h2',
+          'title_hide' => 0,
+          'content_wrapper' => 'none',
+        ),
+      ),
+      'style' => 'clean_element',
     );
     $pane->css = array(
       'css_id' => 'page-header',
