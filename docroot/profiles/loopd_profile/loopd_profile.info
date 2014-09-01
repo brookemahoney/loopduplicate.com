@@ -4,9 +4,6 @@ description = "An installation profile for LoopDuplicate."
 core = "7.x"
 exclusive = 1
 
-files[] = loopd_profile.install
-files[] = loopd_profile.profile
-
 ; ------------
 ; Dependencies
 ;
@@ -19,6 +16,7 @@ files[] = loopd_profile.profile
 
 dependencies[] = menu
 dependencies[] = number
+dependencies[] = rdf
 dependencies[] = search
 dependencies[] = syslog
 dependencies[] = taxonomy
