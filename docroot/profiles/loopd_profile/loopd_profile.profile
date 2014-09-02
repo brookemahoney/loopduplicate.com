@@ -139,6 +139,8 @@ function loopd_profile_install_set_variables() {
     'file_entity' => '0',
     'user' => '0',
   ));
+  // Sets the site homepage to /search.
+  variable_set('site_frontpage', 'search');
 }
 
 /**
