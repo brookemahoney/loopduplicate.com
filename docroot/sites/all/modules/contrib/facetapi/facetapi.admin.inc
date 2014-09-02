@@ -399,7 +399,7 @@ function facetapi_facet_display_form($form, &$form_state, FacetapiAdapter $adapt
     'sort_info' => array(),
     'excluded_values' => array(
       'form_build_id', 'form_token', 'form_id', 'op', 'submit', 'submit_list',
-      'submit_realm', 'settings__active_tab',
+      'settings__active_tab',
     ),
   );
 

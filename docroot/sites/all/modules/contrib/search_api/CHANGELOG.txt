@@ -1,3 +1,9 @@
+Search API 1.x, dev (xx/xx/xxxx):
+---------------------------------
+- #2319263 by solotandem: Added easier way to subclass entity classes.
+- #2278737 by drunken monkey: Fixed use of multiple Views fulltext search
+  filters.
+
 Search API 1.13 (07/23/2014):
 -----------------------------
 - #2281535 by areynolds, nicola85: Adapted to latest changes in Views cache
