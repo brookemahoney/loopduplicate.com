@@ -68,6 +68,7 @@ function loopd_wysiwyg_wysiwyg_default_profiles() {
       'advanced__active_tab' => 'edit-css',
       'forcePasteAsPlainText' => 0,
     ),
+    'rdf_mapping' => array(),
   );
 
   return $profiles;

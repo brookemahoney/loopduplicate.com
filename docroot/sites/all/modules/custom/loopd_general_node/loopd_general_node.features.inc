@@ -15,7 +15,8 @@ function loopd_general_node_default_cer() {
     "cer_enabled" : { "und" : [ { "value" : "1" } ] },
     "cer_weight" : { "und" : [ { "value" : "0" } ] },
     "cer_left" : { "und" : [ { "path" : "node:generalnode:field_internal_references" } ] },
-    "cer_right" : { "und" : [ { "path" : "node:generalnode:field_internal_references" } ] }
+    "cer_right" : { "und" : [ { "path" : "node:generalnode:field_internal_references" } ] },
+    "rdf_mapping" : []
   }');
   return $items;
 }
