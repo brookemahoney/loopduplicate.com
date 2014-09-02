@@ -45,9 +45,9 @@ function loopd_search_default_page_manager_pages() {
     'contexts' => array(),
     'relationships' => array(),
     'panels_breadcrumbs_state' => 1,
-    'panels_breadcrumbs_titles' => 'Search',
+    'panels_breadcrumbs_titles' => '',
     'panels_breadcrumbs_paths' => '',
-    'panels_breadcrumbs_home' => 1,
+    'panels_breadcrumbs_home' => 0,
   );
   $display = new panels_display();
   $display->layout = 'twocol';
@@ -60,7 +60,7 @@ function loopd_search_default_page_manager_pages() {
     ),
   );
   $display->cache = array();
-  $display->title = 'Search';
+  $display->title = '';
   $display->uuid = '252685c7-f902-47c4-91e5-67b69fb2f403';
   $display->content = array();
   $display->panels = array();
@@ -194,7 +194,7 @@ function loopd_search_default_page_manager_pages() {
     $pane->uuid = '4c3e9b41-b4cf-4089-8715-c4ee37f06f4c';
     $display->content['new-4c3e9b41-b4cf-4089-8715-c4ee37f06f4c'] = $pane;
     $display->panels['right'][4] = 'new-4c3e9b41-b4cf-4089-8715-c4ee37f06f4c';
-  $display->hide_title = PANELS_TITLE_FIXED;
+  $display->hide_title = PANELS_TITLE_NONE;
   $display->title_pane = 'new-6c19d780-48df-4ace-86bb-3e7d0cd601e1';
   $handler->conf['display'] = $display;
   $page->default_handlers[$handler->name] = $handler;
