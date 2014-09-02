@@ -36,6 +36,7 @@ features[facetapi][] = search_api@db_node:block:title
 features[facetapi][] = search_api@db_node:block:type
 features[features_api][] = api:2
 features[page_manager_pages][] = search
+features[search_api_autocomplete_search][] = search_api_views_search_db
 features[search_api_index][] = db_node
 features[search_api_server][] = db
 features[views_view][] = search_db

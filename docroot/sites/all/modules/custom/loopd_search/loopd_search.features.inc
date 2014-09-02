@@ -24,6 +24,23 @@ function loopd_search_views_api($module = NULL, $api = NULL) {
 }
 
 /**
+ * Implements hook_default_search_api_autocomplete_search().
+ */
+function loopd_search_default_search_api_autocomplete_search() {
+  $items = array();
+  $items['search_api_views_search_db'] = entity_import('search_api_autocomplete_search', '{
+    "machine_name" : "search_api_views_search_db",
+    "name" : "Search DB",
+    "index_id" : "db_node",
+    "type" : "search_api_views",
+    "enabled" : "1",
+    "options" : { "result count" : true, "fields" : [] },
+    "rdf_mapping" : []
+  }');
+  return $items;
+}
+
+/**
  * Implements hook_default_search_api_index().
  */
 function loopd_search_default_search_api_index() {
