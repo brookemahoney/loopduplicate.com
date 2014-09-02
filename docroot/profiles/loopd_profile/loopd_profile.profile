@@ -141,6 +141,9 @@ function loopd_profile_install_set_variables() {
   ));
   // Sets the site homepage to /search.
   variable_set('site_frontpage', 'search');
+  // Override the default field wrapper markup with Fences’ lean markup
+  // (single div wrapper).
+  variable_set('fences_default_markup', 1);
 }
 
 /**

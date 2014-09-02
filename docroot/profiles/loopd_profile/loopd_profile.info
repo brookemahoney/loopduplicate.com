@@ -59,6 +59,7 @@ dependencies[] = entityreference
 dependencies[] = extlink
 dependencies[] = facetapi
 dependencies[] = features
+dependencies[] = fences
 dependencies[] = field_group
 dependencies[] = field_ui
 dependencies[] = fieldable_panels_panes
