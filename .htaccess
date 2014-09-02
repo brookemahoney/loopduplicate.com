@@ -18,4 +18,6 @@ RewriteRule ^(.*)$ /docroot/$1
 # Change 'subdirectory' to be the directory you will use for your main domain
 # followed by / then the main file for your site, index.php, index.html, etc.
 RewriteCond %{HTTP_HOST} ^(www.)?loopduplicate.com$
-RewriteRule ^(/)?$ docroot/index.php [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)?$ docroot/index.php?q=$1 [QSA,L]
