@@ -67,7 +67,7 @@ function loopd_general_node_field_default_field_instances() {
         'weight' => 3,
       ),
       'teaser' => array(
-        'label' => 'inline',
+        'label' => 'above',
         'module' => 'link',
         'settings' => array(),
         'type' => 'link_default',
@@ -201,7 +201,7 @@ function loopd_general_node_field_default_field_instances() {
         'weight' => 2,
       ),
       'teaser' => array(
-        'label' => 'inline',
+        'label' => 'above',
         'module' => 'entityreference',
         'settings' => array(
           'link' => 1,
@@ -325,7 +325,7 @@ function loopd_general_node_field_default_field_instances() {
         'weight' => 1,
       ),
       'teaser' => array(
-        'label' => 'inline',
+        'label' => 'above',
         'module' => 'taxonomy',
         'settings' => array(),
         'type' => 'taxonomy_term_reference_link',
