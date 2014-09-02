@@ -1,21 +1,15 @@
-# Hostmonster.com
-# .htaccess main domain to subdirectory redirect
-# Copy and paste the following code into the .htaccess file
-# in the public_html folder of your hosting account
-# make the changes to the file according to the instructions.
-# Do not change this line.
+# This is for Hostmonster hosting.
+# In this case, the primary domain on the host is rowdyrabbit.com.
+# This site lives in a subfolder, called "docroot", within the directory which 
+# the domain is configured to use.
 RewriteEngine on
-# Change yourdomain.com to be your main domain.
 RewriteCond %{HTTP_HOST} ^(www.)?loopduplicate.com$
-# Change 'subdirectory' to be the directory you will use for your main domain.
 RewriteCond %{REQUEST_URI} !^/docroot/
-# Don't change this line.
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-# Change 'subdirectory' to be the directory you will use for your main domain.
 RewriteRule ^(.*)$ /docroot/$1
-# Change yourdomain.com to be your main domain again.
-# Change 'subdirectory' to be the directory you will use for your main domain
-# followed by / then the main file for your site, index.php, index.html, etc.
 RewriteCond %{HTTP_HOST} ^(www.)?loopduplicate.com$
 RewriteRule ^(/)?$ docroot/index.php [L]
+RewriteCond %{HTTP_HOST} ^loopduplicate\-com\.rowdyrabbit\.com$ [OR]
+RewriteCond %{HTTP_HOST} ^www\.loopduplicate\-com\.rowdyrabbit\.com$
+RewriteRule ^/?$ "http\:\/\/loopduplicate\.com" [R=301,L]
