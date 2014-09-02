@@ -14,10 +14,10 @@ exclusive = 1
 ; Core
 ;
 
+dependencies[] = block
 dependencies[] = menu
 dependencies[] = number
 dependencies[] = rdf
-dependencies[] = search
 dependencies[] = syslog
 dependencies[] = taxonomy
 

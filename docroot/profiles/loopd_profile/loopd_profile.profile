@@ -133,6 +133,12 @@ function loopd_profile_install_set_variables() {
   // Description checkbox, the description textarea should be shown but it isn't
   // if jquery is set to 1.9 or 1.10.
   variable_set('jquery_update_jquery_version', '1.8');
+  // Set the active search modules.
+  variable_set('search_active_modules', array(
+    'node' => 'node',
+    'file_entity' => '0',
+    'user' => '0',
+  ));
 }
 
 /**
