@@ -5,7 +5,7 @@
 # make the changes to the file according to the instructions.
 # Do not change this line.
 RewriteEngine on
-RewriteBase /
+RewriteBase /loopduplicate
 # Change yourdomain.com to be your main domain.
 RewriteCond %{HTTP_HOST} ^(www.)?loopduplicate.com$
 # Change 'subdirectory' to be the directory you will use for your main domain.
