@@ -1,0 +1,49 @@
+name        = JeffyRadix
+description = A subtheme of Radix.
+screenshot  = screenshot.png
+core        = 7.x
+
+; Base - Radix
+base theme  = radix
+
+
+; Regions
+regions[content] = Content
+
+; Panels
+plugins[panels][layouts] = plugins/layouts
+plugins[panels][styles] = plugins/styles
+
+; CSS - General
+stylesheets[all][]     = assets/stylesheets/screen.css
+stylesheets[print][]   = assets/stylesheets/print.css
+
+; CSS - Conditional
+stylesheets-conditional[IE 7][all][] = assets/stylesheets/ie7.css
+stylesheets-conditional[IE 8][all][] = assets/stylesheets/ie8.css
+
+; Javascript
+scripts[] = assets/javascripts/bootstrap3.1.1.min.js
+scripts[] = assets/javascripts/script.js
+
+; Various page elements output by the theme can be toggled on and off. The
+; "features" control which of these check boxes display on the
+; admin/appearance config page. This is useful for suppressing check boxes
+; for elements not used by your sub-theme. To suppress a check box, omit the
+; entry for it below. See the Drupal 7 Theme Guide for more info:
+; https://drupal.org/node/171205#features
+features[] = logo
+features[] = name
+features[] = slogan
+features[] = node_user_picture
+features[] = comment_user_picture
+features[] = favicon
+features[] = main_menu
+features[] = secondary_menu
+
+; Information added by Drupal.org packaging script on 2014-02-26
+version = "7.x-3.0-alpha3"
+core = "7.x"
+project = "radix"
+datestamp = "1393454007"
+

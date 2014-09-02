@@ -151,11 +151,11 @@ function loopd_profile_install_set_variables() {
  */
 function loopd_profile_install_set_theme() {
   // Enables custom theme.
-  theme_enable(array('loopd_theme'));
+  theme_enable(array('loopd_radix'));
   // Sets custom theme as default.
-  variable_set('theme_default', 'loopd_theme');
+  variable_set('theme_default', 'loopd_radix');
   // Sets custom theme as admin theme.
-  variable_set('admin_theme', 'loopd_theme');
+  variable_set('admin_theme', 'loopd_radix');
   system_rebuild_theme_data();
   drupal_theme_rebuild();
   

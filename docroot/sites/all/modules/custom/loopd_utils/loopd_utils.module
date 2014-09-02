@@ -1,1 +1,15 @@
 <?php
+/**
+ * @file
+ * Utilities.
+ */
+
+/**
+ * Implements hook_init().
+ */
+function loopd_utils_init() {
+  // Disables administration_menu in the default theme.
+  if (module_exists('admin_menu') && !path_is_admin(current_path())) {
+    admin_menu_suppress();
+  }
+}

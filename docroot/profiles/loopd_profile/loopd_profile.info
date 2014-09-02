@@ -84,6 +84,7 @@ dependencies[] = panels
 dependencies[] = panels_breadcrumbs
 dependencies[] = panels_everywhere
 dependencies[] = pathauto
+dependencies[] = radix_layouts
 dependencies[] = reroute_email
 dependencies[] = save_draft
 dependencies[] = search_api
