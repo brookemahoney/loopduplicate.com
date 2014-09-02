@@ -69,7 +69,7 @@ function loopd_panelseverywhere_default_page_manager_handlers() {
     </div>
     <div class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        <li><a href="/about">About</a></li>
+        <li><a href="https://github.com/jeffymahoney/loopduplicate.com" target="_blank">About</a></li>
       </ul>
     </div>
   </div>
