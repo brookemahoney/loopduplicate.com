@@ -47,6 +47,7 @@ dependencies[] = clean_markup_blocks
 dependencies[] = clean_markup_panels
 dependencies[] = context_admin
 dependencies[] = cer
+dependencies[] = contextual
 dependencies[] = ctools
 dependencies[] = date
 dependencies[] = date_popup
