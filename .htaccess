@@ -13,7 +13,7 @@ RewriteCond %{REQUEST_URI} !^/docroot/
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 # Change 'subdirectory' to be the directory you will use for your main domain.
-RewriteRule ^(.*)$ /docroot/$1
+RewriteRule ^(.*)$ /public_html/loopduplicate/docroot/$1
 # Change yourdomain.com to be your main domain again.
 # Change 'subdirectory' to be the directory you will use for your main domain
 # followed by / then the main file for your site, index.php, index.html, etc.
