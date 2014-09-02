@@ -1,4 +1,6 @@
-Options +FollowSymLinks
+# For security reasons, Option followsymlinks cannot be overridden.
+#Options +FollowSymLinks
+Options +SymLinksIfOwnerMatch
 RewriteEngine On
 RewriteBase /
 RewriteCond %{REQUEST_URI} !^/docroot
