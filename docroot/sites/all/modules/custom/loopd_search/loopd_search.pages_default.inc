@@ -74,7 +74,18 @@ function loopd_search_default_page_manager_pages() {
     $pane->configuration = array();
     $pane->cache = array();
     $pane->style = array(
-      'settings' => NULL,
+      'settings' => array(
+        'clean_markup' => array(
+          'pane_wrapper' => 'div',
+          'additional_pane_classes' => 'panel-pane',
+          'additional_pane_attributes' => '',
+          'enable_inner_div' => 0,
+          'title_wrapper' => 'h2',
+          'title_hide' => 0,
+          'content_wrapper' => 'none',
+        ),
+      ),
+      'style' => 'clean_element',
     );
     $pane->css = array();
     $pane->extras = array();
@@ -97,7 +108,18 @@ function loopd_search_default_page_manager_pages() {
     );
     $pane->cache = array();
     $pane->style = array(
-      'settings' => NULL,
+      'settings' => array(
+        'clean_markup' => array(
+          'pane_wrapper' => 'div',
+          'additional_pane_classes' => 'panel-pane',
+          'additional_pane_attributes' => '',
+          'enable_inner_div' => 0,
+          'title_wrapper' => 'h2',
+          'title_hide' => 0,
+          'content_wrapper' => 'none',
+        ),
+      ),
+      'style' => 'clean_element',
     );
     $pane->css = array();
     $pane->extras = array();
@@ -119,7 +141,18 @@ function loopd_search_default_page_manager_pages() {
     );
     $pane->cache = array();
     $pane->style = array(
-      'settings' => NULL,
+      'settings' => array(
+        'clean_markup' => array(
+          'pane_wrapper' => 'div',
+          'additional_pane_classes' => 'panel-pane',
+          'additional_pane_attributes' => '',
+          'enable_inner_div' => 0,
+          'title_wrapper' => 'h2',
+          'title_hide' => 0,
+          'content_wrapper' => 'none',
+        ),
+      ),
+      'style' => 'clean_element',
     );
     $pane->css = array();
     $pane->extras = array();
@@ -141,7 +174,18 @@ function loopd_search_default_page_manager_pages() {
     );
     $pane->cache = array();
     $pane->style = array(
-      'settings' => NULL,
+      'settings' => array(
+        'clean_markup' => array(
+          'pane_wrapper' => 'div',
+          'additional_pane_classes' => 'panel-pane',
+          'additional_pane_attributes' => '',
+          'enable_inner_div' => 0,
+          'title_wrapper' => 'h2',
+          'title_hide' => 0,
+          'content_wrapper' => 'none',
+        ),
+      ),
+      'style' => 'clean_element',
     );
     $pane->css = array();
     $pane->extras = array();
@@ -163,7 +207,18 @@ function loopd_search_default_page_manager_pages() {
     );
     $pane->cache = array();
     $pane->style = array(
-      'settings' => NULL,
+      'settings' => array(
+        'clean_markup' => array(
+          'pane_wrapper' => 'div',
+          'additional_pane_classes' => 'panel-pane',
+          'additional_pane_attributes' => '',
+          'enable_inner_div' => 0,
+          'title_wrapper' => 'h2',
+          'title_hide' => 0,
+          'content_wrapper' => 'none',
+        ),
+      ),
+      'style' => 'clean_element',
     );
     $pane->css = array();
     $pane->extras = array();
@@ -185,7 +240,18 @@ function loopd_search_default_page_manager_pages() {
     );
     $pane->cache = array();
     $pane->style = array(
-      'settings' => NULL,
+      'settings' => array(
+        'clean_markup' => array(
+          'pane_wrapper' => 'div',
+          'additional_pane_classes' => 'panel-pane',
+          'additional_pane_attributes' => '',
+          'enable_inner_div' => 0,
+          'title_wrapper' => 'h2',
+          'title_hide' => 0,
+          'content_wrapper' => 'none',
+        ),
+      ),
+      'style' => 'clean_element',
     );
     $pane->css = array();
     $pane->extras = array();
