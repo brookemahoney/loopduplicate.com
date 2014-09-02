@@ -29,6 +29,7 @@ dependencies[] = loopd_drupal_module
 dependencies[] = loopd_general_node
 dependencies[] = loopd_panelseverywhere
 dependencies[] = loopd_perms
+dependencies[] = loopd_search
 dependencies[] = loopd_taxonomy
 dependencies[] = loopd_utils
 dependencies[] = loopd_wysiwyg

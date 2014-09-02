@@ -1,0 +1,15 @@
+name = LoopDuplicate Search
+description = Configuration for search.
+core = 7.x
+package = LoopDuplicate
+dependencies[] = facetapi
+dependencies[] = search_api
+dependencies[] = search_api_autocomplete
+dependencies[] = search_api_db
+dependencies[] = search_api_facetapi
+dependencies[] = search_api_solr
+dependencies[] = search_api_spellcheck
+dependencies[] = search_api_views
+dependencies[] = views
+features[features_api][] = api:2
+project path = sites/all/modules/custom
