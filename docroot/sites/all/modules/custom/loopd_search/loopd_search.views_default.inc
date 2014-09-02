@@ -30,7 +30,7 @@ function loopd_search_views_default_views() {
   $handler->display->display_options['pager']['type'] = 'full';
   $handler->display->display_options['style_plugin'] = 'default';
   $handler->display->display_options['row_plugin'] = 'entity';
-  $handler->display->display_options['row_options']['view_mode'] = 'search_result';
+  $handler->display->display_options['row_options']['view_mode'] = 'teaser';
   /* Field: Indexed Node: CER » Context */
   $handler->display->display_options['fields']['cer_lineage']['id'] = 'cer_lineage';
   $handler->display->display_options['fields']['cer_lineage']['table'] = 'search_api_index_db_node';
