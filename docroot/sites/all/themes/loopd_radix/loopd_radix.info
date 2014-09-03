@@ -23,7 +23,6 @@ stylesheets-conditional[IE 7][all][] = assets/stylesheets/ie7.css
 stylesheets-conditional[IE 8][all][] = assets/stylesheets/ie8.css
 
 ; Javascript
-scripts[] = assets/javascripts/bootstrap3.1.1.min.js
 scripts[] = assets/javascripts/script.js
 
 ; Various page elements output by the theme can be toggled on and off. The
