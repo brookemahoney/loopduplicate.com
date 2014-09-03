@@ -147,7 +147,7 @@ function loopd_drupal_module_field_default_field_instances() {
       'alt_field_sync_title' => 0,
       'alt_field_update_on_edit' => 0,
       'default_image' => 0,
-      'file_directory' => 'featuredimages/generalnode',
+      'file_directory' => 'featuredimages/article',
       'file_extensions' => 'png gif jpg jpeg',
       'max_filesize' => '',
       'max_resolution' => '',

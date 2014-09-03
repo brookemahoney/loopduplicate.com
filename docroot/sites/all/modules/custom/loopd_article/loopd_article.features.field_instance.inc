@@ -1,18 +1,18 @@
 <?php
 /**
  * @file
- * loopd_general_node.features.field_instance.inc
+ * loopd_article.features.field_instance.inc
  */
 
 /**
  * Implements hook_field_default_field_instances().
  */
-function loopd_general_node_field_default_field_instances() {
+function loopd_article_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-generalnode-body'
-  $field_instances['node-generalnode-body'] = array(
-    'bundle' => 'generalnode',
+  // Exported field_instance: 'node-article-body'
+  $field_instances['node-article-body'] = array(
+    'bundle' => 'article',
     'default_value' => NULL,
     'deleted' => 0,
     'description' => '',
@@ -52,9 +52,9 @@ function loopd_general_node_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-generalnode-field_external_references'
-  $field_instances['node-generalnode-field_external_references'] = array(
-    'bundle' => 'generalnode',
+  // Exported field_instance: 'node-article-field_external_references'
+  $field_instances['node-article-field_external_references'] = array(
+    'bundle' => 'article',
     'default_value' => NULL,
     'deleted' => 0,
     'description' => '',
@@ -107,9 +107,9 @@ function loopd_general_node_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-generalnode-field_featured_image'
-  $field_instances['node-generalnode-field_featured_image'] = array(
-    'bundle' => 'generalnode',
+  // Exported field_instance: 'node-article-field_featured_image'
+  $field_instances['node-article-field_featured_image'] = array(
+    'bundle' => 'article',
     'deleted' => 0,
     'description' => '',
     'display' => array(
@@ -145,7 +145,7 @@ function loopd_general_node_field_default_field_instances() {
       'alt_field_sync_title' => 0,
       'alt_field_update_on_edit' => 0,
       'default_image' => 0,
-      'file_directory' => 'featuredimages/generalnode',
+      'file_directory' => 'featuredimages/article',
       'file_extensions' => 'png gif jpg jpeg',
       'max_filesize' => '',
       'max_resolution' => '',
@@ -184,9 +184,9 @@ function loopd_general_node_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-generalnode-field_internal_references'
-  $field_instances['node-generalnode-field_internal_references'] = array(
-    'bundle' => 'generalnode',
+  // Exported field_instance: 'node-article-field_internal_references'
+  $field_instances['node-article-field_internal_references'] = array(
+    'bundle' => 'article',
     'default_value' => NULL,
     'deleted' => 0,
     'description' => '',
@@ -230,9 +230,9 @@ function loopd_general_node_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-generalnode-field_medium_teaser'
-  $field_instances['node-generalnode-field_medium_teaser'] = array(
-    'bundle' => 'generalnode',
+  // Exported field_instance: 'node-article-field_medium_teaser'
+  $field_instances['node-article-field_medium_teaser'] = array(
+    'bundle' => 'article',
     'default_value' => NULL,
     'deleted' => 0,
     'description' => 'This field should be kept under 300 Chars.',
@@ -270,9 +270,9 @@ function loopd_general_node_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-generalnode-field_short_teaser'
-  $field_instances['node-generalnode-field_short_teaser'] = array(
-    'bundle' => 'generalnode',
+  // Exported field_instance: 'node-article-field_short_teaser'
+  $field_instances['node-article-field_short_teaser'] = array(
+    'bundle' => 'article',
     'default_value' => NULL,
     'deleted' => 0,
     'description' => 'This field should be kept under 100 Chars.',
@@ -310,9 +310,9 @@ function loopd_general_node_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-generalnode-field_tags'
-  $field_instances['node-generalnode-field_tags'] = array(
-    'bundle' => 'generalnode',
+  // Exported field_instance: 'node-article-field_tags'
+  $field_instances['node-article-field_tags'] = array(
+    'bundle' => 'article',
     'default_value' => NULL,
     'deleted' => 0,
     'description' => '',

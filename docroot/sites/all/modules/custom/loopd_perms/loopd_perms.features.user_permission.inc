@@ -487,9 +487,9 @@ function loopd_perms_user_default_permissions() {
     'module' => 'file_entity',
   );
 
-  // Exported permission: 'create generalnode content'.
-  $permissions['create generalnode content'] = array(
-    'name' => 'create generalnode content',
+  // Exported permission: 'create article content'.
+  $permissions['create article content'] = array(
+    'name' => 'create article content',
     'roles' => array(
       'administrator' => 'administrator',
     ),
@@ -532,9 +532,9 @@ function loopd_perms_user_default_permissions() {
     'module' => 'file_entity',
   );
 
-  // Exported permission: 'delete any generalnode content'.
-  $permissions['delete any generalnode content'] = array(
-    'name' => 'delete any generalnode content',
+  // Exported permission: 'delete any article content'.
+  $permissions['delete any article content'] = array(
+    'name' => 'delete any article content',
     'roles' => array(
       'administrator' => 'administrator',
     ),
@@ -586,9 +586,9 @@ function loopd_perms_user_default_permissions() {
     'module' => 'file_entity',
   );
 
-  // Exported permission: 'delete own generalnode content'.
-  $permissions['delete own generalnode content'] = array(
-    'name' => 'delete own generalnode content',
+  // Exported permission: 'delete own article content'.
+  $permissions['delete own article content'] = array(
+    'name' => 'delete own article content',
     'roles' => array(
       'administrator' => 'administrator',
     ),
@@ -719,9 +719,9 @@ function loopd_perms_user_default_permissions() {
     'module' => 'file_entity',
   );
 
-  // Exported permission: 'edit any generalnode content'.
-  $permissions['edit any generalnode content'] = array(
-    'name' => 'edit any generalnode content',
+  // Exported permission: 'edit any article content'.
+  $permissions['edit any article content'] = array(
+    'name' => 'edit any article content',
     'roles' => array(
       'administrator' => 'administrator',
     ),
@@ -773,9 +773,9 @@ function loopd_perms_user_default_permissions() {
     'module' => 'file_entity',
   );
 
-  // Exported permission: 'edit own generalnode content'.
-  $permissions['edit own generalnode content'] = array(
-    'name' => 'edit own generalnode content',
+  // Exported permission: 'edit own article content'.
+  $permissions['edit own article content'] = array(
+    'name' => 'edit own article content',
     'roles' => array(
       'administrator' => 'administrator',
     ),

@@ -159,15 +159,10 @@ function loopd_profile_install_set_theme() {
   system_rebuild_theme_data();
   drupal_theme_rebuild();
   
-  // Removes default content types.
-  $types = array(
-    'article',
-    'page',
-  );
-  foreach ($types as $type) {
-    node_type_delete($type);
-    variable_del('node_preview_' . $type);
-  }
+  // Removes page content type.
+  $type = 'page';
+  node_type_delete($type);
+  variable_del('node_preview_' . $type);
   node_types_rebuild();
   menu_rebuild();
 }

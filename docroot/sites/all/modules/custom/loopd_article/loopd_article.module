@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the LoopDuplicatearticle feature.
+ */
+
+include_once 'loopd_article.features.inc';

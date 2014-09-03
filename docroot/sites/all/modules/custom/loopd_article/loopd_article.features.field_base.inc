@@ -1,13 +1,13 @@
 <?php
 /**
  * @file
- * loopd_general_node.features.field_base.inc
+ * loopd_article.features.field_base.inc
  */
 
 /**
  * Implements hook_field_default_field_bases().
  */
-function loopd_general_node_field_default_field_bases() {
+function loopd_article_field_default_field_bases() {
   $field_bases = array();
 
   // Exported field_base: 'body'

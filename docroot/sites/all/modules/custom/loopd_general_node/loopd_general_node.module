@@ -1,7 +1,0 @@
-<?php
-/**
- * @file
- * Code for the LoopDuplicateGeneralNode feature.
- */
-
-include_once 'loopd_general_node.features.inc';

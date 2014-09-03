@@ -1,21 +1,21 @@
 <?php
 /**
  * @file
- * loopd_general_node.features.inc
+ * loopd_article.features.inc
  */
 
 /**
  * Implements hook_default_cer().
  */
-function loopd_general_node_default_cer() {
+function loopd_article_default_cer() {
   $items = array();
-  $items['node:generalnode:field_internal_references*node:generalnode:field_internal_references'] = entity_import('cer', '{
-    "identifier" : "node:generalnode:field_internal_references*node:generalnode:field_internal_references",
+  $items['node:article:field_internal_references*node:article:field_internal_references'] = entity_import('cer', '{
+    "identifier" : "node:article:field_internal_references*node:article:field_internal_references",
     "cer_bidirectional" : { "und" : [ { "value" : "1" } ] },
     "cer_enabled" : { "und" : [ { "value" : "1" } ] },
     "cer_weight" : { "und" : [ { "value" : "0" } ] },
-    "cer_left" : { "und" : [ { "path" : "node:generalnode:field_internal_references" } ] },
-    "cer_right" : { "und" : [ { "path" : "node:generalnode:field_internal_references" } ] },
+    "cer_left" : { "und" : [ { "path" : "node:article:field_internal_references" } ] },
+    "cer_right" : { "und" : [ { "path" : "node:article:field_internal_references" } ] },
     "rdf_mapping" : []
   }');
   return $items;
@@ -24,7 +24,7 @@ function loopd_general_node_default_cer() {
 /**
  * Implements hook_ctools_plugin_api().
  */
-function loopd_general_node_ctools_plugin_api($module = NULL, $api = NULL) {
+function loopd_article_ctools_plugin_api($module = NULL, $api = NULL) {
   if ($module == "strongarm" && $api == "strongarm") {
     return array("version" => "1");
   }
@@ -33,10 +33,10 @@ function loopd_general_node_ctools_plugin_api($module = NULL, $api = NULL) {
 /**
  * Implements hook_node_info().
  */
-function loopd_general_node_node_info() {
+function loopd_article_node_info() {
   $items = array(
-    'generalnode' => array(
-      'name' => t('General Node'),
+    'article' => array(
+      'name' => t('Article'),
       'base' => 'node_content',
       'description' => t('This content type can be used for most content. It will have a page of it own. It, like most other content types, has various "view modes" which can be set up to display the information in different ways, such as a teaser or a search result.'),
       'has_title' => '1',

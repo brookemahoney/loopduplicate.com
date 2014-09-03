@@ -1,40 +1,40 @@
 <?php
 /**
  * @file
- * loopd_general_node.strongarm.inc
+ * loopd_article.strongarm.inc
  */
 
 /**
  * Implements hook_strongarm().
  */
-function loopd_general_node_strongarm() {
+function loopd_article_strongarm() {
   $export = array();
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'diff_enable_revisions_page_node_generalnode';
+  $strongarm->name = 'diff_enable_revisions_page_node_article';
   $strongarm->value = 1;
-  $export['diff_enable_revisions_page_node_generalnode'] = $strongarm;
+  $export['diff_enable_revisions_page_node_article'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'diff_show_preview_changes_node_generalnode';
+  $strongarm->name = 'diff_show_preview_changes_node_article';
   $strongarm->value = 1;
-  $export['diff_show_preview_changes_node_generalnode'] = $strongarm;
+  $export['diff_show_preview_changes_node_article'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'diff_view_mode_preview_node_generalnode';
+  $strongarm->name = 'diff_view_mode_preview_node_article';
   $strongarm->value = 'full';
-  $export['diff_view_mode_preview_node_generalnode'] = $strongarm;
+  $export['diff_view_mode_preview_node_article'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'field_bundle_settings_node__generalnode';
+  $strongarm->name = 'field_bundle_settings_node__article';
   $strongarm->value = array(
     'view_modes' => array(
       'teaser' => array(
@@ -65,44 +65,44 @@ function loopd_general_node_strongarm() {
       'display' => array(),
     ),
   );
-  $export['field_bundle_settings_node__generalnode'] = $strongarm;
+  $export['field_bundle_settings_node__article'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'node_options_generalnode';
+  $strongarm->name = 'node_options_article';
   $strongarm->value = array(
     0 => 'status',
   );
-  $export['node_options_generalnode'] = $strongarm;
+  $export['node_options_article'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'node_preview_generalnode';
+  $strongarm->name = 'node_preview_article';
   $strongarm->value = '1';
-  $export['node_preview_generalnode'] = $strongarm;
+  $export['node_preview_article'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'node_submitted_generalnode';
+  $strongarm->name = 'node_submitted_article';
   $strongarm->value = 0;
-  $export['node_submitted_generalnode'] = $strongarm;
+  $export['node_submitted_article'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'save_draft_enabled_generalnode';
+  $strongarm->name = 'save_draft_enabled_article';
   $strongarm->value = 1;
-  $export['save_draft_enabled_generalnode'] = $strongarm;
+  $export['save_draft_enabled_article'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
-  $strongarm->name = 'save_draft_skip_required_generalnode';
+  $strongarm->name = 'save_draft_skip_required_article';
   $strongarm->value = 0;
-  $export['save_draft_skip_required_generalnode'] = $strongarm;
+  $export['save_draft_skip_required_article'] = $strongarm;
 
   return $export;
 }
