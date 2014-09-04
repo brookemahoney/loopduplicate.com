@@ -48,6 +48,12 @@ function loopd_drupal_module_field_default_field_instances() {
       'active' => 1,
       'module' => 'text',
       'settings' => array(
+        'maxlength_js' => '',
+        'maxlength_js_enforce' => 0,
+        'maxlength_js_label' => 'Content limited to @limit characters, remaining: <strong>@remaining</strong>',
+        'maxlength_js_label_summary' => 'Content limited to @limit characters, remaining: <strong>@remaining</strong>',
+        'maxlength_js_summary' => 600,
+        'maxlength_js_truncate_html' => 0,
         'rows' => 20,
         'summary_rows' => 5,
       ),
@@ -79,6 +85,7 @@ function loopd_drupal_module_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'node',
+    'fences_wrapper' => 'nav',
     'field_name' => 'field_external_references',
     'label' => 'External References',
     'required' => 0,
@@ -105,7 +112,9 @@ function loopd_drupal_module_field_default_field_instances() {
     'widget' => array(
       'active' => 0,
       'module' => 'link',
-      'settings' => array(),
+      'settings' => array(
+        'maxlength_js_label' => 'Content limited to @limit characters, remaining: <strong>@remaining</strong>',
+      ),
       'type' => 'link_field',
       'weight' => 4,
     ),
@@ -139,6 +148,7 @@ function loopd_drupal_module_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'node',
+    'fences_wrapper' => 'div',
     'field_name' => 'field_featured_image',
     'label' => 'Featured Image',
     'required' => 0,
@@ -151,7 +161,7 @@ function loopd_drupal_module_field_default_field_instances() {
       'default_image' => 0,
       'file_directory' => 'featuredimages/article',
       'file_extensions' => 'png gif jpg jpeg',
-      'max_filesize' => '',
+      'max_filesize' => '2 MB',
       'max_resolution' => '',
       'min_resolution' => '',
       'title_field' => 0,
@@ -182,6 +192,7 @@ function loopd_drupal_module_field_default_field_instances() {
           'upload' => 0,
           'youtube' => 0,
         ),
+        'maxlength_js_label' => 'Content limited to @limit characters, remaining: <strong>@remaining</strong>',
       ),
       'type' => 'media_generic',
       'weight' => 5,
@@ -215,6 +226,7 @@ function loopd_drupal_module_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'node',
+    'fences_wrapper' => 'nav',
     'field_name' => 'field_internal_references',
     'label' => 'Internal References',
     'required' => 0,
@@ -226,6 +238,7 @@ function loopd_drupal_module_field_default_field_instances() {
       'module' => 'entityreference',
       'settings' => array(
         'match_operator' => 'CONTAINS',
+        'maxlength_js_label' => 'Content limited to @limit characters, remaining: <strong>@remaining</strong>',
         'path' => '',
         'size' => 60,
       ),
@@ -239,7 +252,7 @@ function loopd_drupal_module_field_default_field_instances() {
     'bundle' => 'drupalmodule',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => 'This field should be kept under 300 Chars.',
+    'description' => '',
     'display' => array(
       'default' => array(
         'label' => 'above',
@@ -256,6 +269,7 @@ function loopd_drupal_module_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'node',
+    'fences_wrapper' => 'div',
     'field_name' => 'field_medium_teaser',
     'label' => 'Medium Teaser',
     'required' => 0,
@@ -267,6 +281,10 @@ function loopd_drupal_module_field_default_field_instances() {
       'active' => 1,
       'module' => 'text',
       'settings' => array(
+        'maxlength_js' => 300,
+        'maxlength_js_enforce' => 0,
+        'maxlength_js_label' => 'Content limited to @limit characters, remaining: <strong>@remaining</strong>',
+        'maxlength_js_truncate_html' => 0,
         'rows' => 3,
       ),
       'type' => 'text_textarea',
@@ -279,7 +297,7 @@ function loopd_drupal_module_field_default_field_instances() {
     'bundle' => 'drupalmodule',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => 'This field should be kept under 100 Chars.',
+    'description' => '',
     'display' => array(
       'default' => array(
         'label' => 'above',
@@ -296,6 +314,7 @@ function loopd_drupal_module_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'node',
+    'fences_wrapper' => 'div',
     'field_name' => 'field_short_teaser',
     'label' => 'Short Teaser',
     'required' => 0,
@@ -307,6 +326,10 @@ function loopd_drupal_module_field_default_field_instances() {
       'active' => 1,
       'module' => 'text',
       'settings' => array(
+        'maxlength_js' => 100,
+        'maxlength_js_enforce' => 0,
+        'maxlength_js_label' => 'Content limited to @limit characters, remaining: <strong>@remaining</strong>',
+        'maxlength_js_truncate_html' => 0,
         'rows' => 1,
       ),
       'type' => 'text_textarea',
@@ -337,6 +360,7 @@ function loopd_drupal_module_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'node',
+    'fences_wrapper' => 'nav',
     'field_name' => 'field_tags',
     'label' => 'Tags',
     'required' => 0,
@@ -350,10 +374,12 @@ function loopd_drupal_module_field_default_field_instances() {
         'available_options' => '',
         'available_options_php' => '',
         'markup_available_options_php' => '&lt;none&gt;',
+        'maxlength_js_label' => 'Content limited to @limit characters, remaining: <strong>@remaining</strong>',
         'other' => 'Other',
         'other_size' => 60,
         'other_title' => '',
         'other_unknown_defaults' => 'other',
+        'sort_options' => 0,
       ),
       'type' => 'select_or_other_buttons',
       'weight' => 2,
@@ -369,8 +395,6 @@ function loopd_drupal_module_field_default_field_instances() {
   t('Medium Teaser');
   t('Short Teaser');
   t('Tags');
-  t('This field should be kept under 100 Chars.');
-  t('This field should be kept under 300 Chars.');
 
   return $field_instances;
 }

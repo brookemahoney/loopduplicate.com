@@ -72,6 +72,7 @@ dependencies[] = imagefield_tokens
 dependencies[] = jquery_update
 dependencies[] = libraries
 dependencies[] = link
+dependencies[] = maxlength
 dependencies[] = media
 dependencies[] = media_vimeo
 dependencies[] = media_wysiwyg

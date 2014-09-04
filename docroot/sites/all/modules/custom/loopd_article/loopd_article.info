@@ -6,6 +6,7 @@ dependencies[] = cer
 dependencies[] = ctools
 dependencies[] = entityreference
 dependencies[] = features
+dependencies[] = image
 dependencies[] = link
 dependencies[] = loopd_taxonomy
 dependencies[] = media
