@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ * 
+ * Alters features_admin_form.
+ */
+function loopd_features_form_features_admin_form_alter(&$form, &$form_state, $form_id) {
+  // Moves the LoopDuplicate package to the top of the list so it shows first
+  // when the features admin page loads.
+  $form = array('package_loopduplicate' => $form['package_loopduplicate']) + $form;
+  // Moves the packages group to the beginning of the array so that it's before
+  // the LoopDuplicate package.
+  $form = array('packages' => $form['packages']) + $form;
+}
