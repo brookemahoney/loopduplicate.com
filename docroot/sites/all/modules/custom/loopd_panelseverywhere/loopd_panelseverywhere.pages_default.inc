@@ -187,7 +187,9 @@ function loopd_panelseverywhere_default_page_manager_handlers() {
           'settings' => array(
             'visibility_setting' => '1',
             'paths' => 'admin
-admin/*',
+admin/*
+node/add
+node/add/*',
           ),
           'context' => 'empty',
           'not' => FALSE,
