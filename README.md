@@ -10,4 +10,5 @@ For a quick way to install from the command line, see the included document
 at /scripts/development-scripts.txt
 
 Currently, if this profile is installed using the UI instead of using drush, the
-diff module outputs some error notices; they can be ignored.
+diff module and the save draft module output some error notices if error
+reporting is turned on; they can all be ignored.
