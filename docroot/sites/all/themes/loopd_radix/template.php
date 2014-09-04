@@ -26,11 +26,12 @@ function loopd_radix_css_alter(&$css) {
 }
 
 /**
- * Implements template_preprocess_page().
+ * Implements hook_js_alter().
  */
-function loopd_radix_preprocess_page(&$variables) {
-  // Add copyright to theme.
-  if ($copyright = theme_get_setting('copyright')) {
-    $variables['copyright'] = check_markup($copyright['value'], $copyright['format']);
-  }
+function loopd_radix_js_alter(&$javascript) {
+  $radix_path = drupal_get_path('theme', 'radix');
+
+  // Removes a Radix JS file. This theme uses a modified version which can be
+  // found in the assets/javascripts/source folder.
+  unset($javascript[$radix_path . '/assets/javascripts/radix-script.js']);
 }
