@@ -22,7 +22,7 @@ function loopd_taxonomy_uuid_features_default_terms() {
     ),
   );
   $terms[] = array(
-    'name' => 'Development',
+    'name' => 'Modules: Development',
     'description' => '',
     'format' => 'full_html_no_linebreaks',
     'weight' => 0,
@@ -66,11 +66,33 @@ function loopd_taxonomy_uuid_features_default_terms() {
     ),
   );
   $terms[] = array(
+    'name' => 'Modules: Common',
+    'description' => '',
+    'format' => 'full_html_no_linebreaks',
+    'weight' => 0,
+    'uuid' => '3c96af1a-2e75-4982-87cc-9bc14aa6d77b',
+    'vocabulary_machine_name' => 'tags',
+    'path' => array(
+      'pathauto' => 1,
+    ),
+  );
+  $terms[] = array(
     'name' => 'Workflow',
     'description' => '',
     'format' => 'full_html_no_linebreaks',
     'weight' => 0,
     'uuid' => '59cc5407-950a-442c-953d-6c80a1aaa27a',
+    'vocabulary_machine_name' => 'tags',
+    'path' => array(
+      'pathauto' => 1,
+    ),
+  );
+  $terms[] = array(
+    'name' => 'Modules: Essential',
+    'description' => '',
+    'format' => 'full_html_no_linebreaks',
+    'weight' => 0,
+    'uuid' => '5a64a731-f9ef-4081-ace8-cbfc445472b0',
     'vocabulary_machine_name' => 'tags',
     'path' => array(
       'pathauto' => 1,
@@ -110,6 +132,17 @@ function loopd_taxonomy_uuid_features_default_terms() {
     ),
   );
   $terms[] = array(
+    'name' => 'Modules: Specialty',
+    'description' => '',
+    'format' => 'full_html_no_linebreaks',
+    'weight' => 0,
+    'uuid' => '7b9e048e-30ec-4671-a59a-37ea73b5a51c',
+    'vocabulary_machine_name' => 'tags',
+    'path' => array(
+      'pathauto' => 1,
+    ),
+  );
+  $terms[] = array(
     'name' => 'Authoring',
     'description' => '',
     'format' => 'full_html_no_linebreaks',
@@ -137,17 +170,6 @@ function loopd_taxonomy_uuid_features_default_terms() {
     'format' => 'full_html_no_linebreaks',
     'weight' => 0,
     'uuid' => '892aeef7-1257-4531-a55a-6d47eab7c71f',
-    'vocabulary_machine_name' => 'tags',
-    'path' => array(
-      'pathauto' => 1,
-    ),
-  );
-  $terms[] = array(
-    'name' => 'Drupal Module',
-    'description' => '',
-    'format' => 'full_html_no_linebreaks',
-    'weight' => 0,
-    'uuid' => 'b4ff1be4-b602-48f8-83ff-d241577c2ba9',
     'vocabulary_machine_name' => 'tags',
     'path' => array(
       'pathauto' => 1,
