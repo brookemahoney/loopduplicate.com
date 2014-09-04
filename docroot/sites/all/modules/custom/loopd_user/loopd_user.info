@@ -1,0 +1,15 @@
+name = LoopDuplicate User
+description = Configuration for users.
+core = 7.x
+package = LoopDuplicate
+dependencies[] = ctools
+dependencies[] = page_manager
+dependencies[] = strongarm
+features[ctools][] = page_manager:pages_default:1
+features[ctools][] = strongarm:strongarm:1
+features[features_api][] = api:2
+features[page_manager_handlers][] = user_edit_panel_context
+features[page_manager_handlers][] = user_view_panel_context
+features[variable][] = page_manager_user_edit_disabled
+features[variable][] = page_manager_user_view_disabled
+project path = sites/all/modules/custom
