@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the LoopDuplicate Geshi Filter feature.
+ */
+
+include_once 'loopd_geshifilter.features.inc';

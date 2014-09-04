@@ -28,6 +28,7 @@ dependencies[] = taxonomy
 dependencies[] = loopd_article
 dependencies[] = loopd_drupal_module
 dependencies[] = loopd_features
+dependencies[] = loopd_geshifilter
 dependencies[] = loopd_node
 dependencies[] = loopd_panelseverywhere
 dependencies[] = loopd_perms
