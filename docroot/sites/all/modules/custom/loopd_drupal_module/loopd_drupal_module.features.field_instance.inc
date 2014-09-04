@@ -272,7 +272,7 @@ function loopd_drupal_module_field_default_field_instances() {
     ),
     'widget' => array(
       'active' => 1,
-      'module' => 'select_or_other',
+      'module' => 'options',
       'settings' => array(
         'available_options' => '',
         'available_options_php' => '',
@@ -284,7 +284,7 @@ function loopd_drupal_module_field_default_field_instances() {
         'other_unknown_defaults' => 'other',
         'sort_options' => 0,
       ),
-      'type' => 'select_or_other_buttons',
+      'type' => 'options_buttons',
       'weight' => 6,
     ),
   );
