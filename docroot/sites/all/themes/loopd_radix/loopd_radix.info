@@ -1,11 +1,10 @@
-name        = JeffyRadix
+name        = LoopDuplicate Radix
 description = A subtheme of Radix.
 screenshot  = screenshot.png
 core        = 7.x
 
 ; Base - Radix
 base theme  = radix
-
 
 ; Regions
 regions[content] = Content
@@ -39,10 +38,3 @@ features[] = comment_user_picture
 features[] = favicon
 features[] = main_menu
 features[] = secondary_menu
-
-; Information added by Drupal.org packaging script on 2014-02-26
-version = "7.x-3.0-alpha3"
-core = "7.x"
-project = "radix"
-datestamp = "1393454007"
-
