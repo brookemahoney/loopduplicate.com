@@ -128,11 +128,13 @@ function loopd_profile_install_set_variables() {
   // Default: a, an, as, at, before, but, by, for, from, is, in, into, like, of,
   // off, on, onto, per, since, than, the, this, that, to, up, via, with
   variable_set('pathauto_ignore_words', '');
-  // Sets jQuery UI to 1.8. Otherwise, some JS doesn't work on the add new
+  // Sets default jQuery version to 1.10.
+  variable_set('jquery_update_jquery_version', '1.10');
+  // Sets jQuery to 1.8 in admin pages. Otherwise, some JS doesn't work on the add new
   // view page, admin/structure/views/add. For example, when clicking on the
-  // description checkbox, the description textarea should be shown but it isn't
-  // if jquery is set to 1.9 or 1.10.
-  variable_set('jquery_update_jquery_version', '1.8');
+  // description checkbox, the description text field should be shown but it
+  // isn't if jquery is set to 1.9 or 1.10.
+  variable_set('jquery_update_jquery_admin_version', '1.8');
   // Set the active search modules.
   variable_set('search_active_modules', array(
     'node' => 'node',
