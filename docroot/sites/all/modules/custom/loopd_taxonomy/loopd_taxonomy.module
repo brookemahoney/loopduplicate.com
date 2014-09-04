@@ -1,5 +1,7 @@
 <?php
 /**
  * @file
- * Drupal needs this blank file.
+ * Code for the LoopDuplicate Taxonomy feature.
  */
+
+include_once 'loopd_taxonomy.features.inc';

@@ -5,6 +5,7 @@
  # @see https://www.gnupg.org/documentation/manpage.html
  #
  # Aliases used in this script, add these to ~/.bash_profile :
+ # alias loopduplicatecd='cd /Applications/MAMP/htdocs/loopduplicate/docroot;'
  # alias loopduplicatedrush='cd /Applications/MAMP/htdocs/loopduplicate/docroot; drush use devlocal.loopduplicate.com;'
  # alias randompassword="gpg --gen-random --armor 1 12";
  ##
@@ -45,7 +46,7 @@ drush uli;
  # Installs a fresh copy of site and turns on development mode.
  ##
 RANDOMPASS=$(randompassword);
-loopduplicatecd chmod -R u+w sites;
+loopduplicatecd
 drush si loopd_profile --db-url=mysql://loopduplicate:loopduplicate@localhost/loopduplicate --site-name=LoopDuplicate --account-mail="noreply@loopduplicate.com" --account-name=loopduplicate --account-pass=$RANDOMPASS --site-mail="noreply@loopduplicate.com" -y;
 drush use devlocal.loopduplicate.com;
 drush loopddevon;
