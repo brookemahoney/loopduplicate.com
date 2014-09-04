@@ -38,7 +38,7 @@ function loopd_article_node_info() {
     'article' => array(
       'name' => t('Article'),
       'base' => 'node_content',
-      'description' => t('This content type can be used for most content. It will have a page of it own. It, like most other content types, has various "view modes" which can be set up to display the information in different ways, such as a teaser or a search result.'),
+      'description' => t('This content type can be used for most content. It will have a page of it own. Like other content types, it has various "view modes" which can be set up to display the information in different ways, such as in a teaser or in a search result.'),
       'has_title' => '1',
       'title_label' => t('Title'),
       'help' => '',
