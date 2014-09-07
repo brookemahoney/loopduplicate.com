@@ -1,0 +1,12 @@
+diff --git a/nodeaccess.module b/nodeaccess.module
+index dc9edde..a723444 100644
+--- a/nodeaccess.module
++++ b/nodeaccess.module
+@@ -406,6 +406,7 @@ function nodeaccess_admin_form_submit($form, $form_state) {
+       }
+     }
+   }
++  variable_set('nodeaccess-roles', $allowed_roles);
+   nodeaccess_save_role_aliases($alias_prefs);
+   // Save author and role permissions for each node type.
+   $author_prefs = array();
