@@ -1,0 +1,17 @@
+name = LoopDuplicate Node Access
+description = Configuration for the nodeaccess module.
+core = 7.x
+package = LoopDuplicate
+dependencies[] = ctools
+dependencies[] = nodeaccess
+dependencies[] = strongarm
+features[ctools][] = strongarm:strongarm:1
+features[features_api][] = api:2
+features[variable][] = nodeaccess-grants
+features[variable][] = nodeaccess-preserve
+features[variable][] = nodeaccess-priority
+features[variable][] = nodeaccess-roles
+features[variable][] = nodeaccess-types
+features[variable][] = nodeaccess_article
+features[variable][] = nodeaccess_authors
+project path = sites/all/modules/custom
