@@ -174,4 +174,6 @@ function loopd_profile_install_set_theme() {
  */
 function loopd_profile_install_features() {
   features_revert();
+  // Necessary for loopd_nodeaccess.
+  node_access_rebuild();
 }
