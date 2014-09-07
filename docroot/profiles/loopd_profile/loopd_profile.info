@@ -1,5 +1,5 @@
 name = LoopDuplicate
-distribution_name = "the loopduplicate.com installation profile"
+distribution_name = "LoopDuplicate.com"
 description = "An installation profile for loopduplicate.com."
 core = "7.x"
 exclusive = 1
