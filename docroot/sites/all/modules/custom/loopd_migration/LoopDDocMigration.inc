@@ -119,6 +119,8 @@ class LoopDDocMigration extends Migration {
     foreach ($more_fields as $key => $more_field) {
       if ($more_formats[$key] === 'filtered_html' || $more_formats[$key] === 'plain_text') {
         $more[] = _filter_url(_filter_autop($more_field), $filter);
+      } else {
+        $more[] = $more_field;
       }
     }
 
