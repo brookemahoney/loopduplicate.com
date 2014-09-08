@@ -16,6 +16,7 @@ dependencies[] = search_api_spellcheck
 dependencies[] = search_api_views
 dependencies[] = views
 dependencies[] = views_content
+dependencies[] = views_content_cache
 features[ctools][] = facetapi:facetapi_defaults:1
 features[ctools][] = page_manager:pages_default:1
 features[ctools][] = views:views_default:3.0
