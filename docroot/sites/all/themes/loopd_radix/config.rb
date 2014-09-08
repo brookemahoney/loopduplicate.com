@@ -2,6 +2,7 @@
 require 'bootstrap-sass';
 require "compass_radix";
 require "sass-globbing";
+require "breakpoint";
 
 # Set environment [development, production]
 environment = :development

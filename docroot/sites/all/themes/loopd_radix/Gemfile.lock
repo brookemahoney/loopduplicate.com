@@ -101,6 +101,7 @@ PLATFORMS
 
 DEPENDENCIES
   bootstrap-sass
+  breakpoint
   compass
   compass-normalize
   compass-rgbapng

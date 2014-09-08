@@ -2,6 +2,7 @@
 // SASS partials import
 // --------------------------------------------------
 @import "compass";
+@import "breakpoint";
 
 // Mixins and Variables
 // --------------------------------------------------
@@ -24,4 +25,4 @@
 // Theme CSS
 // --------------------------------------------------
 @import "global/font";
-@import "partials/*";
+@import "components/*";

@@ -12,6 +12,7 @@ group :development do
   gem 'toolkit'                 # Compass utility from the fabulous Snugug.
   gem 'oily_png'                # Faster Compass sprite generation.
   gem 'css_parser'              # Helps `compass stats` output statistics.
+  gem 'breakpoint'              # Helps `compass stats` output statistics.
 
   # Guard
   gem 'guard'                   # Guard event handler.

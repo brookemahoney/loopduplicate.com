@@ -1,0 +1,12 @@
+.search-results-pane {
+  [property="dc:title"] {
+    border-bottom: 3px solid $brand-primary;
+    font-size: $font-size-h4;
+    padding-bottom: .2em;
+  }
+  .search-result {
+    display: inline-block;
+    padding-bottom: $grid-gutter-half;
+    vertical-align: top;
+  }
+}

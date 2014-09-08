@@ -91,7 +91,10 @@ function loopd_search_default_page_manager_pages() {
       ),
       'style' => 'clean_element',
     );
-    $pane->css = array();
+    $pane->css = array(
+      'css_id' => '',
+      'css_class' => 'search-results-pane',
+    );
     $pane->extras = array();
     $pane->position = 0;
     $pane->locks = array();
