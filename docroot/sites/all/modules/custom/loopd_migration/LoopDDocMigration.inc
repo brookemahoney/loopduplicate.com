@@ -80,6 +80,8 @@ class LoopDDocMigration extends Migration {
         ->description('Term reference: ignore case');
     $this->addFieldMapping('field_teaser', 'body_value')
         ->callbacks(array($this, 'teaserCallback'));
+    $this->addFieldMapping('field_teaser:format')
+        ->defaultValue('full_html_no_linebreaks');
   }
 
   /**
