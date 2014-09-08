@@ -1,6 +1,7 @@
 # Require any additional compass plugins here.
 require 'bootstrap-sass';
 require "compass_radix";
+require "sass-globbing";
 
 # Set environment [development, production]
 environment = :development

@@ -24,13 +24,4 @@
 // Theme CSS
 // --------------------------------------------------
 @import "global/font";
-@import "partials/layout";
-@import "partials/structure";
-@import "partials/menu";
-@import "partials/page";
-@import "partials/panel";
-@import "partials/view";
-@import "partials/form";
-@import "partials/comment";
-@import "partials/node";
-@import "partials/user";
+@import "partials/*";
