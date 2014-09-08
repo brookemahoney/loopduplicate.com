@@ -67,6 +67,8 @@ class LoopDDocMigration extends Migration {
     $this->addFieldMapping('changed', 'changed');
     $this->addFieldMapping('language', 'language');
     $this->addFieldMapping('field_body', 'body_fields');
+    $this->addFieldMapping('uid')
+        ->defaultValue('1');
     $this->addFieldMapping('field_body:format')
         ->defaultValue('full_html_no_linebreaks');
     $this->addFieldMapping('field_body:language')
