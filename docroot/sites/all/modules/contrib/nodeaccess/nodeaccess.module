@@ -11,7 +11,7 @@
 function nodeaccess_help($path, $arg) {
   switch ($path) {
     case 'node/%/grant':
-      return '<small>' . t('You can set grants per users. Enter a name or a partial name in the box and click Search or press return. You need to check the Keep? checkbox if you want to keep the user for granting. Note that user grants are additional to those coming from roles.') . '</small>';
+      return t("You can set grants for individual users. Enter a name or a partial name in the box and click Search or press return. You must check the 'Keep?' checkbox if you want to keep the user for granting. Note that user grants are in addition to those coming from roles.");
   }
 }
 
@@ -157,7 +157,7 @@ function nodeaccess_access($op, $node, $account = NULL) {
 function nodeaccess_theme($existing, $type, $theme, $path) {
   return array(
     'nodeaccess_admin_form_roles' => array(
-      'render element'  => 'role',
+      'render element'  => 'form',
     ),
     'nodeaccess_admin_form_types' => array(
       'render element'  => 'form',
@@ -190,7 +190,7 @@ function nodeaccess_admin_form($form, $form_state) {
     '#type' => 'checkbox',
     '#title' => t('Give node grants priority'),
     '#default_value' => variable_get('nodeaccess-priority', 0),
-    '#description' => '<small>' . t('If you are only using this access control module, you can safely ignore this. If you are using multiple access control modules, and you want the grants given on individual nodes to override any grants given by other modules, you should check this box.') . '</small>',
+    '#description' => t('If you are only using this access control module, you can safely ignore this. If you are using multiple access control modules, and you want the grants given on individual nodes to override any grants given by other modules, you should check this box.'),
   );
 
   // Select whether to preserve hidden grants.
@@ -235,7 +235,7 @@ function nodeaccess_admin_form($form, $form_state) {
     '#title' => t('Allowed Roles'),
     '#tree' => TRUE,
     '#theme' => 'nodeaccess_admin_form_roles',
-    '#description' => '<small>' . t('The selected roles will be listed on individual node grants. If you wish for certain roles to be hidden from users on the node grants tab, make sure they are not selected here. You may also provide an alias for each role to be displayed to the user and a weight to order them by. This is useful if your roles have machine-readable names not intended for human users.') . '</small>',
+    '#description' => t('The selected roles will be listed on individual node grants. If you wish for certain roles to be hidden from users on the node grants tab, make sure they are not selected here. You may also provide an alias for each role to be displayed to the user and a weight to order them by. This is useful if your roles have machine-readable names not intended for human users.'),
   );
 
   foreach ($roles as $id => $role) {
@@ -246,7 +246,6 @@ function nodeaccess_admin_form($form, $form_state) {
     if (!$role['weight']) {
       $role['weight'] = 0;
     }
-    // $form['role'][$id] = array('#tree' => TRUE);
     $form['role'][$id]['name'] = array(
       '#type' => 'hidden',
       '#value' => $role['name'],
@@ -452,24 +451,38 @@ function nodeaccess_admin_form_submit($form, $form_state) {
 }
 
 /**
- * Theme functions for nodeaccess_admin_form.
+ * Theme function for nodeaccess_admin_form.
  */
 function theme_nodeaccess_admin_form_roles($variables) {
   $output = '';
-  $roles = $variables['role'];
-  $header = array(t('Allow Role'), t('Alias'), t('Weight'));
+  $form = $variables['form'];
+  $rows = array();
+  foreach (element_children($form) as $rid) {
+    // Classify the weight element for TableDrag.
+    $form[$rid]['weight']['#attributes']['class'] = array('roles-order-weight');
 
-  foreach ($roles as $role) {
-    if (!is_array($role) || !isset($role['allow'])) {
-      continue;
-    }
-    $row = array();
-    $row[] = drupal_render($role['allow']);
-    $row[] = drupal_render($role['alias']);
-    $row[] = drupal_render_children($role['weight']);
+    // Mark the table row as draggable for TableDrag.
+    $row = array(
+      'data' => array(),
+      'class' => array('draggable'),
+    );
+    // Render the table columns.
+    $row['data'][] = drupal_render($form[$rid]['allow']);
+    $row['data'][] = drupal_render($form[$rid]['alias']);
+    $row['data'][] = drupal_render($form[$rid]['weight']);
     $rows[] = $row;
   }
-  $output .= theme('table', array('header' => $header, 'rows' => $rows));
+
+  $header = array(t('Allow Role'), t('Alias'), t('Weight'));
+  $output .= theme('table', array(
+    'header' => $header,
+    'rows' => $rows,
+    'attributes' => array('id' => 'roles-order'),
+  ));
+  $output .= drupal_render_children($form);
+
+  // Attach TableDrag to the table ID and contained weight elements.
+  drupal_add_tabledrag('roles-order', 'order', 'sibling', 'roles-order-weight');
 
   return $output;
 }
@@ -548,7 +561,11 @@ function nodeaccess_grants_form($form, &$form_state, $node) {
   if (!$form_values) {
     $form_values = array();
     // Load all roles.
-    $result = db_query("SELECT r.rid, nra.name, na.grant_view, na.grant_update, na.grant_delete FROM {role} r LEFT JOIN {nodeaccess_role_alias} nra ON r.rid = nra.rid LEFT JOIN {node_access} na ON r.rid = na.gid AND na.realm = :realm AND na.nid = :nid ORDER BY nra.weight, nra.name", array(':realm' => 'nodeaccess_rid', ':nid' => $node->nid));
+    $result = db_query("SELECT r.rid, nra.name, na.grant_view, na.grant_update, na.grant_delete
+      FROM {role} r
+      LEFT JOIN {nodeaccess_role_alias} nra ON r.rid = nra.rid
+      LEFT JOIN {node_access} na ON r.rid = na.gid AND na.realm = :realm AND na.nid = :nid
+      ORDER BY nra.weight, nra.name", array(':realm' => 'nodeaccess_rid', ':nid' => $node->nid));
     foreach ($result as $grant) {
       $form_values['rid'][$grant->rid] = array(
         'name' => $grant->name,
@@ -558,7 +575,11 @@ function nodeaccess_grants_form($form, &$form_state, $node) {
       );
     }
     // Load users from node_access.
-    $results = db_query("SELECT uid, name, grant_view, grant_update, grant_delete FROM {node_access} LEFT JOIN {users} ON uid = gid WHERE nid = :nid AND realm = :realm ORDER BY name", array(
+    $results = db_query("SELECT uid, name, grant_view, grant_update, grant_delete
+      FROM {node_access}
+      LEFT JOIN {users} ON uid = gid
+      WHERE nid = :nid AND realm = :realm
+      ORDER BY name", array(
         ':nid' => $node->nid,
         ':realm' => 'nodeaccess_uid',
       ));
@@ -602,21 +623,19 @@ function nodeaccess_grants_form($form, &$form_state, $node) {
       foreach (array_keys($form_values['uid']) as $uid) {
         if (!$form_values['uid'][$uid]['keep']) {
           foreach (array('grant_view', 'grant_update', 'grant_delete') as $grant_type) {
-            $form_values['uid'][$uid][$grant_type] = db_query_range("SELECT count(*) FROM {node_access} na LEFT JOIN {users_roles} r ON na.gid = r.rid WHERE nid = :nid AND realm = :realm AND uid = :uid AND :type = 1",
+            $form_values['uid'][$uid][$grant_type] = db_query_range("SELECT count(*) FROM {node_access} na LEFT JOIN {users_roles} r ON na.gid = r.rid WHERE nid = :nid AND realm = :realm AND uid = :uid AND $grant_type = 1",
               0, 1,
               array(
                 ':nid' => $node->nid,
                 ':realm' => 'nodeaccess_rid',
                 ':uid' => $uid,
-                ':type' => $grant_type,
               ))->fetchField() ||
-              db_query_range("SELECT count(*) FROM {node_access} na WHERE nid = :nid AND realm = :realm AND gid = :gid AND :type = 1",
+              db_query_range("SELECT count(*) FROM {node_access} na WHERE nid = :nid AND realm = :realm AND gid = :gid AND $grant_type = 1",
                 0, 1,
                 array(
                   ':nid' => $node->nid,
                   ':realm' => 'nodeaccess_uid',
                   ':gid' => $uid,
-                  ':type' => $grant_type,
                 )
                 )->fetchField();
           }
@@ -888,6 +907,15 @@ function theme_nodeaccess_grants_form($variables) {
   $allowed_grants = variable_get('nodeaccess-grants', array());
   // Retrieve role names for columns.
   $role_names = user_roles();
+  $role_aliases = nodeaccess_get_role_aliases();
+
+  // Replace names with aliases.
+  foreach ($role_names as $rid => $name) {
+    if (isset($role_aliases[$rid]['alias'])) {
+      $role_names[$rid] = $role_aliases[$rid]['alias'];
+    }
+  }
+
   // Roles table.
   $roles = element_children($form['rid']);
   if (count($roles) && count($allowed_roles)) {
@@ -1034,8 +1062,17 @@ function nodeaccess_node_access_records($node) {
   }
   // Need to find out if node has own grants or whether to use defaults.
   $default = variable_get('nodeaccess_' . $node->type, array());
-  // Load priority setting.
-  $priority = variable_get('nodeaccess-priority', 0);
+
+  // Setup default keys that are required by node_access_write_grants().
+  $grant_defaults = array(
+    'gid' => 0,
+    'realm' => 'nodeaccess_rid',
+    'grant_view' => 0,
+    'grant_update' => 0,
+    'grant_delete' => 0,
+    'priority' => variable_get('nodeaccess-priority', 0),
+  );
+
   $result = db_query("SELECT count(*) FROM {nodeaccess} WHERE nid = :nid", array(':nid' => $node->nid))->fetchField();
   if ($result < 1) {
     // Node has no own grants, use defaults if published.
@@ -1045,25 +1082,23 @@ function nodeaccess_node_access_records($node) {
     else {
       // Otherwise, check access to unpublished content for authenticated and
       // anonymous users.
-      $role_perms = user_role_permissions(array(1 => 1, 2 => 2));
+      $role_perms = user_role_permissions(array(
+        DRUPAL_ANONYMOUS_RID => DRUPAL_ANONYMOUS_RID,
+        DRUPAL_AUTHENTICATED_RID => DRUPAL_AUTHENTICATED_RID,
+      ));
       // Anonymous user setting.
       $grants = array();
       $grants[] = array(
-        'gid' => 1,
-        'realm' => 'nodeaccess_rid',
-        'grant_view' => isset($role_perms[1]['bypass node access'])?
-                          intval($role_perms[1]['bypass node access']) : 0,
+        'gid' => DRUPAL_ANONYMOUS_RID,
+        'grant_view' => isset($role_perms[DRUPAL_ANONYMOUS_RID]['bypass node access']) ?
+          intval($role_perms[DRUPAL_ANONYMOUS_RID]['bypass node access']) : 0,
       );
       // Authenticated user setting.
       $grants[] = array(
-        'gid' => 2,
-        'realm' => 'nodeaccess_rid',
-        'grant_view' => isset($role_perms[2]['bypass node access'])?
-                          intval($role_perms[2]['bypass node access']) : 0,
+        'gid' => DRUPAL_AUTHENTICATED_RID,
+        'grant_view' => isset($role_perms[DRUPAL_AUTHENTICATED_RID]['bypass node access']) ?
+          intval($role_perms[DRUPAL_AUTHENTICATED_RID]['bypass node access']) : 0,
       );
-    }
-    foreach ($grants as $id => $grant) {
-      $grants[$id]['priority'] = $priority;
     }
   }
   else {
@@ -1077,7 +1112,6 @@ function nodeaccess_node_access_records($node) {
         'grant_view' => $row->grant_view,
         'grant_update' => $row->grant_update,
         'grant_delete' => $row->grant_delete,
-        'priority' => $priority,
       );
     }
   }
@@ -1087,10 +1121,14 @@ function nodeaccess_node_access_records($node) {
   $grant = $author_prefs[$node->type];
   $grant['gid'] = $node->uid;
   $grant['realm'] = 'nodeaccess_author';
-  $grant['priority'] = $priority;
   // Include author grant even with all values FALSE, it may be
   // needed to overwrite an older value.
   $grants[] = $grant;
+
+  foreach ($grants as $id => $grant) {
+    // Merge missing default grant keys.
+    $grants[$id] = $grants[$id] + $grant_defaults;
+  }
   return $grants;
 }
 
@@ -1184,7 +1222,11 @@ function nodeaccess_node_type_insert($info) {
  */
 function nodeaccess_get_role_aliases() {
   $aliases = array();
-  $results = db_query('SELECT r.rid, r.name, a.name AS alias, a.weight FROM {role} r LEFT JOIN {nodeaccess_role_alias} a ON r.rid = a.rid ORDER BY r.name');
+  $sql = 'SELECT r.rid, r.name, a.name AS alias, a.weight
+    FROM {role} r
+    LEFT JOIN {nodeaccess_role_alias} a ON r.rid = a.rid
+    ORDER BY a.weight, r.weight, a.name, r.name';
+  $results = db_query($sql);
   foreach ($results as $a) {
     $aliases[$a->rid]['name'] = $a->name;
     $aliases[$a->rid]['alias'] = $a->alias;
