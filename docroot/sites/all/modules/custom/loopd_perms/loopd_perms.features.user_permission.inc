@@ -42,6 +42,8 @@ function loopd_perms_user_default_permissions() {
     'name' => 'access content',
     'roles' => array(
       'administrator' => 'administrator',
+      'anonymous user' => 'anonymous user',
+      'authenticated user' => 'authenticated user',
     ),
     'module' => 'node',
   );
@@ -469,6 +471,15 @@ function loopd_perms_user_default_permissions() {
     'module' => 'user',
   );
 
+  // Exported permission: 'create article content'.
+  $permissions['create article content'] = array(
+    'name' => 'create article content',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'node',
+  );
+
   // Exported permission: 'create fieldable fieldable_panels_pane'.
   $permissions['create fieldable fieldable_panels_pane'] = array(
     'name' => 'create fieldable fieldable_panels_pane',
@@ -485,15 +496,6 @@ function loopd_perms_user_default_permissions() {
       'administrator' => 'administrator',
     ),
     'module' => 'file_entity',
-  );
-
-  // Exported permission: 'create article content'.
-  $permissions['create article content'] = array(
-    'name' => 'create article content',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'node',
   );
 
   // Exported permission: 'create messages'.
@@ -514,6 +516,15 @@ function loopd_perms_user_default_permissions() {
     'module' => 'path',
   );
 
+  // Exported permission: 'delete any article content'.
+  $permissions['delete any article content'] = array(
+    'name' => 'delete any article content',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'node',
+  );
+
   // Exported permission: 'delete any audio files'.
   $permissions['delete any audio files'] = array(
     'name' => 'delete any audio files',
@@ -530,15 +541,6 @@ function loopd_perms_user_default_permissions() {
       'administrator' => 'administrator',
     ),
     'module' => 'file_entity',
-  );
-
-  // Exported permission: 'delete any article content'.
-  $permissions['delete any article content'] = array(
-    'name' => 'delete any article content',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'node',
   );
 
   // Exported permission: 'delete any image files'.
@@ -568,6 +570,15 @@ function loopd_perms_user_default_permissions() {
     'module' => 'fieldable_panels_panes',
   );
 
+  // Exported permission: 'delete own article content'.
+  $permissions['delete own article content'] = array(
+    'name' => 'delete own article content',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'node',
+  );
+
   // Exported permission: 'delete own audio files'.
   $permissions['delete own audio files'] = array(
     'name' => 'delete own audio files',
@@ -584,15 +595,6 @@ function loopd_perms_user_default_permissions() {
       'administrator' => 'administrator',
     ),
     'module' => 'file_entity',
-  );
-
-  // Exported permission: 'delete own article content'.
-  $permissions['delete own article content'] = array(
-    'name' => 'delete own article content',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'node',
   );
 
   // Exported permission: 'delete own image files'.
@@ -701,6 +703,15 @@ function loopd_perms_user_default_permissions() {
     'module' => 'file_entity',
   );
 
+  // Exported permission: 'edit any article content'.
+  $permissions['edit any article content'] = array(
+    'name' => 'edit any article content',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'node',
+  );
+
   // Exported permission: 'edit any audio files'.
   $permissions['edit any audio files'] = array(
     'name' => 'edit any audio files',
@@ -717,15 +728,6 @@ function loopd_perms_user_default_permissions() {
       'administrator' => 'administrator',
     ),
     'module' => 'file_entity',
-  );
-
-  // Exported permission: 'edit any article content'.
-  $permissions['edit any article content'] = array(
-    'name' => 'edit any article content',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'node',
   );
 
   // Exported permission: 'edit any image files'.
@@ -755,6 +757,15 @@ function loopd_perms_user_default_permissions() {
     'module' => 'fieldable_panels_panes',
   );
 
+  // Exported permission: 'edit own article content'.
+  $permissions['edit own article content'] = array(
+    'name' => 'edit own article content',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'node',
+  );
+
   // Exported permission: 'edit own audio files'.
   $permissions['edit own audio files'] = array(
     'name' => 'edit own audio files',
@@ -771,15 +782,6 @@ function loopd_perms_user_default_permissions() {
       'administrator' => 'administrator',
     ),
     'module' => 'file_entity',
-  );
-
-  // Exported permission: 'edit own article content'.
-  $permissions['edit own article content'] = array(
-    'name' => 'edit own article content',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'node',
   );
 
   // Exported permission: 'edit own image files'.
