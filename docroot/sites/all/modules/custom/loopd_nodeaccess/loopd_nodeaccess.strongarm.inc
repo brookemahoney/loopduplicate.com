@@ -63,14 +63,14 @@ function loopd_nodeaccess_strongarm() {
     0 => array(
       'gid' => 1,
       'realm' => 'nodeaccess_rid',
-      'grant_view' => 0,
+      'grant_view' => 1,
       'grant_update' => 0,
       'grant_delete' => 0,
     ),
     1 => array(
       'gid' => 2,
       'realm' => 'nodeaccess_rid',
-      'grant_view' => 0,
+      'grant_view' => 1,
       'grant_update' => 0,
       'grant_delete' => 0,
     ),
