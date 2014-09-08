@@ -58,9 +58,9 @@ function loopd_search_default_search_api_index() {
         "author" : { "type" : "integer", "entity_type" : "user" },
         "author:name" : { "type" : "text", "boost" : "5.0" },
         "author:uid" : { "type" : "integer" },
-        "body:value" : { "type" : "text" },
         "changed" : { "type" : "date" },
         "created" : { "type" : "date" },
+        "field_body:value" : { "type" : "list\\u003Ctext\\u003E" },
         "field_tags" : { "type" : "list\\u003Cinteger\\u003E", "entity_type" : "taxonomy_term" },
         "promote" : { "type" : "boolean" },
         "search_api_access_node" : { "type" : "list\\u003Cstring\\u003E" },
@@ -217,11 +217,6 @@ function loopd_search_default_search_api_server() {
             "type" : "text",
             "boost" : "5.0"
           },
-          "body:value" : {
-            "table" : "search_api_db_db_node_text",
-            "type" : "text",
-            "boost" : "1.0"
-          },
           "status" : {
             "table" : "search_api_db_db_node",
             "column" : "status",
@@ -238,6 +233,11 @@ function loopd_search_default_search_api_server() {
             "table" : "search_api_db_db_node_field_tags",
             "column" : "value",
             "type" : "list\\u003Cinteger\\u003E",
+            "boost" : "1.0"
+          },
+          "field_body:value" : {
+            "table" : "search_api_db_db_node_text",
+            "type" : "list\\u003Ctext\\u003E",
             "boost" : "1.0"
           }
         }

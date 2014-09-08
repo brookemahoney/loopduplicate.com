@@ -66,7 +66,7 @@ function loopd_search_views_default_views() {
   );
   $handler->display->display_options['filters']['search_api_views_fulltext']['fields'] = array(
     'author:name' => 'author:name',
-    'body:value' => 'body:value',
+    'field_body:value' => 'field_body:value',
     'title' => 'title',
   );
 
