@@ -1,0 +1,7 @@
+name = LoopDuplicate Migration
+description = Migrates content from old site.
+core = 7.x
+dependencies[] = migrate
+package = LoopDuplicate
+files[] = loop_migration.migrate.inc
+files[] = LoopDDocMigration.inc
