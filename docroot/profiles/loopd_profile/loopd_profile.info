@@ -105,6 +105,7 @@ dependencies[] = views
 dependencies[] = views_autocomplete_filters
 dependencies[] = views_bulk_operations
 dependencies[] = views_content
+dependencies[] = views_content_cache
 dependencies[] = views_slideshow
 dependencies[] = views_ui
 dependencies[] = wysiwyg
