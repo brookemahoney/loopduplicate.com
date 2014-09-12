@@ -1,5 +1,7 @@
 Search API 1.x, dev (xx/xx/xxxx):
 ---------------------------------
+- #2305627 by drunken monkey, cpliakas: Fixed date facets not displayed when
+  the configured granularity is larger than the calculated granularity.
 - #2319263 by solotandem: Added easier way to subclass entity classes.
 - #2278737 by drunken monkey: Fixed use of multiple Views fulltext search
   filters.
