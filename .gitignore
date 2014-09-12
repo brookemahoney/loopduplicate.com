@@ -10,3 +10,4 @@ sites/default/files
 *devlocal*
 *temppp*
 *node_modules*
+docroot/error_log
