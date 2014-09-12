@@ -689,6 +689,7 @@ function file_entity_edit($form, &$form_state, $file) {
     '#value' => t('Save'),
     '#weight' => 5,
     '#submit' => array('file_entity_edit_submit'),
+    '#validate' => array('file_entity_edit_validate'),
   );
   $form['actions']['delete'] = array(
     '#type' => 'submit',
