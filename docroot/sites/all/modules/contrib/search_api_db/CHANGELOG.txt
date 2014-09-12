@@ -1,5 +1,11 @@
-Search API Database Search 1.x, dev (xx/xx/xxxx):
--------------------------------------------------
+Search API Database Search 1.4 (09/08/2014):
+--------------------------------------------
+- #2318865 by drunken monkey: Fixed error when Mbstring extension is not
+  available.
+- #2231453 by Johnny vd Laar, valderama: Fixed case sensitivity of autocomplete
+  suggestions.
+- #2305107 by drunken monkey: Fixed standards-compliance of the generated SQL
+  queries.
 - #2286329 by drunken monkey: Fixed incorrect facet counts for multi-word
   search.
 - #2237829 by drunken monkey: Added a hook and methods for more specific
