@@ -159,11 +159,11 @@ function media_internet_forms($form_id, $args) {
 }
 
 /**
- * Implements hook_form_FORM_ID_alter().
+ * Implements hook_form_BASE_FORM_ID_alter().
  */
 function media_internet_form_file_entity_add_upload_alter(&$form, &$form_state, $form_id) {
   $step = $form['#step'];
-  $options = $form['#options'];
+  $options = $form_state['build_info']['args'][0];
 
   // Swap the upload field for an embed field when on the first step of the web
   // tab.
