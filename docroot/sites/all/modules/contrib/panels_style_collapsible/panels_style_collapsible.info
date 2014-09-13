@@ -1,0 +1,12 @@
+name = Collapsible region and pane style
+description = Panels style plugin for collapsible regions and panes.
+package = Panels style plugins
+dependencies[] = panels
+core = 7.x
+files[] = panels_style_collapsible
+; Information added by drupal.org packaging script on 2012-10-03
+version = "7.x-1.0"
+core = "7.x"
+project = "panels_style_collapsible"
+datestamp = "1349272570"
+
