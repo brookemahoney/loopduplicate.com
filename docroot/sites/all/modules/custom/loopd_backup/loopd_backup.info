@@ -1,0 +1,10 @@
+name = LoopDuplicate Backup and Migrate
+description = Configuration for the backup and migrate module.
+core = 7.x
+package = LoopDuplicate
+dependencies[] = backup_migrate
+dependencies[] = ctools
+features[backup_migrate_profiles][] = default
+features[ctools][] = backup_migrate:backup_migrate_exportables:1
+features[features_api][] = api:2
+project path = sites/all/modules/custom
