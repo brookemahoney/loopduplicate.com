@@ -1,0 +1,7 @@
+<?php
+/**
+ * Enables the panels_style_collapsible module.
+ */
+function loopd_search_update_7000() {
+  module_enable(array('panels_style_collapsible'));
+}
