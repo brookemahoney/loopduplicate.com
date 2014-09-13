@@ -156,7 +156,10 @@ function loopd_search_default_page_manager_pages() {
       ),
       'style' => 'clean_element',
     );
-    $pane->css = array();
+    $pane->css = array(
+      'css_id' => '',
+      'css_class' => 'search-filter-pane',
+    );
     $pane->extras = array();
     $pane->position = 0;
     $pane->locks = array();
@@ -189,7 +192,10 @@ function loopd_search_default_page_manager_pages() {
       ),
       'style' => 'clean_element',
     );
-    $pane->css = array();
+    $pane->css = array(
+      'css_id' => '',
+      'css_class' => 'search-filter-pane',
+    );
     $pane->extras = array();
     $pane->position = 1;
     $pane->locks = array();
@@ -222,7 +228,10 @@ function loopd_search_default_page_manager_pages() {
       ),
       'style' => 'clean_element',
     );
-    $pane->css = array();
+    $pane->css = array(
+      'css_id' => '',
+      'css_class' => 'search-filter-pane',
+    );
     $pane->extras = array();
     $pane->position = 2;
     $pane->locks = array();
