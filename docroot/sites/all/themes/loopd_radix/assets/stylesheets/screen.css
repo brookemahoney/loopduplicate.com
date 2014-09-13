@@ -10749,7 +10749,11 @@ html.js fieldset.collapsed {
   font-size: 18px;
   padding-bottom: .2em;
 }
-/* line 7, ../sass/components/_search.scss */
+/* line 6, ../sass/components/_search.scss */
+.search-results-pane [property="dc:title"] a:hover {
+  text-decoration: none;
+}
+/* line 10, ../sass/components/_search.scss */
 .search-results-pane .search-result {
   display: inline-block;
   padding-bottom: 10px;

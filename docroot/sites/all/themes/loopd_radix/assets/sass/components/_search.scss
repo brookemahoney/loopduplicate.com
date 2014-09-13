@@ -3,6 +3,9 @@
     border-bottom: 3px solid $brand-primary;
     font-size: $font-size-h4;
     padding-bottom: .2em;
+    a:hover {
+      text-decoration: none;
+    }
   }
   .search-result {
     display: inline-block;
