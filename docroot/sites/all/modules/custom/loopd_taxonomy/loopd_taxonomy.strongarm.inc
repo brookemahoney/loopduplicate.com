@@ -17,5 +17,33 @@ function loopd_taxonomy_strongarm() {
   $strongarm->value = FALSE;
   $export['page_manager_term_view_disabled'] = $strongarm;
 
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'rh_taxonomy_term_action_tags';
+  $strongarm->value = '3';
+  $export['rh_taxonomy_term_action_tags'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'rh_taxonomy_term_override_tags';
+  $strongarm->value = 0;
+  $export['rh_taxonomy_term_override_tags'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'rh_taxonomy_term_redirect_response_tags';
+  $strongarm->value = '301';
+  $export['rh_taxonomy_term_redirect_response_tags'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'rh_taxonomy_term_redirect_tags';
+  $strongarm->value = '?f[0]=field_tags%3A[term:tid]';
+  $export['rh_taxonomy_term_redirect_tags'] = $strongarm;
+
   return $export;
 }

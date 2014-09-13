@@ -1,0 +1,7 @@
+<?php
+/**
+ * Enables rabbit_hole and rh_taxonomy.
+ */
+function loopd_taxonomy_update_7000() {
+  module_enable(array('rabbit_hole', 'rh_taxonomy'));
+}

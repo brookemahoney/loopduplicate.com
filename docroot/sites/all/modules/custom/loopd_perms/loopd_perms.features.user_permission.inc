@@ -57,6 +57,15 @@ function loopd_perms_user_default_permissions() {
     'module' => 'node',
   );
 
+  // Exported permission: 'access contextual links'.
+  $permissions['access contextual links'] = array(
+    'name' => 'access contextual links',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'contextual',
+  );
+
   // Exported permission: 'access devel information'.
   $permissions['access devel information'] = array(
     'name' => 'access devel information',
@@ -127,6 +136,69 @@ function loopd_perms_user_default_permissions() {
       'administrator' => 'administrator',
     ),
     'module' => 'panels',
+  );
+
+  // Exported permission: 'administer block classes'.
+  $permissions['administer block classes'] = array(
+    'name' => 'administer block classes',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'block_class',
+  );
+
+  // Exported permission: 'administer blockify'.
+  $permissions['administer blockify'] = array(
+    'name' => 'administer blockify',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'blockify',
+  );
+
+  // Exported permission: 'administer blocks'.
+  $permissions['administer blocks'] = array(
+    'name' => 'administer blocks',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'block',
+  );
+
+  // Exported permission: 'administer cer settings'.
+  $permissions['administer cer settings'] = array(
+    'name' => 'administer cer settings',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'cer',
+  );
+
+  // Exported permission: 'administer clean markup block settings'.
+  $permissions['administer clean markup block settings'] = array(
+    'name' => 'administer clean markup block settings',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'clean_markup_blocks',
+  );
+
+  // Exported permission: 'administer clean markup panel pane settings'.
+  $permissions['administer clean markup panel pane settings'] = array(
+    'name' => 'administer clean markup panel pane settings',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'clean_markup_panels',
+  );
+
+  // Exported permission: 'administer clean markup panel region settings'.
+  $permissions['administer clean markup panel region settings'] = array(
+    'name' => 'administer clean markup panel region settings',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'clean_markup_panels',
   );
 
   // Exported permission: 'administer content types'.
@@ -273,6 +345,15 @@ function loopd_perms_user_default_permissions() {
     'module' => 'system',
   );
 
+  // Exported permission: 'administer nodeaccess'.
+  $permissions['administer nodeaccess'] = array(
+    'name' => 'administer nodeaccess',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'nodeaccess',
+  );
+
   // Exported permission: 'administer nodes'.
   $permissions['administer nodes'] = array(
     'name' => 'administer nodes',
@@ -345,6 +426,15 @@ function loopd_perms_user_default_permissions() {
     'module' => 'reroute_email',
   );
 
+  // Exported permission: 'administer rh_taxonomy'.
+  $permissions['administer rh_taxonomy'] = array(
+    'name' => 'administer rh_taxonomy',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'rabbit_hole',
+  );
+
   // Exported permission: 'administer search_api'.
   $permissions['administer search_api'] = array(
     'name' => 'administer search_api',
@@ -408,6 +498,13 @@ function loopd_perms_user_default_permissions() {
     'module' => 'user',
   );
 
+  // Exported permission: 'administer uuid'.
+  $permissions['administer uuid'] = array(
+    'name' => 'administer uuid',
+    'roles' => array(),
+    'module' => 'uuid',
+  );
+
   // Exported permission: 'administer views'.
   $permissions['administer views'] = array(
     'name' => 'administer views',
@@ -442,6 +539,13 @@ function loopd_perms_user_default_permissions() {
       'administrator' => 'administrator',
     ),
     'module' => 'node',
+  );
+
+  // Exported permission: 'bypass rh_taxonomy'.
+  $permissions['bypass rh_taxonomy'] = array(
+    'name' => 'bypass rh_taxonomy',
+    'roles' => array(),
+    'module' => 'rabbit_hole',
   );
 
   // Exported permission: 'cancel account'.
@@ -624,6 +728,13 @@ function loopd_perms_user_default_permissions() {
     'module' => 'node',
   );
 
+  // Exported permission: 'delete terms in tags'.
+  $permissions['delete terms in tags'] = array(
+    'name' => 'delete terms in tags',
+    'roles' => array(),
+    'module' => 'taxonomy',
+  );
+
   // Exported permission: 'display drupal links'.
   $permissions['display drupal links'] = array(
     'name' => 'display drupal links',
@@ -802,6 +913,13 @@ function loopd_perms_user_default_permissions() {
     'module' => 'file_entity',
   );
 
+  // Exported permission: 'edit terms in tags'.
+  $permissions['edit terms in tags'] = array(
+    'name' => 'edit terms in tags',
+    'roles' => array(),
+    'module' => 'taxonomy',
+  );
+
   // Exported permission: 'execute php code'.
   $permissions['execute php code'] = array(
     'name' => 'execute php code',
@@ -827,6 +945,42 @@ function loopd_perms_user_default_permissions() {
     'module' => 'features',
   );
 
+  // Exported permission: 'grant deletable node permissions'.
+  $permissions['grant deletable node permissions'] = array(
+    'name' => 'grant deletable node permissions',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'nodeaccess',
+  );
+
+  // Exported permission: 'grant editable node permissions'.
+  $permissions['grant editable node permissions'] = array(
+    'name' => 'grant editable node permissions',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'nodeaccess',
+  );
+
+  // Exported permission: 'grant node permissions'.
+  $permissions['grant node permissions'] = array(
+    'name' => 'grant node permissions',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'nodeaccess',
+  );
+
+  // Exported permission: 'grant own node permissions'.
+  $permissions['grant own node permissions'] = array(
+    'name' => 'grant own node permissions',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'nodeaccess',
+  );
+
   // Exported permission: 'manage features'.
   $permissions['manage features'] = array(
     'name' => 'manage features',
@@ -843,6 +997,13 @@ function loopd_perms_user_default_permissions() {
       'administrator' => 'administrator',
     ),
     'module' => 'pathauto',
+  );
+
+  // Exported permission: 'php redirect rh_taxonomy'.
+  $permissions['php redirect rh_taxonomy'] = array(
+    'name' => 'php redirect rh_taxonomy',
+    'roles' => array(),
+    'module' => 'rabbit_hole',
   );
 
   // Exported permission: 'rename features'.
@@ -951,6 +1112,17 @@ function loopd_perms_user_default_permissions() {
       'administrator' => 'administrator',
     ),
     'module' => 'panels',
+  );
+
+  // Exported permission: 'use search_api_autocomplete for search_api_views_search_db'.
+  $permissions['use search_api_autocomplete for search_api_views_search_db'] = array(
+    'name' => 'use search_api_autocomplete for search_api_views_search_db',
+    'roles' => array(
+      'administrator' => 'administrator',
+      'anonymous user' => 'anonymous user',
+      'authenticated user' => 'authenticated user',
+    ),
+    'module' => 'search_api_autocomplete',
   );
 
   // Exported permission: 'use text format full_html_no_linebreaks'.

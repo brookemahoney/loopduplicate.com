@@ -19,7 +19,7 @@ function loopd_panelseverywhere_default_page_manager_handlers() {
   $handler->handler = 'panel_context';
   $handler->weight = -29;
   $handler->conf = array(
-    'title' => 'Default Variant',
+    'title' => 'Non Admin Area',
     'no_blocks' => 1,
     'pipeline' => 'standard',
     'body_classes_to_remove' => '',
@@ -29,7 +29,20 @@ function loopd_panelseverywhere_default_page_manager_handlers() {
     'contexts' => array(),
     'relationships' => array(),
     'access' => array(
-      'plugins' => array(),
+      'plugins' => array(
+        0 => array(
+          'name' => 'path_visibility',
+          'settings' => array(
+            'visibility_setting' => '0',
+            'paths' => 'admin
+admin/*
+node/add
+node/add/*',
+          ),
+          'context' => 'empty',
+          'not' => FALSE,
+        ),
+      ),
       'logic' => 'and',
     ),
   );
@@ -171,7 +184,7 @@ function loopd_panelseverywhere_default_page_manager_handlers() {
   $handler->handler = 'panel_context';
   $handler->weight = -30;
   $handler->conf = array(
-    'title' => 'Admin',
+    'title' => 'Admin Area',
     'no_blocks' => 1,
     'pipeline' => 'standard',
     'body_classes_to_remove' => '',
