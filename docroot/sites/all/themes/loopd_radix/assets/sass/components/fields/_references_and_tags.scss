@@ -1,0 +1,7 @@
+.field-name-field-internal-references,
+.field-name-field-external-references,
+.field-name-field-tags {
+  &:before {
+    content: '- ';
+  }
+}
