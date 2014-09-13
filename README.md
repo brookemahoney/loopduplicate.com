@@ -1,4 +1,4 @@
-This is a Drupal 7 distribution running on <a href="http://loopduplicate.com">loopduplicate.com/</a>.
+This is a Drupal 7 distribution running on <a href="http://loopduplicate.com">loopduplicate.com</a>.
 
 Instead of using this distribution as a base distribution, it should be used
 as an example of how to build your own distribution. It has a great set of
