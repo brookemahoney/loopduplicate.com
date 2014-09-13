@@ -1,4 +1,33 @@
 /**
+ * @file
+ * Custom sass mixins
+ * 
+ * Define the custom mixins for your project here.
+ * http://sass-lang.com/docs/yardoc/file.SASS_REFERENCE.html#defining_a_mixin
+ */
+/**
+ * Makes an element visually hidden, but accessible.
+ * @see http://snook.ca/archives/html_and_css/hiding-content-for-accessibility
+ */
+/* Turns off the element-invisible effect. */
+/* Makes an element visually hidden by default, but visible when focused. */
+/**
+ * Cross browser alpha for any attribute.
+ *
+ * Usage:
+ * .button {
+ *   @include alpha-attribute('background-color', rgba(black, 0.5), white);
+ * }
+ *
+ * Produces the following CSS:
+ * .button {
+ *   background-color: #7f7f7f;
+ *   background-color: rgba(black, 0.5);
+ * }
+ *
+ * @see http://thesassway.com/intermediate/mixins-for-semi-transparent-colors
+ */
+/**
  * Responsive mixin. 
  *
  * - phone
@@ -10744,20 +10773,29 @@ html.js fieldset.collapsed {
 }
 
 /* line 2, ../sass/components/_search.scss */
-.search-results-pane [property="dc:title"] {
-  border-bottom: 3px solid #428bca;
-  font-size: 18px;
-  padding-bottom: .2em;
+.search-results-pane .search-result {
+  background-image: -webkit-gradient(linear, to right, to left, color-stop(0%, #428bca), color-stop(100%, #ffffff));
+  background-image: -webkit-linear-gradient(to right, #428bca, #ffffff);
+  background-image: -moz-linear-gradient(to right, #428bca, #ffffff);
+  background-image: -o-linear-gradient(to right, #428bca, #ffffff);
+  background-image: linear-gradient(to right, #428bca, #ffffff);
+  padding-top: 3px;
+  margin-top: .3em;
 }
-/* line 6, ../sass/components/_search.scss */
-.search-results-pane [property="dc:title"] a:hover {
-  text-decoration: none;
+/* line 7, ../sass/components/_search.scss */
+.search-results-pane article {
+  background: white;
 }
 /* line 10, ../sass/components/_search.scss */
-.search-results-pane .search-result {
-  display: inline-block;
-  padding-bottom: 10px;
-  vertical-align: top;
+.search-results-pane [property="dc:title"] {
+  font-size: 18px;
+  margin-top: 0;
+  margin-bottom: .2em;
+  padding-top: .2em;
+}
+/* line 15, ../sass/components/_search.scss */
+.search-results-pane [property="dc:title"] a:hover {
+  text-decoration: none;
 }
 
 /* line 4, ../sass/components/fields/_references_and_tags.scss */

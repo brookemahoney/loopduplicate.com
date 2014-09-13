@@ -1,15 +1,19 @@
 .search-results-pane {
+  .search-result {
+    @include background-image(linear-gradient(to right, $brand-primary, #fff));
+    padding-top: 3px;
+    margin-top: .3em;
+  }
+  article {
+    background: $body-bg;
+  }
   [property="dc:title"] {
-    border-bottom: 3px solid $brand-primary;
     font-size: $font-size-h4;
-    padding-bottom: .2em;
+    margin-top: 0;
+    margin-bottom: .2em;
+    padding-top: .2em;
     a:hover {
       text-decoration: none;
     }
-  }
-  .search-result {
-    display: inline-block;
-    padding-bottom: $grid-gutter-half;
-    vertical-align: top;
   }
 }
