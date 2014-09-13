@@ -1,0 +1,19 @@
+.ctools-collapsible-content {
+  margin-top: -10px;
+}
+.pane-title {
+  font-size: $font-size-h4;
+  &.ctools-collapsible-handle,
+  &.ctools-toggle {
+    color: #888;
+    font-size: ($font-size-h4 * .8);
+  }
+}
+
+.ctools-collapsible-container {
+  .ctools-toggle,
+  .ctools-collapsible-handle {
+    position: relative;
+    left: -10px;
+  }
+}

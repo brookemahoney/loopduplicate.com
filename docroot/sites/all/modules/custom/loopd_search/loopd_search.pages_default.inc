@@ -59,8 +59,14 @@ function loopd_search_default_page_manager_pages() {
       'right' => NULL,
       'column1' => NULL,
       'column2' => NULL,
-      'sidebar' => NULL,
+      'sidebar' => array(
+        'region_title' => 'Hide/Show Filters',
+        'region_collapsed' => 0,
+      ),
       'contentmain' => NULL,
+    ),
+    'sidebar' => array(
+      'style' => 'collapsible',
     ),
   );
   $display->cache = array();
