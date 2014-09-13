@@ -37,6 +37,24 @@ function loopd_perms_user_default_permissions() {
     'module' => 'views',
   );
 
+  // Exported permission: 'access backup and migrate'.
+  $permissions['access backup and migrate'] = array(
+    'name' => 'access backup and migrate',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'backup_migrate',
+  );
+
+  // Exported permission: 'access backup files'.
+  $permissions['access backup files'] = array(
+    'name' => 'access backup files',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'backup_migrate',
+  );
+
   // Exported permission: 'access content'.
   $permissions['access content'] = array(
     'name' => 'access content',
@@ -136,6 +154,15 @@ function loopd_perms_user_default_permissions() {
       'administrator' => 'administrator',
     ),
     'module' => 'panels',
+  );
+
+  // Exported permission: 'administer backup and migrate'.
+  $permissions['administer backup and migrate'] = array(
+    'name' => 'administer backup and migrate',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'backup_migrate',
   );
 
   // Exported permission: 'administer block classes'.
@@ -665,6 +692,15 @@ function loopd_perms_user_default_permissions() {
     'module' => 'file_entity',
   );
 
+  // Exported permission: 'delete backup files'.
+  $permissions['delete backup files'] = array(
+    'name' => 'delete backup files',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'backup_migrate',
+  );
+
   // Exported permission: 'delete fieldable fieldable_panels_pane'.
   $permissions['delete fieldable fieldable_panels_pane'] = array(
     'name' => 'delete fieldable fieldable_panels_pane',
@@ -999,6 +1035,15 @@ function loopd_perms_user_default_permissions() {
     'module' => 'pathauto',
   );
 
+  // Exported permission: 'perform backup'.
+  $permissions['perform backup'] = array(
+    'name' => 'perform backup',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'backup_migrate',
+  );
+
   // Exported permission: 'php redirect rh_taxonomy'.
   $permissions['php redirect rh_taxonomy'] = array(
     'name' => 'php redirect rh_taxonomy',
@@ -1013,6 +1058,15 @@ function loopd_perms_user_default_permissions() {
       'administrator' => 'administrator',
     ),
     'module' => 'features',
+  );
+
+  // Exported permission: 'restore from backup'.
+  $permissions['restore from backup'] = array(
+    'name' => 'restore from backup',
+    'roles' => array(
+      'administrator' => 'administrator',
+    ),
+    'module' => 'backup_migrate',
   );
 
   // Exported permission: 'revert revisions'.
