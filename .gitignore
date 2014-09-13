@@ -11,3 +11,4 @@ sites/default/files
 *temppp*
 *node_modules*
 docroot/error_log
+private*
