@@ -13,8 +13,7 @@
 
 %fade-in {
   @include animation-name(fadeIn);
-  @include animation-duration(.3s);
-  @include animation-delay(.5);
+  @include animation-duration(.2s);
   @include animation-timing-function(ease-in);
   @include animation-fill-mode(forward);
 }
