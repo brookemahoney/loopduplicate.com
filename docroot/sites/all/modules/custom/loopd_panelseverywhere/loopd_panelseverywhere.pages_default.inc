@@ -19,7 +19,7 @@ function loopd_panelseverywhere_default_page_manager_handlers() {
   $handler->handler = 'panel_context';
   $handler->weight = -29;
   $handler->conf = array(
-    'title' => 'Non Admin Area',
+    'title' => 'Default',
     'no_blocks' => 1,
     'pipeline' => 'standard',
     'body_classes_to_remove' => '',
