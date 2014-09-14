@@ -11219,6 +11219,12 @@ html.js input.form-autocomplete {
   padding-top: .2em;
 }
 
+/* line 17, ../sass/components/_search.scss */
+.search-filter-pane {
+  display: inline-block;
+  vertical-align: top;
+}
+
 /* line 4, ../sass/components/fields/_references_and_tags.scss */
 .field-name-field-internal-references:before,
 .field-name-field-external-references:before,

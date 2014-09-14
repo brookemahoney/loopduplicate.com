@@ -162,7 +162,7 @@ function loopd_search_default_page_manager_pages() {
       'settings' => array(
         'clean_markup' => array(
           'pane_wrapper' => 'div',
-          'additional_pane_classes' => 'panel-pane',
+          'additional_pane_classes' => 'panel-pane search-filter-pane',
           'additional_pane_attributes' => '',
           'enable_inner_div' => 0,
           'title_wrapper' => 'h2',
@@ -198,7 +198,7 @@ function loopd_search_default_page_manager_pages() {
       'settings' => array(
         'clean_markup' => array(
           'pane_wrapper' => 'div',
-          'additional_pane_classes' => 'panel-pane',
+          'additional_pane_classes' => 'panel-pane search-filter-pane',
           'additional_pane_attributes' => '',
           'enable_inner_div' => 0,
           'title_wrapper' => 'h2',
@@ -234,7 +234,7 @@ function loopd_search_default_page_manager_pages() {
       'settings' => array(
         'clean_markup' => array(
           'pane_wrapper' => 'div',
-          'additional_pane_classes' => 'panel-pane',
+          'additional_pane_classes' => 'panel-pane search-filter-pane',
           'additional_pane_attributes' => '',
           'enable_inner_div' => 0,
           'title_wrapper' => 'h2',
