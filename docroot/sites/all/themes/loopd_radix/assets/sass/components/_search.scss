@@ -1,6 +1,6 @@
 .search-results-pane {
   .search-result {
-    @include background-image(linear-gradient(to right, $brand-primary, #fff));
+    @include background-image(linear-gradient(to right, $brand-primary, $body-bg));
     padding-top: 3px;
     margin-top: .3em;
   }
@@ -12,8 +12,5 @@
     margin-top: 0;
     margin-bottom: .2em;
     padding-top: .2em;
-    a:hover {
-      text-decoration: none;
-    }
   }
 }
