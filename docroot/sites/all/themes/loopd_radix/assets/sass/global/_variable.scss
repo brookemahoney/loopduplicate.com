@@ -180,8 +180,8 @@ $dropdown-border:                rgba(0,0,0,.15) !default;
 $dropdown-fallback-border:       $gray-lighter !default;
 $dropdown-divider-bg:            $gray-lighter !default;
 
-$dropdown-link-color:            $gray-dark !default;
-$dropdown-link-hover-color:      darken($gray-dark, 5%) !default;
+$dropdown-link-color:            $link-color !default;
+$dropdown-link-hover-color:      $link-hover-color !default;
 $dropdown-link-hover-bg:         $gray-lighter !default;
 
 $dropdown-link-active-color:     $component-active-color !default;
@@ -301,8 +301,8 @@ $navbar-inverse-bg:                         #222 !default;
 $navbar-inverse-border:                     darken($navbar-inverse-bg, 10%) !default;
 
 // Inverted navbar links
-$navbar-inverse-link-color:                 $gray-light !default;
-$navbar-inverse-link-hover-color:           $gray-lighter !default;
+$navbar-inverse-link-color:                 $link-color !default;
+$navbar-inverse-link-hover-color:           $link-hover-color !default;
 $navbar-inverse-link-hover-bg:              transparent !default;
 $navbar-inverse-link-active-color:          $navbar-inverse-link-hover-color !default;
 $navbar-inverse-link-active-bg:             darken($navbar-inverse-bg, 10%) !default;
@@ -311,7 +311,7 @@ $navbar-inverse-link-disabled-bg:           transparent !default;
 
 // Inverted navbar brand label
 $navbar-inverse-brand-color:                $navbar-inverse-link-color !default;
-$navbar-inverse-brand-hover-color:          $gray-lighter !default;
+$navbar-inverse-brand-hover-color:          $navbar-inverse-link-hover-color !default;
 $navbar-inverse-brand-hover-bg:             transparent !default;
 
 // Inverted navbar toggle
@@ -324,12 +324,12 @@ $navbar-inverse-toggle-border-color:        #333 !default;
 // -------------------------
 
 $nav-link-padding:                          10px 15px !default;
-$nav-link-hover-bg:                         $gray-lighter !default;
+$nav-link-hover-bg:                         $body-bg !default;
 
-$nav-disabled-link-color:                   $gray-light !default;
-$nav-disabled-link-hover-color:             $gray-light !default;
+$nav-disabled-link-color:                   $navbar-inverse-link-color !default;
+$nav-disabled-link-hover-color:             $navbar-inverse-link-hover-color !default;
 
-$nav-open-link-hover-color:                 $gray-lighter !default;
+$nav-open-link-hover-color:                 $navbar-inverse-link-hover-color !default;
 
 // Tabs
 $nav-tabs-border-color:                     $gray-lighter !default;
@@ -337,7 +337,7 @@ $nav-tabs-border-color:                     $gray-lighter !default;
 $nav-tabs-link-hover-border-color:          $gray-lighter !default;
 
 $nav-tabs-active-link-hover-bg:             $body-bg !default;
-$nav-tabs-active-link-hover-color:          $gray !default;
+$nav-tabs-active-link-hover-color:          $link-hover-color !default;
 $nav-tabs-active-link-hover-border-color:   $gray-lighter !default;
 
 $nav-tabs-justified-link-border-color:            $gray-lighter !default;
@@ -352,10 +352,10 @@ $nav-pills-active-link-hover-color:         $component-active-color !default;
 // Pagination
 // -------------------------
 
-$pagination-bg:                        $gray-lighter !default;
+$pagination-bg:                        $body-bg !default;
 $pagination-border:                    $gray-lighter !default;
 
-$pagination-hover-bg:                  $gray-lighter !default;
+$pagination-hover-bg:                  $body-bg !default;
 
 $pagination-active-bg:                 $brand-primary !default;
 $pagination-active-color:              $gray-lighter !default;
@@ -375,7 +375,7 @@ $pager-disabled-color:                 $gray-light !default;
 
 $jumbotron-padding:              30px !default;
 $jumbotron-color:                inherit !default;
-$jumbotron-bg:                   $gray-lighter !default;
+$jumbotron-bg:                   $body-bg !default;
 $jumbotron-heading-color:        inherit !default;
 $jumbotron-font-size:            ceil($font-size-base * 1.5) !default;
 
@@ -412,7 +412,7 @@ $tooltip-arrow-color:         $tooltip-bg !default;
 
 // Popovers
 // -------------------------
-$popover-bg:                          $gray-lighter !default;
+$popover-bg:                          $body-bg !default;
 $popover-max-width:                   276px !default;
 $popover-border-color:                rgba(0,0,0,.2) !default;
 $popover-fallback-border-color:       $gray-lighter !default;
@@ -448,7 +448,7 @@ $modal-inner-padding:         20px !default;
 $modal-title-padding:         15px !default;
 $modal-title-line-height:     $line-height-base !default;
 
-$modal-content-bg:                             $gray-lighter !default;
+$modal-content-bg:                             $body-bg !default;
 $modal-content-border-color:                   rgba(0,0,0,.2) !default;
 $modal-content-fallback-border-color:          #999 !default;
 
