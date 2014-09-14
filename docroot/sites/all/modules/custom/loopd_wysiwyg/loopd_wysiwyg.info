@@ -7,6 +7,7 @@ dependencies[] = filter
 dependencies[] = geshifilter
 dependencies[] = image_resize_filter
 dependencies[] = media_wysiwyg
+dependencies[] = video_filter
 dependencies[] = wysiwyg
 features[features_api][] = api:2
 features[filter][] = full_html_no_linebreaks
