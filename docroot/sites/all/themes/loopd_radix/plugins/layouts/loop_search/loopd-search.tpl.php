@@ -9,7 +9,7 @@
  * panel of the layout. This layout supports the following sections:
  */
 ?>
-<div class="panel-display loopd-search clearfix <?php if (!empty($classes)) { print $classes; } ?><?php if (!empty($class)) { print $class; } ?>" <?php if (!empty($css_id)) { print "id=\"$css_id\""; } ?>>
+<div id="main-content" class="main-content panel-display clearfix <?php if (!empty($classes)) { print $classes; } ?><?php if (!empty($class)) { print $class; } ?>" <?php if (!empty($css_id)) { print "id=\"$css_id\""; } ?>>
 
   <div class="container">
     <div class="row">
@@ -25,5 +25,5 @@
       </div>
     </div>
   </div>
-    
+
 </div>
