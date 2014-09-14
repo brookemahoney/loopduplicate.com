@@ -151,20 +151,6 @@ function loopd_taxonomy_uuid_features_default_terms() {
     ),
   );
   $terms[] = array(
-    'name' => 'Ctools',
-    'description' => '',
-    'format' => 'full_html_no_linebreaks',
-    'weight' => 0,
-    'rh_action' => NULL,
-    'rh_redirect' => NULL,
-    'rh_redirect_response' => NULL,
-    'uuid' => '78e01dcd-da7e-4dbb-9d11-a38a04e60a6c',
-    'vocabulary_machine_name' => 'tags',
-    'path' => array(
-      'pathauto' => 1,
-    ),
-  );
-  $terms[] = array(
     'name' => 'Modules: Specialty',
     'description' => '',
     'format' => 'full_html_no_linebreaks',
