@@ -18,7 +18,7 @@ module.exports = function(grunt) {
       dist: {
         src: 'assets/javascripts/script.js',
         dest: 'assets/javascripts/script.js'
-      },
+      }
     },
     watch: {
       css: {
