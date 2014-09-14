@@ -86,7 +86,7 @@ node/add/*',
     </div>
     <div class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        <li><a href="https://github.com/jeffymahoney/loopduplicate.com" target="_blank">About</a></li>
+        <li><a href="https://github.com/jeffymahoney/loopduplicate.com" target="_blank">Fork Me</a></li>
       </ul>
     </div>
   </div>
