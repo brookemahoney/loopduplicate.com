@@ -135,7 +135,7 @@ function uuid_commerce_product_features_rebuild($module) {
     uuid_term_features_rebuild($module);
   }
 
-  $products = module_invoke($module, 'uuid_features_default_commerce_product');
+  $products = features_get_default('uuid_commerce_product', $module);
   if (!empty($products)) {
     $return = uuid_commerce_product_features_rebuild_products($products, $module);
     $entity_type = 'commerce_product';

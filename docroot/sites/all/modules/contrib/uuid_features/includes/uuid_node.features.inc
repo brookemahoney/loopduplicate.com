@@ -145,7 +145,7 @@ function uuid_node_features_rebuild($module) {
     uuid_term_features_rebuild($module);
   }
 
-  $nodes = module_invoke($module, 'uuid_features_default_content');
+  $nodes = features_get_default('uuid_node', $module);
   if (!empty($nodes)) {
     module_load_include('inc', 'node', 'node.pages');
 

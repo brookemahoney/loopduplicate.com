@@ -104,7 +104,7 @@ function uuid_user_features_revert($module) {
  * Rebuilds users based on UUID from code defaults.
  */
 function uuid_user_features_rebuild($module) {
-  $users = module_invoke($module, 'uuid_features_default_users');
+  $users = features_get_default('uuid_user', $module);
   uuid_node_features_rebuild($module);
   cache_clear_all();
 

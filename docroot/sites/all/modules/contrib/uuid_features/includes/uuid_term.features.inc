@@ -178,7 +178,7 @@ function uuid_term_features_rebuild($module) {
   taxonomy_features_rebuild($module);
   field_features_rebuild($module);
 
-  $terms = module_invoke($module, 'uuid_features_default_terms');
+  $terms = features_get_default('uuid_term', $module);
   if (!empty($terms)) {
     // Verify that term objects is saved before any references are resolved.
     foreach ($terms as $data) {
