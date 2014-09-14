@@ -50,7 +50,7 @@ function loopd_search_default_page_manager_pages() {
     'panels_breadcrumbs_home' => 0,
   );
   $display = new panels_display();
-  $display->layout = 'radix_burr';
+  $display->layout = 'loopd_search';
   $display->layout_settings = array();
   $display->panel_settings = array(
     'style_settings' => array(
