@@ -13,12 +13,12 @@
 
   <div class="container">
     <div class="row">
-      <div class="col-sm-4 col-md-3 sidebar panel-panel">
+      <div id="search-filters" class="col-sm-4 col-md-3 sidebar panel-panel search-filters">
         <div class="panel-panel-inner">
           <?php print $content['sidebar']; ?>
         </div>
       </div>
-      <div class="col-sm-8 col-md-9 content panel-panel">
+      <div id="search-results" class="col-sm-8 col-md-9 content panel-panel search-results">
         <div class="panel-panel-inner">
           <?php print $content['contentmain']; ?>
         </div>
