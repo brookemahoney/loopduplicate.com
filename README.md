@@ -1,7 +1,11 @@
-This is a Drupal 7 distribution running on <a href="http://loopduplicate.com" target="_blank">loopduplicate.com</a>.
+This is a Drupal 7 distribution.
+It runs on <a href="http://loopduplicate.com">loopduplicate.com</a>, which
+contains things and stuff, mostly related to Drupal (the most badassest
+way to create a thingamabob on the internets.)
 
-Instead of using this distribution as a base distribution, it should be used
-as an example of how to build your own distribution. It has a great set of
+Don't use this distribution as a base distribution, please. Just hack it.
+Drupal's ability to override distributions sucks... If you don't think so, fine, jerk.
+Use it as an example of how to build your own distribution. It has a great set of
 modules that are useful for many sites. Most settings can be overridden without
 causing any features to be overridden.
 
