@@ -60,13 +60,29 @@ function loopd_search_default_page_manager_pages() {
       'column1' => NULL,
       'column2' => NULL,
       'sidebar' => array(
-        'region_title' => 'Hide/Show Filters',
-        'region_collapsed' => 0,
+        'clean_markup' => array(
+          'region_wrapper' => 'none',
+          'additional_region_classes' => '',
+          'additional_region_attributes' => '',
+          'enable_inner_div' => 0,
+          'pane_separators' => 0,
+        ),
       ),
-      'contentmain' => NULL,
+      'contentmain' => array(
+        'clean_markup' => array(
+          'region_wrapper' => 'none',
+          'additional_region_classes' => '',
+          'additional_region_attributes' => '',
+          'enable_inner_div' => 0,
+          'pane_separators' => 0,
+        ),
+      ),
     ),
     'sidebar' => array(
-      'style' => 'collapsible',
+      'style' => 'clean_element',
+    ),
+    'contentmain' => array(
+      'style' => 'clean_element',
     ),
   );
   $display->cache = array();

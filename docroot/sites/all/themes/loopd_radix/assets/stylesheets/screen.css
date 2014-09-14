@@ -11172,25 +11172,8 @@ html.js fieldset.collapsed {
 }
 
 /* line 1, ../sass/components/_panes.scss */
-.ctools-collapsible-content {
-  margin-top: -10px;
-}
-
-/* line 4, ../sass/components/_panes.scss */
 .pane-title {
   font-size: 18px;
-}
-/* line 6, ../sass/components/_panes.scss */
-.pane-title.ctools-collapsible-handle, .pane-title.ctools-toggle {
-  color: #888;
-  font-size: 14.4px;
-}
-
-/* line 14, ../sass/components/_panes.scss */
-.ctools-collapsible-container .ctools-toggle,
-.ctools-collapsible-container .ctools-collapsible-handle {
-  position: relative;
-  left: -10px;
 }
 
 /* line 2, ../sass/components/_search.scss */
