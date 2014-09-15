@@ -9,7 +9,7 @@
       var $filters = $('#search-filters');
       var $results = $('#search-results');
       if (typeof $.cookie('search-filters--visible') === 'undefined') {
-        $.cookie('search-filters--visible', '1');
+        $.cookie('search-filters--visible', '1', {expires: 365, path: '/'});
       }
       var visible = $.cookie('search-filters--visible');
 
