@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the LoopDuplicate XMLSitemap feature.
+ */
+
+include_once 'loopd_xmlsitemap.features.inc';
