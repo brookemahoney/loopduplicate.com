@@ -11288,48 +11288,49 @@ div.geshifilter .coMULTI {
   color: #b7b7b7;
 }
 /* line 46, ../sass/components/_geshi_loopd_dark.scss */
+div.geshifilter .co0,
 div.geshifilter .co4 {
   color: #689b5d;
 }
-/* line 51, ../sass/components/_geshi_loopd_dark.scss */
+/* line 52, ../sass/components/_geshi_loopd_dark.scss */
 div.geshifilter .me1, div.geshifilter .me0, div.geshifilter .me2 {
   color: #ddd;
 }
-/* line 64, ../sass/components/_geshi_loopd_dark.scss */
+/* line 65, ../sass/components/_geshi_loopd_dark.scss */
 div.geshifilter .br0 {
   color: #90b6ca;
 }
-/* line 69, ../sass/components/_geshi_loopd_dark.scss */
+/* line 70, ../sass/components/_geshi_loopd_dark.scss */
 div.geshifilter .st0 {
   color: #8F9657;
 }
-/* line 74, ../sass/components/_geshi_loopd_dark.scss */
+/* line 75, ../sass/components/_geshi_loopd_dark.scss */
 div.geshifilter .kw1, div.geshifilter .kw2, div.geshifilter .kw3 {
   color: #d28039;
 }
-/* line 87, ../sass/components/_geshi_loopd_dark.scss */
+/* line 88, ../sass/components/_geshi_loopd_dark.scss */
 div.geshifilter .nu0 {
   color: #CF6745;
 }
-/* line 92, ../sass/components/_geshi_loopd_dark.scss */
+/* line 93, ../sass/components/_geshi_loopd_dark.scss */
 div.geshifilter .re0 {
   color: #9f80b0;
 }
-/* line 101, ../sass/components/_geshi_loopd_dark.scss */
+/* line 102, ../sass/components/_geshi_loopd_dark.scss */
 div.geshifilter [lang=css] .kw2,
 div.geshifilter .css .kw2 {
   color: #F9EE7E;
 }
-/* line 106, ../sass/components/_geshi_loopd_dark.scss */
+/* line 107, ../sass/components/_geshi_loopd_dark.scss */
 div.geshifilter .re1 {
   color: #96703D;
 }
-/* line 111, ../sass/components/_geshi_loopd_dark.scss */
+/* line 112, ../sass/components/_geshi_loopd_dark.scss */
 div.geshifilter [lang=css] .re3,
 div.geshifilter .css .re3 {
   color: #CA7840;
 }
-/* line 119, ../sass/components/_geshi_loopd_dark.scss */
+/* line 120, ../sass/components/_geshi_loopd_dark.scss */
 div.geshifilter [lang=javascript] .me1, div.geshifilter [lang=javascript] .me0, div.geshifilter [lang=javascript] .me2,
 div.geshifilter .javascript .me1,
 div.geshifilter .javascript .me0,
