@@ -98,8 +98,8 @@ function loopd_node_default_page_manager_handlers() {
       'default' => NULL,
       'contentmain' => array(
         'clean_markup' => array(
-          'region_wrapper' => 'none',
-          'additional_region_classes' => '',
+          'region_wrapper' => 'div',
+          'additional_region_classes' => 'main-content',
           'additional_region_attributes' => '',
           'enable_inner_div' => 0,
           'pane_separators' => 0,
