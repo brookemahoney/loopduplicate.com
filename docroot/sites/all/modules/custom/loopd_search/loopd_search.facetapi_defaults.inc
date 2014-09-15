@@ -24,6 +24,7 @@ function loopd_search_facetapi_default_facet_settings() {
     'dependencies' => array(
       'bundle' => 'none',
       'bundle_selected' => array(),
+      'roles' => array(),
     ),
     'facet_mincount' => '1',
     'facet_missing' => '0',
@@ -31,7 +32,7 @@ function loopd_search_facetapi_default_facet_settings() {
     'individual_parent' => 0,
     'query_type' => 'date',
     'limit_active_items' => 0,
-    'default_true' => TRUE,
+    'default_true' => '1',
     'facet_search_ids' => array(),
     'date_granularity' => 'DAY',
   );
@@ -230,9 +231,9 @@ function loopd_search_facetapi_default_facet_settings() {
     'widget' => 'facetapi_links',
     'filters' => array(),
     'active_sorts' => array(
-      'active' => 'active',
-      'count' => 'count',
       'display' => 'display',
+      'active' => 0,
+      'count' => 0,
       'indexed' => 0,
     ),
     'sort_weight' => array(
@@ -244,7 +245,7 @@ function loopd_search_facetapi_default_facet_settings() {
     'sort_order' => array(
       'active' => '3',
       'count' => '3',
-      'display' => '4',
+      'display' => '3',
       'indexed' => '4',
     ),
     'empty_behavior' => 'none',
