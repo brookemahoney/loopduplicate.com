@@ -96,7 +96,18 @@ function loopd_node_default_page_manager_handlers() {
   $display->panel_settings = array(
     'style_settings' => array(
       'default' => NULL,
-      'contentmain' => NULL,
+      'contentmain' => array(
+        'clean_markup' => array(
+          'region_wrapper' => 'none',
+          'additional_region_classes' => '',
+          'additional_region_attributes' => '',
+          'enable_inner_div' => 0,
+          'pane_separators' => 0,
+        ),
+      ),
+    ),
+    'contentmain' => array(
+      'style' => 'clean_element',
     ),
   );
   $display->cache = array();
@@ -124,7 +135,18 @@ function loopd_node_default_page_manager_handlers() {
     );
     $pane->cache = array();
     $pane->style = array(
-      'settings' => NULL,
+      'settings' => array(
+        'clean_markup' => array(
+          'pane_wrapper' => 'none',
+          'additional_pane_classes' => 'panel-pane',
+          'additional_pane_attributes' => '',
+          'enable_inner_div' => 0,
+          'title_wrapper' => 'h2',
+          'title_hide' => 0,
+          'content_wrapper' => 'none',
+        ),
+      ),
+      'style' => 'clean_element',
     );
     $pane->css = array();
     $pane->extras = array();

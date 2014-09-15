@@ -54,8 +54,19 @@ node/add/*',
   $display->panel_settings = array(
     'style_settings' => array(
       'default' => NULL,
-      'middle' => NULL,
+      'middle' => array(
+        'clean_markup' => array(
+          'region_wrapper' => 'none',
+          'additional_region_classes' => '',
+          'additional_region_attributes' => '',
+          'enable_inner_div' => 0,
+          'pane_separators' => 0,
+        ),
+      ),
       'main' => NULL,
+    ),
+    'middle' => array(
+      'style' => 'clean_element',
     ),
   );
   $display->cache = array();
@@ -97,7 +108,18 @@ node/add/*',
     );
     $pane->cache = array();
     $pane->style = array(
-      'settings' => NULL,
+      'settings' => array(
+        'clean_markup' => array(
+          'pane_wrapper' => 'none',
+          'additional_pane_classes' => 'panel-pane',
+          'additional_pane_attributes' => '',
+          'enable_inner_div' => 0,
+          'title_wrapper' => 'h2',
+          'title_hide' => 0,
+          'content_wrapper' => 'none',
+        ),
+      ),
+      'style' => 'clean_element',
     );
     $pane->css = array();
     $pane->extras = array();
@@ -152,7 +174,7 @@ node/add/*',
     $pane->style = array(
       'settings' => array(
         'clean_markup' => array(
-          'pane_wrapper' => 'div',
+          'pane_wrapper' => 'none',
           'additional_pane_classes' => 'panel-pane',
           'additional_pane_attributes' => '',
           'enable_inner_div' => 0,

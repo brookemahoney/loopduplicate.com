@@ -9,19 +9,21 @@
  * panel of the layout. This layout supports the following sections:
  */
 ?>
-<div id="main-content" class="main-content panel-display clearfix <?php if (!empty($classes)) { print $classes; } ?><?php if (!empty($class)) { print $class; } ?>" <?php if (!empty($css_id)) { print "id=\"$css_id\""; } ?>>
+<div id="main-content" class="main-content panel-display clearfix <?php if (!empty($classes)) {
+  print $classes;
+} ?><?php if (!empty($class)) {
+  print $class;
+} ?>" <?php if (!empty($css_id)) {
+  print "id=\"$css_id\"";
+} ?>>
 
   <div class="container">
     <div class="row">
       <div id="search-filters" class="col-sm-4 col-md-3 sidebar panel-panel search-filters">
-        <div class="panel-panel-inner">
-          <?php print $content['sidebar']; ?>
-        </div>
+        <?php print $content['sidebar']; ?>
       </div>
       <div id="search-results" class="col-sm-8 col-md-9 content panel-panel search-results">
-        <div class="panel-panel-inner">
-          <?php print $content['contentmain']; ?>
-        </div>
+        <?php print $content['contentmain']; ?>
       </div>
     </div>
   </div>
