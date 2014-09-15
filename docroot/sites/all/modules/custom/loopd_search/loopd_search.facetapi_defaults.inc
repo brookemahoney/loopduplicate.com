@@ -231,10 +231,10 @@ function loopd_search_facetapi_default_facet_settings() {
     'widget' => 'facetapi_links',
     'filters' => array(),
     'active_sorts' => array(
-      'display' => 'display',
+      'indexed' => 'indexed',
       'active' => 0,
       'count' => 0,
-      'indexed' => 0,
+      'display' => 0,
     ),
     'sort_weight' => array(
       'active' => '-50',
@@ -246,7 +246,7 @@ function loopd_search_facetapi_default_facet_settings() {
       'active' => '3',
       'count' => '3',
       'display' => '3',
-      'indexed' => '4',
+      'indexed' => '3',
     ),
     'empty_behavior' => 'none',
     'facet_more_text' => 'Show more',
