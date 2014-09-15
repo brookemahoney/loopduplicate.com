@@ -1,0 +1,123 @@
+div.geshifilter {
+  background-color: darken($body-bg, 4%);
+  border: 1px solid darken($body-bg, 6%);
+  margin: 0;
+
+  pre {
+    color: #ffc974;
+    line-height: 1.5em;
+    padding: 0;
+    background: darken($body-bg, 4%);
+    border: 0;
+  }
+
+  pre ol {
+    list-style: decimal;
+    list-style-position: outside;
+    padding: 0;
+    margin: 0;
+  }
+
+  pre ol li {
+    margin: 0 0 0 35px;
+    padding: 0;
+    color: $text-color;
+    clear: none;
+  }
+
+  pre ol li div {
+    color: $text-color;
+  }
+
+  .st_h {
+    color: #689b5d;
+  }
+
+  /* Line highlights */
+  .li1 {
+    background: #202021;
+  }
+
+  /* comments */
+  .co1,
+  .coMULTI {
+    color: darken($text-color, 15%);
+  }
+  .co4 {
+    color: #689b5d;
+  }
+
+  /* methods */
+  .me1 {
+    color: $text-color;
+  }
+
+  .me0 {
+    @extend .me1;
+  }
+
+  .me2 {
+    @extend .me1;
+  }
+
+  /* brackets */
+  .br0 {
+    color: #90b6ca;
+  }
+
+  /* strings */
+  .st0 {
+    color: #8F9657;
+  }
+
+  /* keywords */
+  .kw1 {
+    color: #d28039;
+  }
+
+  .kw2 {
+    @extend .kw1;
+  }
+
+  .kw3 {
+    @extend .kw1;
+  }
+
+  /* numbers */
+  .nu0 {
+    color: #CF6745;
+  }
+
+  /* vars */
+  .re0 {
+    color: #9f80b0;
+  }
+
+  /*
+  * CSS selectors
+  *****************/
+  /* classnames */
+
+  [lang=css] .kw2,
+  .css .kw2 {
+    color: #F9EE7E;
+  }
+
+  .re1 {
+    color: #96703D;
+  }
+
+  /* px values */
+  [lang=css] .re3,
+  .css .re3 {
+    color: #CA7840;
+  }
+
+  /*
+  * Javascript
+  ****************/
+  [lang=javascript] .me1,
+  .javascript .me1 {
+    color: #505e80;
+  }
+}
