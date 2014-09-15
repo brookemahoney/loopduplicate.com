@@ -1,4 +1,5 @@
-div.geshifilter {
+div.geshifilter,
+span.geshifilter {
   background-color: darken($body-bg, 4%);
   border: 1px solid darken($body-bg, 6%);
   margin: 0;
@@ -27,6 +28,11 @@ div.geshifilter {
 
   pre ol li div {
     color: $text-color;
+  }
+
+  code {
+    background-color: darken($body-bg, 4%);
+    color: #ffc974;
   }
 
   .st_h {
