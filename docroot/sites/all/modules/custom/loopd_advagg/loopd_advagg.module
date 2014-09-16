@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the LoopDuplicate Advanced JS/CSS Aggregation feature.
+ */
+
+include_once 'loopd_advagg.features.inc';

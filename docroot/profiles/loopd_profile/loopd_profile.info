@@ -25,6 +25,7 @@ dependencies[] = taxonomy
 ; Custom
 ;
 
+dependencies[] = loopd_advagg
 dependencies[] = loopd_article
 dependencies[] = loopd_features
 dependencies[] = loopd_geshifilter
