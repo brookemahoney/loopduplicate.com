@@ -1,3 +1,6 @@
+.loopd-search {
+  position: relative;
+}
 .search-results-pane {
   .search-result {
     @include background-image(linear-gradient(to right, $brand-primary, $body-bg));
