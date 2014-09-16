@@ -20,6 +20,28 @@ module.exports = function(grunt) {
         dest: 'assets/javascripts/script.js'
       }
     },
+    pagespeed: {
+      options: {
+        nokey: true,
+        url: "http://loopduplicate.com"
+      },
+      prod: {
+        options: {
+          url: "http://loopduplicate.com/content/one-crazy-way-to-theme-a-fieldable-panels-pane-to-get-exactly-the-markup-you-want",
+          locale: "en_GB",
+          strategy: "desktop",
+          threshold: 80
+        }
+      },
+      paths: {
+        options: {
+          paths: ["/"],
+          locale: "en_GB",
+          strategy: "desktop",
+          threshold: 80
+        }
+      }
+    },
     watch: {
       css: {
         files: './**/*.scss',
@@ -38,6 +60,7 @@ module.exports = function(grunt) {
   //plugins
   grunt.loadNpmTasks('grunt-contrib-compass');
   grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-pagespeed');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-watch');
 

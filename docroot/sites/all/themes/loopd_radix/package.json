@@ -6,6 +6,7 @@
     "grunt": "^0.4.4",
     "grunt-contrib-compass": "^0.7.2",
     "grunt-contrib-concat": "^0.4.0",
+    "grunt-pagespeed": "^0.3.0",
     "grunt-contrib-uglify": "^0.4.0",
     "grunt-contrib-watch": "^0.6.1",
     "grunt-contrib-jshint": "^0.10.0"
