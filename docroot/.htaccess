@@ -1,4 +1,11 @@
 #
+# Loopduplicate.com settings
+#
+<ifModule mod_headers.c>
+  Header set Connection keep-alive
+</ifModule>
+
+#
 # Apache/PHP/Drupal settings:
 #
 
