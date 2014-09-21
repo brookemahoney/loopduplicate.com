@@ -252,6 +252,13 @@ function search_api_admin_add_server(array $form, array &$form_state) {
   $form['options']['#prefix'] = '<div id="search-api-class-options">';
   $form['options']['#suffix'] = '</div>';
 
+  // If $info is not set, there are no service classes. Display an error message
+  // telling the user how to change that and return an empty form.
+  if (!isset($info)) {
+    drupal_set_message(t('There are no service classes available for the Search API. Please install a <a href="@url">module that provides a service class</a> to proceed.', array('@url' => url('https://www.drupal.org/node/1254698'))), 'error');
+    return array();
+  }
+
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Create server'),

@@ -1,5 +1,11 @@
 Search API 1.x, dev (xx/xx/xxxx):
 ---------------------------------
+- #2305755 by drunken monkey, pfrenssen: Fixed invalidation of the stored index
+  fields cache.
+- #2334727 by Alex Bukach, drunken monkey: Fixed Views caching does not take
+  items_per_page into account.
+- #1372092 by drunken monkey: Added an error message when no service class is
+  available when creating a server.
 - #2305627 by drunken monkey, cpliakas: Fixed date facets not displayed when
   the configured granularity is larger than the calculated granularity.
 - #2319263 by solotandem: Added easier way to subclass entity classes.
