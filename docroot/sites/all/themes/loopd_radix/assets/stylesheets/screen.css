@@ -11233,22 +11233,6 @@ span.geshifilter {
   background-color: #292929;
   border: 1px solid #242424;
   margin: 0;
-  /* Line highlights */
-  /* comments */
-  /* methods */
-  /* brackets */
-  /* strings */
-  /* keywords */
-  /* numbers */
-  /* vars */
-  /*
-  * CSS selectors
-  *****************/
-  /* classnames */
-  /* px values */
-  /*
-  * Javascript
-  ****************/
 }
 /* line 7, ../sass/components/_geshi_loopd_dark.scss */
 div.geshifilter pre,
@@ -11291,79 +11275,79 @@ div.geshifilter .st_h,
 span.geshifilter .st_h {
   color: #689b5d;
 }
-/* line 43, ../sass/components/_geshi_loopd_dark.scss */
+/* line 42, ../sass/components/_geshi_loopd_dark.scss */
 div.geshifilter .li1,
 span.geshifilter .li1 {
   background: #202021;
 }
-/* line 48, ../sass/components/_geshi_loopd_dark.scss */
+/* line 46, ../sass/components/_geshi_loopd_dark.scss */
 div.geshifilter .co1,
 div.geshifilter .coMULTI,
 span.geshifilter .co1,
 span.geshifilter .coMULTI {
   color: #b7b7b7;
 }
-/* line 52, ../sass/components/_geshi_loopd_dark.scss */
+/* line 50, ../sass/components/_geshi_loopd_dark.scss */
 div.geshifilter .co0,
 div.geshifilter .co4,
 span.geshifilter .co0,
 span.geshifilter .co4 {
   color: #689b5d;
 }
-/* line 58, ../sass/components/_geshi_loopd_dark.scss */
+/* line 55, ../sass/components/_geshi_loopd_dark.scss */
 div.geshifilter .me1, div.geshifilter .me0, div.geshifilter .me2,
 span.geshifilter .me1,
 span.geshifilter .me0,
 span.geshifilter .me2 {
   color: #ddd;
 }
-/* line 71, ../sass/components/_geshi_loopd_dark.scss */
+/* line 67, ../sass/components/_geshi_loopd_dark.scss */
 div.geshifilter .br0,
 span.geshifilter .br0 {
   color: #90b6ca;
 }
-/* line 76, ../sass/components/_geshi_loopd_dark.scss */
+/* line 71, ../sass/components/_geshi_loopd_dark.scss */
 div.geshifilter .st0,
 span.geshifilter .st0 {
   color: #8F9657;
 }
-/* line 81, ../sass/components/_geshi_loopd_dark.scss */
+/* line 75, ../sass/components/_geshi_loopd_dark.scss */
 div.geshifilter .kw1, div.geshifilter .kw2, div.geshifilter .kw3,
 span.geshifilter .kw1,
 span.geshifilter .kw2,
 span.geshifilter .kw3 {
   color: #d28039;
 }
-/* line 94, ../sass/components/_geshi_loopd_dark.scss */
+/* line 87, ../sass/components/_geshi_loopd_dark.scss */
 div.geshifilter .nu0,
 span.geshifilter .nu0 {
   color: #CF6745;
 }
-/* line 99, ../sass/components/_geshi_loopd_dark.scss */
+/* line 91, ../sass/components/_geshi_loopd_dark.scss */
 div.geshifilter .re0,
 span.geshifilter .re0 {
   color: #9f80b0;
 }
-/* line 108, ../sass/components/_geshi_loopd_dark.scss */
+/* line 95, ../sass/components/_geshi_loopd_dark.scss */
 div.geshifilter [lang=css] .kw2,
 div.geshifilter .css .kw2,
 span.geshifilter [lang=css] .kw2,
 span.geshifilter .css .kw2 {
   color: #F9EE7E;
 }
-/* line 113, ../sass/components/_geshi_loopd_dark.scss */
+/* line 100, ../sass/components/_geshi_loopd_dark.scss */
 div.geshifilter .re1,
 span.geshifilter .re1 {
   color: #96703D;
 }
-/* line 118, ../sass/components/_geshi_loopd_dark.scss */
+/* line 104, ../sass/components/_geshi_loopd_dark.scss */
 div.geshifilter [lang=css] .re3,
 div.geshifilter .css .re3,
 span.geshifilter [lang=css] .re3,
 span.geshifilter .css .re3 {
   color: #CA7840;
 }
-/* line 126, ../sass/components/_geshi_loopd_dark.scss */
+/* line 109, ../sass/components/_geshi_loopd_dark.scss */
 div.geshifilter [lang=javascript] .me1, div.geshifilter [lang=javascript] .me0, div.geshifilter [lang=javascript] .me2,
 div.geshifilter .javascript .me1,
 div.geshifilter .javascript .me0,

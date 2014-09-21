@@ -39,12 +39,10 @@ span.geshifilter {
     color: #689b5d;
   }
 
-  /* Line highlights */
   .li1 {
     background: #202021;
   }
 
-  /* comments */
   .co1,
   .coMULTI {
     color: darken($text-color, 15%);
@@ -54,7 +52,6 @@ span.geshifilter {
     color: #689b5d;
   }
 
-  /* methods */
   .me1 {
     color: $text-color;
   }
@@ -67,17 +64,14 @@ span.geshifilter {
     @extend .me1;
   }
 
-  /* brackets */
   .br0 {
     color: #90b6ca;
   }
 
-  /* strings */
   .st0 {
     color: #8F9657;
   }
 
-  /* keywords */
   .kw1 {
     color: #d28039;
   }
@@ -90,20 +84,13 @@ span.geshifilter {
     @extend .kw1;
   }
 
-  /* numbers */
   .nu0 {
     color: #CF6745;
   }
 
-  /* vars */
   .re0 {
     color: #9f80b0;
   }
-
-  /*
-  * CSS selectors
-  *****************/
-  /* classnames */
 
   [lang=css] .kw2,
   .css .kw2 {
@@ -114,15 +101,11 @@ span.geshifilter {
     color: #96703D;
   }
 
-  /* px values */
   [lang=css] .re3,
   .css .re3 {
     color: #CA7840;
   }
 
-  /*
-  * Javascript
-  ****************/
   [lang=javascript] .me1,
   .javascript .me1 {
     color: #505e80;
