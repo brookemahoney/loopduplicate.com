@@ -37,12 +37,13 @@ function uuid_features_include() {
  * Implements hook_menu().
  */
 function uuid_features_menu() {
-  $items['admin/config/content/uuid_features'] = array(
+  $items['admin/structure/features/uuid_features'] = array(
     'access arguments' => array('administer site configuration'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('uuid_features_settings'),
-    'title' => 'UUID Features Integration',
+    'title' => 'UUID Export Settings',
     'description' => 'Configure the settings for UUID Features Integration.',
+    'weight' => 20,
   );
   return $items;
 }
@@ -308,13 +309,13 @@ function uuid_features_settings($form, &$form_state) {
         '#type' => 'checkboxes',
         '#title' => t('Exportable @label bundles', array('@label' => $info['label'])),
         '#default_value' => variable_get('uuid_features_entity_' . $type, array()),
-        '#options' => $bundles[$type],
+        '#options' => isset($bundles[$type]) ? $bundles[$type] : array(),
       );
       $form['file']['uuid_features_file_' . $type] = array(
         '#type' => 'checkboxes',
         '#title' => t('Files exported for @label bundles', array('@label' => $info['label'])),
         '#default_value' => variable_get('uuid_features_file_' . $type, array()),
-        '#options' => $bundles[$type],
+        '#options' => isset($bundles[$type]) ? $bundles[$type] : array(),
       );
     }
   }
