@@ -170,7 +170,7 @@ function advagg_delete_stale_aggregates() {
 
   // Get a list of files.
   $css_files = file_scan_directory($css_path[0], '/.*/', array('nomask' => '/(\.\.?|CVS|\.gz)$/'));
-  $js_files = file_scan_directory($js_path[0], '/.*/', array('nomask' => '/(\.\.?|CVS|\.gz)/'));
+  $js_files  = file_scan_directory($js_path[0],  '/.*/', array('nomask' => '/(\.\.?|CVS|\.gz)$/'));
 
   // Make the advagg_get_hashes_from_filename() function available.
   module_load_include('inc', 'advagg', 'advagg.missing');
