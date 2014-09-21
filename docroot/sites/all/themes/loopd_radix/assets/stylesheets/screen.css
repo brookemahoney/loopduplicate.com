@@ -11219,7 +11219,7 @@ a:hover {
 
 /* line 1, ../sass/components/_autocomplete.scss */
 html.js input.form-autocomplete {
-  background: url("../images/throbber.gif?1409636163") no-repeat right 8px #ddd !important;
+  background: url("../images/throbber.gif") no-repeat right 8px #ddd !important;
 }
 
 /* line 5, ../sass/components/_autocomplete.scss */
