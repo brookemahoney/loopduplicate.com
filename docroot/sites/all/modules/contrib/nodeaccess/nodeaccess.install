@@ -62,9 +62,9 @@ function nodeaccess_install() {
     $grants[1]['grant_delete'] = $role_perms[2][$delete_perm];
     variable_set('nodeaccess_' . $type, $grants);
     $author_prefs[$type] = array(
-      'grant_view' => 1,
-      'grant_update' => 1,
-      'grant_delete' => 1,
+      'grant_view' => 0,
+      'grant_update' => 0,
+      'grant_delete' => 0,
     );
   }
   variable_set('nodeaccess_authors', $author_prefs);
