@@ -89,6 +89,7 @@ dependencies[] = nodeaccess
 dependencies[] = panels
 dependencies[] = panels_breadcrumbs
 dependencies[] = panels_everywhere
+dependencies[] = paranoia
 dependencies[] = pathauto
 dependencies[] = radix_layouts
 dependencies[] = reroute_email
