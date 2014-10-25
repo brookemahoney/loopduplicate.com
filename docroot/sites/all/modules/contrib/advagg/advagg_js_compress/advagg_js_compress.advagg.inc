@@ -339,7 +339,7 @@ function advagg_js_compress_prep(&$contents, $filename, $aggregate_settings, $ad
     if (empty($contents) || empty($ratio) || $ratio > $aggregate_settings['variables']['advagg_js_max_compress_ratio'] || $ratio < 0) {
       $contents = $contents_before;
     }
-    elseif ($add_licensing) {
+    elseif ($add_licensing && variable_get('advagg_js_compress_add_license', ADVAGG_JS_COMPRESS_ADD_LICENSE)) {
       $url = url($filename, array('absolute' => TRUE));
       $contents = "/* Source and licensing information for the line(s) below can be found at $url. */\n" . $contents . ";\n/* Source and licensing information for the above line(s) can be found at $url. */\n";
     }

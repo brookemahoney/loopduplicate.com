@@ -299,6 +299,7 @@ function file_entity_field_formatter_view($entity_type, $entity, $field, $instan
     if ($files_display) {
       foreach ($files_display as $fid => $file) {
         $files_display[$fid]->referencing_entity = $entity;
+        $files_display[$fid]->referencing_entity_type = $entity_type;
         $files_display[$fid]->referencing_field = $field['field_name'];
       }
       $output = file_view_multiple($files_display, $view_mode);

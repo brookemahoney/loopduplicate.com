@@ -18,7 +18,14 @@ if (typeof Drupal.jsAC != 'undefined') {
     $.proxy(Drupal.jsAC.defaultOnkeyup, this)(input, e);
 
     if (13 == e.keyCode && $(input).hasClass('auto_submit')) {
-      $(':submit', input.form).trigger('click');
+      var selector;
+      if (typeof Drupal.settings.search_api_autocomplete.selector != 'undefined') {
+        selector = Drupal.settings.search_api_autocomplete.selector;
+      }
+      else {
+        selector = ':submit';
+      }
+      $(selector, input.form).trigger('click');
     }
   };
 
@@ -51,8 +58,17 @@ if (typeof Drupal.jsAC != 'undefined') {
       if (typeof Drupal.search_api_ajax != 'undefined') {
         // Use Search API Ajax to submit
         Drupal.search_api_ajax.navigateQuery($(this.input).val());
-      } else {
-        $(':submit', this.input.form).trigger('click');
+      }
+      else {
+        var selector;
+        if (typeof Drupal.settings.search_api_autocomplete.selector != 'undefined') {
+          selector = Drupal.settings.search_api_autocomplete.selector;
+        }
+        else {
+          selector = ':submit';
+        }
+
+        $(selector, this.input.form).trigger('click');
       }
       return true;
     }

@@ -53,7 +53,7 @@ function template_process_pane_header(&$vars) {
 function template_preprocess_pane_messages(&$vars) {
   $vars['tabs'] = menu_local_tabs();
   $vars['action_links'] = theme('ctools_menu_local_actions_wrapper', array('links' => menu_local_actions()));
-  $vars['help'] = theme('help');
+  $vars['help'] = menu_get_active_help();
 }
 
 function template_process_pane_messages(&$vars) {

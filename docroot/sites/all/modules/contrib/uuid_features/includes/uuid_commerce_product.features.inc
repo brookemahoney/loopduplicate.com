@@ -72,6 +72,8 @@ function uuid_commerce_product_features_export_render($module, $data) {
   $code[] = '  $products = array();';
   $code[] = '';
   $product_ids = entity_get_id_by_uuid('commerce_product', $data);
+  // Always sort by the uuid to ensure the order is maintained.
+  ksort($product_ids);
   foreach ($product_ids as $uuid => $product_id) {
     // Only export the node if it exists.
     if ($product_id === FALSE) {

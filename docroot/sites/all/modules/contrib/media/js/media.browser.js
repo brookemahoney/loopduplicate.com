@@ -107,6 +107,11 @@ Drupal.media.browser.selectMedia = function (selectedMedia) {
   Drupal.media.browser.selectedMedia = selectedMedia;
 };
 
+Drupal.media.browser.selectMediaAndSubmit = function (selectedMedia) {
+  Drupal.media.browser.selectedMedia = selectedMedia;
+  Drupal.media.browser.submit();
+};
+
 Drupal.media.browser.finalizeSelection = function () {
   if (!Drupal.media.browser.selectedMedia) {
     throw new exception(Drupal.t('Cannot continue, nothing selected'));

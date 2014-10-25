@@ -252,6 +252,13 @@ function advagg_module_implements_alter(&$implementations, $hook) {
     $implementations = array_merge($item, $implementations);
   }
 
+  // Move advagg to the top.
+  if ($hook === 'ajax_render_alter' && array_key_exists('advagg', $implementations)) {
+    $item = array('advagg' => $implementations['advagg']);
+    unset($implementations['advagg']);
+    $implementations = array_merge($item, $implementations);
+  }
+
   // Move advagg to the bottom.
   if ($hook === 'element_info_alter' && array_key_exists('advagg', $implementations)) {
     $item = $implementations['advagg'];
@@ -702,6 +709,14 @@ function advagg_admin_menu_output_alter(&$content) {
 }
 
 /**
+ * Implements hook_preprocess_page().
+ */
+function advagg_preprocess_page() {
+  // Scan for changes to any CSS/JS files if in development mode.
+  advagg_scan_filesystem_for_changes_live();
+}
+
+/**
  * Implements hook_preprocess_html().
  *
  * Add in rendering IE meta tag if "combine CSS" is enabled.
@@ -883,7 +898,7 @@ function _advagg_aggregate_css(&$css_groups) {
     else {
       module_load_include('inc', 'advagg', 'advagg');
       $plans = advagg_build_aggregate_plans($files_to_aggregate, 'css');
-      if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) >= 1) {
+      if (!empty($plans) && variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) >= 1) {
         cache_set($cache_id, $plans, 'cache_advagg_aggregates', CACHE_TEMPORARY);
       }
     }
@@ -984,7 +999,7 @@ function _advagg_aggregate_js(&$js_groups) {
     else {
       module_load_include('inc', 'advagg', 'advagg');
       $plans = advagg_build_aggregate_plans($files_to_aggregate, 'js');
-      if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) >= 1) {
+      if (!empty($plans) && variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) >= 1) {
         cache_set($cache_id, $plans, 'cache_advagg_aggregates', CACHE_TEMPORARY);
       }
     }
@@ -1001,25 +1016,6 @@ function _advagg_aggregate_js(&$js_groups) {
 function _advagg_process_html(&$variables) {
   if (!advagg_enabled()) {
     return template_process_html($variables);
-  }
-
-  // Scan for changes to any CSS/JS files.
-  if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) < 0) {
-    module_load_include('inc', 'advagg', 'advagg.cache');
-    $flushed = advagg_push_new_changes();
-
-    // Report back the results.
-    if (!empty($flushed)) {
-      foreach ($flushed as $filename => $data) {
-        $ext = pathinfo($filename, PATHINFO_EXTENSION);
-        drupal_set_message(t('The file %filename has changed. %db_usage aggregates are using this file. %db_count db cache entries and all %type full cache entries have been flushed from the cache bins.', array(
-          '%filename' => $filename,
-          '%db_usage' => count($data[0]),
-          '%db_count' => count($data[1]),
-          '%type' => $ext,
-        )));
-      }
-    }
   }
 
   // Get default javascript.
@@ -1989,6 +1985,15 @@ function advagg_get_root_files_dir($reset = FALSE) {
  *   Array keyed by filename, value is result from advagg_missing_create_file().
  */
 function advagg_build_aggregates($filenames, $type) {
+  // Check input values.
+  if (empty($filenames)) {
+    return array();
+  }
+  if (empty($type)) {
+    $filename = reset($filenames);
+    $type = pathinfo($filename, PATHINFO_EXTENSION);
+  }
+
   // Call the file generation function directly.
   module_load_include('inc', 'advagg', 'advagg.missing');
   list($css_path, $js_path) = advagg_get_root_files_dir();
@@ -2444,7 +2449,6 @@ function advagg_group_js($javascript) {
   return $groups;
 }
 
-
 /**
  * Stable sort for CSS and JS items.
  *
@@ -2493,60 +2497,6 @@ function advagg_drupal_sort_css_js_stable(&$items) {
     }
   }
   $items = $sorted;
-}
-
-/**
- * Check and see if the agressive cache can safely be enabled.
- *
- * @return array
- *   If there are no conflicts, this will return an empty array.
- */
-function advagg_agressive_cache_conflicts() {
-  $hooks = array('css_alter' => TRUE, 'js_alter' => TRUE);
-  foreach ($hooks as $hook => $values) {
-    $hooks[$hook] = module_implements($hook);
-  }
-
-  $whitelist = array(
-    'locale',
-    'css_injector',
-    'disable_css',
-    'excluded',
-    'fences',
-    'panopoly_core',
-    'ais',
-    'elfinder',
-    'google_webfont_loader_api',
-    'jqmulti',
-    'jquery_dollar',
-    'labjs_js',
-    'clientside_validation',
-    'speedy',
-    'logintoboggan',
-  );
-  // Allow other modules to modify the $whitelist.
-  // Call hook_advagg_agressive_cache_conflicts_alter()
-  drupal_alter('advagg_agressive_cache_conflicts', $whitelist);
-
-  $questionable_modules = array();
-  foreach ($hooks as $hook => $modules) {
-    foreach ($modules as $key => $module) {
-      // Anything from advagg is ok.
-      if (strpos($module, 'advagg') === 0) {
-        unset($modules[$key]);
-        continue;
-      }
-
-      // Remove known modules that should work with aggressive caching.
-      if (in_array($module, $whitelist)) {
-        unset($modules[$key]);
-      }
-      else {
-        $questionable_modules[$module] = $module;
-      }
-    }
-  }
-  return $questionable_modules;
 }
 
 /**
@@ -2642,4 +2592,90 @@ function advagg_json_encode($data) {
     }
   }
   return $json_data;
+}
+
+/**
+ * Check and see if the aggressive cache can safely be enabled.
+ *
+ * @return array
+ *   If there are no conflicts, this will return an empty array.
+ */
+function advagg_aggressive_cache_conflicts() {
+  $hooks = array('css_alter' => TRUE, 'js_alter' => TRUE);
+  foreach ($hooks as $hook => $values) {
+    $hooks[$hook] = module_implements($hook);
+  }
+
+  $whitelist = array(
+    'locale',
+    'css_injector',
+    'disable_css',
+    'excluded',
+    'fences',
+    'panopoly_core',
+    'ais',
+    'elfinder',
+    'google_webfont_loader_api',
+    'jqmulti',
+    'jquery_dollar',
+    'labjs_js',
+    'clientside_validation',
+    'speedy',
+    'logintoboggan',
+  );
+  // Allow other modules to modify the $whitelist.
+  // Call hook_advagg_aggressive_cache_conflicts_alter()
+  drupal_alter('advagg_aggressive_cache_conflicts', $whitelist);
+
+  $questionable_modules = array();
+  foreach ($hooks as $hook => $modules) {
+    foreach ($modules as $key => $module) {
+      // Anything from advagg is ok.
+      if (strpos($module, 'advagg') === 0) {
+        unset($modules[$key]);
+        continue;
+      }
+
+      // Remove known modules that should work with aggressive caching.
+      if (in_array($module, $whitelist)) {
+        unset($modules[$key]);
+      }
+      else {
+        $questionable_modules[$module] = $module;
+      }
+    }
+  }
+  return $questionable_modules;
+}
+
+/**
+ * Will scan, flush, use & report any changes to css/js files in aggregates.
+ */
+function advagg_scan_filesystem_for_changes_live() {
+  static $function_has_ran;
+  if (isset($function_has_ran)) {
+    return;
+  }
+  $function_has_ran = TRUE;
+
+  // Scan for changes to any CSS/JS files.
+  if (!advagg_enabled() || variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) >= 0) {
+    return;
+  }
+  module_load_include('inc', 'advagg', 'advagg.cache');
+  $flushed = advagg_push_new_changes();
+
+  // Report back the results.
+  if (empty($flushed)) {
+    return;
+  }
+  foreach ($flushed as $filename => $data) {
+    $ext = pathinfo($filename, PATHINFO_EXTENSION);
+    drupal_set_message(t('The file %filename has changed. %db_usage aggregates are using this file. %db_count db cache entries and all %type full cache entries have been flushed from the cache bins.', array(
+      '%filename' => $filename,
+      '%db_usage' => count($data[0]),
+      '%db_count' => count($data[1]),
+      '%type' => $ext,
+    )));
+  }
 }

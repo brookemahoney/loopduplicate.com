@@ -550,20 +550,20 @@ function advagg_requirements($phase) {
   }
 
   // Make sure variables are set correctly.
-  if (!variable_get('preprocess_css', FALSE) || !variable_get('preprocess_js', FALSE)) {
-    $requirements['advagg_core_off'] = array(
-      'title' => $t('Adv CSS/JS Agg - Core Variables'),
-      'severity' => REQUIREMENT_ERROR,
-      'value' => $t('Cores CSS and/or JS aggregation is disabled.'),
-      'description' => $t('"Optimize CSS files" and "Optimize JavaScript files" on the <a href="@performance">performance page</a> should be enabled.', array('@performance' => url('admin/config/development/performance'))),
-    );
-  }
   if (variable_get('advagg_enabled', ADVAGG_ENABLED) == FALSE) {
     $requirements['advagg_not_on'] = array(
       'title' => $t('Adv CSS/JS Agg - Enabled'),
       'severity' => REQUIREMENT_WARNING,
       'value' => $t('Advanced CSS/JS aggregation is disabled.'),
       'description' => $t('Go to the Advanced CSS/JS aggregation <a href="@settings">settings page</a> and enable it.', array('@settings' => url($config_path . '/advagg'))),
+    );
+  }
+  elseif (!variable_get('preprocess_css', FALSE) || !variable_get('preprocess_js', FALSE)) {
+    $requirements['advagg_core_off'] = array(
+      'title' => $t('Adv CSS/JS Agg - Core Variables'),
+      'severity' => REQUIREMENT_ERROR,
+      'value' => $t('Cores CSS and/or JS aggregation is disabled.'),
+      'description' => $t('"Optimize CSS files" and "Optimize JavaScript files" on the <a href="@performance">performance page</a> should be enabled.', array('@performance' => url('admin/config/development/performance'))),
     );
   }
 
@@ -705,8 +705,8 @@ $base_url = str_replace("http://", "https://", $base_url);
       $description .= ' ' . $t('Currently running in development mode.');
     }
     if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) < 3) {
-      $agressive_cache_conflicts = advagg_agressive_cache_conflicts();
-      if (empty($agressive_cache_conflicts)) {
+      $aggressive_cache_conflicts = advagg_aggressive_cache_conflicts();
+      if (empty($aggressive_cache_conflicts)) {
         $description .= ' ' . $t('It appears that there are no incompatible modules, so you should be able to safely use the Aggressive cache.');
       }
     }
@@ -731,7 +731,10 @@ $base_url = str_replace("http://", "https://", $base_url);
 function advagg_install_check_via_http(&$requirements) {
   // If other checks have not passed, do not test this.
   if (!empty($requirements)) {
-    return;
+    // Still check if it's only that the CDN patch has not been applied.
+    if (count($requirements) != 1 || !array_key_exists('advagg_module_cdn_patch', $requirements)) {
+      return;
+    }
   }
 
   // Ensure translations don't break at install time.
@@ -1083,7 +1086,7 @@ function advagg_install_chk_urls(&$requirements, $urls, $options, $mod_url, $typ
         );
       }
 
-      if ($type === 'js' && (empty($request->headers['content-type']) || strpos($request->headers['content-type'], 'application/' . $content_type) === FALSE)) {
+      if ($type === 'js' && (empty($request->headers['content-type']) || (strpos($request->headers['content-type'], 'application/' . $content_type) === FALSE && strpos($request->headers['content-type'], 'application/x-' . $content_type) === FALSE))) {
         // Recommend servers configuration be adjusted.
         $requirements['advagg_' . $type . '_type' . $key] = array(
           'title' => $t('Adv CSS/JS Agg - Content-Type'),
@@ -1218,6 +1221,8 @@ function advagg_install_chk_urls(&$requirements, $urls, $options, $mod_url, $typ
  *   Returns aggregate filename.
  */
 function advagg_install_get_first_advagg_file($file_path) {
+  module_load_include('inc', 'advagg', 'advagg.missing');
+
   // Open the advagg directory.
   $handle = opendir($file_path);
   $counter = 0;
@@ -1261,8 +1266,20 @@ function advagg_install_get_first_advagg_file($file_path) {
         continue;
       }
     }
-    // All checked passed above, break out of loop.
-    break;
+
+    $data = advagg_get_hashes_from_filename(basename($filename));
+    $output = array();
+    if (is_array($data)) {
+      list($type, $aggregate_filenames_hash, $aggregate_contents_hash, $aggregate_settings) = $data;
+
+      // Get a list of files.
+      $files = advagg_get_files_from_hashes($type, $aggregate_filenames_hash, $aggregate_contents_hash);
+
+      if (!empty($files)) {
+        // All checked passed above, break out of loop.
+        break;
+      }
+    }
   }
 
   return $filename;

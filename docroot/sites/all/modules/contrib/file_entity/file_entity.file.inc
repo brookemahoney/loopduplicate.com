@@ -96,9 +96,12 @@ function file_entity_file_update($file) {
   }
 
   if (module_exists('image') && file_entity_file_get_mimetype_type($file) == 'image' && $file->filesize) {
-    // If the image dimensions have changed, update any image field references
-    // to this file and flush image style derivatives.
-    if ($file->metadata['width'] != $file->metadata['width'] || $file->metadata['height'] != $file->metadata['height']) {
+    // If the file has changed dimensions or a new file has been uploaded,
+    // update any image field reference to this file and flush image style
+    // derivatives.
+    $file->metadata += array('width' => NULL, 'height' => NULL);
+    $file->original->metadata += array('width' => NULL, 'height' => NULL);
+    if ($file->filesize != $file->original->filesize || $file->metadata['width'] != $file->original->metadata['width'] || $file->metadata['height'] != $file->original->metadata['height']) {
       _file_entity_update_image_field_dimensions($file);
     }
 

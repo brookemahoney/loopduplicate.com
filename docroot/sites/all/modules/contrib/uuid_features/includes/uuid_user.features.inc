@@ -58,6 +58,8 @@ function uuid_user_features_export_render($module, $data) {
   $code[] = '  $users = array();';
   $code[] = '';
   $uids = entity_get_id_by_uuid('user', $data);
+  // Always sort by the uuid to ensure the order is maintained.
+  ksort($uids);
   foreach ($uids as $uuid => $uid) {
     // Only export the user if it exists.
     if ($uid === FALSE) {

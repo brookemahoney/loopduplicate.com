@@ -210,16 +210,9 @@ function wysiwyg_pre_render_text_format($element) {
     'field' => $field['#id'],
   );
 
-  // If this textarea is #resizable and we will load at least one
-  // editor, then only load the behavior and let the 'none' editor
-  // attach/detach it to avoid hi-jacking the UI. Due to our CSS class
-  // parsing, we can add arbitrary parameters for each input format.
-  // The #resizable property will be removed below, if at least one
-  // profile has been loaded.
-  $resizable = 0;
+  // If this textarea is #resizable the 'none' editor will attach/detach it to
+  // avoid hi-jacking the UI.
   if (!empty($field['#resizable'])) {
-    $resizable = 1;
-    drupal_add_js('misc/textarea.js');
     $settings['resizable'] = 1;
   }
   if (isset($element['summary']) && $element['summary']['#type'] == 'textarea') {
@@ -278,16 +271,6 @@ function wysiwyg_pre_render_text_format($element) {
     ),
     'type' => 'setting',
   );
-
-  // If we loaded at least one editor, then the 'none' editor will
-  // handle resizable textareas instead of core.
-  if (isset($loaded) && $resizable) {
-    $field['#resizable'] = FALSE;
-    if (isset($element['summary'])) {
-      $element['summary']['#resizable'] = FALSE;
-    }
-  }
-
   return $element;
 }
 
@@ -744,6 +727,9 @@ function wysiwyg_profile_cache_clear() {
  * Implements hook_form_FORM_ID_alter().
  */
 function wysiwyg_form_user_profile_form_alter(&$form, &$form_state, $form_id) {
+  if ($form['#user_category'] != 'account') {
+    return;
+  }
   $account = $form['#user'];
   $user_formats = filter_formats($account);
   $options = array();

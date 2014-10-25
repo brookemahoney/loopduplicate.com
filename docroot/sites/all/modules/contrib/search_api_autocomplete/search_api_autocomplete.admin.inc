@@ -271,6 +271,21 @@ function search_api_autocomplete_admin_search_edit(array $form, array &$form_sta
   if (!empty($type['config form']) && function_exists($type['config form']) && is_array($custom_form = $type['config form']($custom_form, $form_state, $search))) {
     $form['options']['custom'] = $custom_form;
   }
+
+  $form['advanced'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Advanced settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+  );
+  $form['advanced']['submit_button_selector'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Search button selector'),
+    '#description' => t('<a href="@jquery_url">jQuery selector</a> to identify the search button in the search form. Use the ID attribute of the "Search" submit button to prevent issues when another button is present (e.g., "Reset"). The selector is evaluated relative to the form. The default value is ":submit".', array('@jquery_url' => 'https://api.jquery.com/category/selectors/')),
+    '#default_value' => isset($search->options['submit_button_selector']) ? $search->options['submit_button_selector'] : ':submit',
+    '#required' => TRUE,
+  );
+
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Save'),
@@ -317,6 +332,7 @@ function search_api_autocomplete_admin_search_edit_submit(array $form, array &$f
   $search->options['results'] = $values['options']['results'];
   $search->options['min_length'] = $values['options']['min_length'];
   $search->options['fields'] = array_keys(array_filter($values['options']['fields']));
+  $search->options['submit_button_selector'] = $form_state['values']['advanced']['submit_button_selector'];
   if (isset($values['options']['custom'])) {
     // Take care of custom options that aren't changed in the config form.
     $old = empty($search->options['custom']) ? array() : $search->options['custom'];

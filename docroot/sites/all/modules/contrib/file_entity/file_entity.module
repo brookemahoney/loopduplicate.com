@@ -1137,9 +1137,16 @@ function file_entity_file_formatter_file_field_view($file, $display, $langcode) 
       // Set $display['type'] to what hook_field_formatter_*() expects.
       $display['type'] = $field_formatter_type;
 
+      // Allow any attribute overrides (e.g. from the Media module) to be
+      // respected.
+      $item = (array) $file;
+      if (!empty($file->override['attributes'])) {
+        $item = array_merge($item, $file->override['attributes']);
+      }
+
       // Set $items to what file field formatters expect. See file_field_load(),
       // and note that, here, $file is already a fully loaded entity.
-      $items = array((array) $file);
+      $items = array($item);
 
       // Invoke hook_field_formatter_prepare_view() and
       // hook_field_formatter_view(). Note that we are reusing field formatter

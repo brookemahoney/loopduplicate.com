@@ -53,12 +53,12 @@ function advagg_admin_settings_form($form, $form_state) {
     '#description' => t('If <a href="@link">HTTPRL</a> is installed, advagg will use it to generate aggregates on the fly in a background parallel process.', array('@link' => 'http://drupal.org/project/httprl')),
   );
 
-  $agressive_cache_conflicts = advagg_agressive_cache_conflicts();
-  if (empty($agressive_cache_conflicts)) {
+  $aggressive_cache_conflicts = advagg_aggressive_cache_conflicts();
+  if (empty($aggressive_cache_conflicts)) {
     $description = t('It appears that there are no incompatible modules, so you should be able to safely use the Aggressive cache.');
   }
   else {
-    $description = t('It appears that there might be some incompatible modules. I would test these out before setting the cache to agressive: %modules', array('%modules' => implode(', ', $agressive_cache_conflicts)));
+    $description = t('It appears that there might be some incompatible modules. I would test these out before setting the cache to aggressive: %modules', array('%modules' => implode(', ', $aggressive_cache_conflicts)));
   }
   $options = array(
     -1 => t('Development ~ 100ms'),
@@ -704,6 +704,28 @@ function advagg_admin_get_file_info($filename) {
 
     // Get a list of files.
     $files = advagg_get_files_from_hashes($type, $aggregate_filenames_hash, $aggregate_contents_hash);
+    if (empty($files)) {
+      list($css_path, $js_path) = advagg_get_root_files_dir();
+      // Skip if the file exists.
+      if ($type === 'css') {
+        $uri = $css_path[0] . '/' . $filename;
+      }
+      elseif ($type === 'js') {
+        $uri = $js_path[0] . '/' . $filename;
+      }
+      if (file_exists($uri)) {
+        $atime = advagg_get_atime($aggregate_filenames_hash, $aggregate_contents_hash, $uri);
+        if (REQUEST_TIME - $atime > variable_get('drupal_stale_file_threshold', 2592000)) {
+          $files = t('This is an old aggregate, it should be deleted on the next cron run.');
+        }
+        else {
+          $files = t('This is an old aggregate, it should be deleted on the cron run after !time.', array('!time' => format_interval(variable_get('drupal_stale_file_threshold', 2592000) - (REQUEST_TIME - $atime))));
+        }
+      }
+      else {
+        $files = t('This aggregate file no longer exists.');
+      }
+    }
     $data['files'] = $files;
 
     // Get detailed info on each file.

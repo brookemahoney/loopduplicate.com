@@ -1,5 +1,7 @@
 Search API Autocomplete 1.x, dev (xx/xx/xxxx):
 ----------------------------------------------
+- #2334563 by Begun, drunken monkey, marvil07: Added an advanced option to
+  change the jQuery button selector.
 - #2280111 by drunken monkey: Fixed handling of settings for deleted searches.
 
 Search API Autocomplete 1.1 (05/24/2014):

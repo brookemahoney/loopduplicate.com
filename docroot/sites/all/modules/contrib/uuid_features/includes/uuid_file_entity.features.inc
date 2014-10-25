@@ -89,6 +89,8 @@ function uuid_file_entity_features_export_render($module, $data) {
   $code[] = '  $files = array();';
   $code[] = '';
   $fids = entity_get_id_by_uuid('file', $data);
+  // Always sort by the uuid to ensure the order is maintained.
+  ksort($fids);
   foreach ($fids as $uuid => $fid) {
     // Only export the file if it exists.
     if ($fid === FALSE) {

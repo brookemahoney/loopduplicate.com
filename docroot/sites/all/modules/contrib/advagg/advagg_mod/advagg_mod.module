@@ -576,8 +576,14 @@ function advagg_mod_advagg_modify_css_pre_render_alter(&$children, &$elements) {
 
   // Wrap old CSS in noscript tags.
   foreach ($children as &$values) {
-    $values['#prefix'] = '<script type="text/javascript">loadStyleSheet("' . $values['#attributes']['href'] . '")</script><noscript>' . "\n";
-    $values['#suffix'] = '</noscript>';
+    // Do not defer inline scripts
+    if ($values['#tag'] === 'style') {
+      continue;
+    }
+    if (!empty($values['#attributes']['href'])) {
+      $values['#prefix'] = '<script type="text/javascript">loadStyleSheet("' . $values['#attributes']['href'] . '")</script><noscript>' . "\n";
+      $values['#suffix'] = '</noscript>';
+    }
   }
 }
 

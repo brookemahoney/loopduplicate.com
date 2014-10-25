@@ -261,7 +261,6 @@ function wysiwyg_tinymce_settings_form(&$form, &$form_state) {
     '#default_value' => !empty($settings['paste_auto_cleanup_on_paste']),
     '#return_value' => 1,
     '#description' => t('If enabled, contents will be automatically processed when you paste using Ctrl+V or similar methods. Cleaning up contents from MS Word or pasting as plain text will <strong>not</strong> work without this.') . ' ' . t('Uses the <a href="@url">@setting</a> setting internally.', array('@setting' => 'paste_auto_cleanup_on_paste', '@url' => url('http://www.tinymce.com/wiki.php/Plugin3x:paste'))),
-    '#element_validate' => array('wysiwyg_tinymce_settings_form_validate_blockformats'),
   );
 }
 

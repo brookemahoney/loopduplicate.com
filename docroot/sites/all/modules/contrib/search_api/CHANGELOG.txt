@@ -1,5 +1,7 @@
 Search API 1.x, dev (xx/xx/xxxx):
 ---------------------------------
+- #2174163 by drunken monkey: Fixed detection of field type changes by data
+  alterations.
 - #2305755 by drunken monkey, pfrenssen: Fixed invalidation of the stored index
   fields cache.
 - #2334727 by Alex Bukach, drunken monkey: Fixed Views caching does not take

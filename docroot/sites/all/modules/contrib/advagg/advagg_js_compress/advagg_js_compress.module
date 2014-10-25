@@ -41,6 +41,11 @@ define('ADVAGG_JS_MAX_COMPRESS_RATIO', 0.9);
 define('ADVAGG_JS_COMPRESSOR_FILE_SETTINGS', -1);
 
 /**
+ * Default value to if inline compression is used if page is not cacheable.
+ */
+define('ADVAGG_JS_COMPRESS_ADD_LICENSE', TRUE);
+
+/**
  * Implements hook_menu().
  */
 function advagg_js_compress_menu() {

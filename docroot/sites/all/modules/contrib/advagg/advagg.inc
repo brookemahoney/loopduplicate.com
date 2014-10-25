@@ -514,7 +514,7 @@ function advagg_get_info_on_files($files, $bypass_cache = FALSE, $run_alter = TR
           && (empty($cached_data[$info['cache_id']]) || $info !== $cached_data[$info['cache_id']])
           ) {
         // CACHE_PERMANENT isn't good here. Use 2 weeks from now + 0-45 days.
-        // The random 0 to 45 day addition is to prevent a cache stampeed.
+        // The random 0 to 45 day addition is to prevent a cache stampede.
         cache_set($info['cache_id'], $info, 'cache_advagg_info', round(REQUEST_TIME + 1209600 + mt_rand(0, 3888000), -3));
       }
 
@@ -970,6 +970,10 @@ function advagg_create_subfile($css, $overall_split, $file_info) {
  *   array of aggregate files.
  */
 function advagg_build_aggregate_plans($files_to_aggregate, $type) {
+  if ($type !== 'css' && $type !== 'js') {
+    return array();
+  }
+
   // Place into biggest grouping possible.
   $groups = advagg_generate_groups($files_to_aggregate);
 
@@ -1143,9 +1147,9 @@ function advagg_load_css_stylesheet($file, $optimize, $aggregate_settings = NULL
   }
   _advagg_build_css_path(NULL, $css_base_url . '/');
 
-  // Anchor all paths in the CSS with its base URL, ignoring external and
-  // absolute paths.
-  $contents = preg_replace_callback('/url\(\s*[\'"]?(?![a-z]+:|\/+)([^\'")]+)[\'"]?\s*\)/i', '_advagg_build_css_path', $contents);
+  // Anchor all paths in the CSS with its base URL, ignoring external,
+  // absolute paths, and urls that start with # (SVG).
+  $contents = preg_replace_callback('/url\(\s*[\'"]?(?![a-z]+:|\/+|\#+)([^\'")]+)[\'"]?\s*\)/i', '_advagg_build_css_path', $contents);
 
   // Change context back.
   advagg_context_css($aggregate_settings, 1);
@@ -1187,6 +1191,10 @@ function _advagg_build_css_path($matches, $base = NULL) {
   // Store base path for preg_replace_callback.
   if (isset($base)) {
     $_base = $base;
+  }
+  // Short circuit if no matches were passed in.
+  if (empty($matches)) {
+    return;
   }
 
   // Prefix with base and remove '../' segments where possible.

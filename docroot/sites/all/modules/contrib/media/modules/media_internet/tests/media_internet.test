@@ -49,7 +49,6 @@ class MediaInternetBrowserWebTabTestCase extends MediaInternetTestHelper {
       'name' => 'Media browser web tab test',
       'description' => 'Tests the media browser web tab.',
       'group' => 'Media Internet',
-      'dependencies' => array('fake'), // @todo remove when File Entity > alpha3 is released. This test currently fails on drupal.org due to testbot dependency issues.
     );
   }
 
@@ -91,7 +90,6 @@ class MediaInternetCreationTestCase extends MediaInternetTestHelper {
       'name' => 'Remote media file creation',
       'description' => 'Test file creation with remote media.',
       'group' => 'Media Internet',
-      'dependencies' => array('fake'), // @todo remove when File Entity > alpha3 is released. This test currently fails on drupal.org due to testbot dependency issues.
     );
   }
 
@@ -134,7 +132,6 @@ class MediaInternetProviderTestCase extends MediaInternetTestHelper {
       'name' => 'Custom media provider test',
       'description' => 'Tests the custom media provider APIs.',
       'group' => 'Media Internet',
-      'dependencies' => array('fake'), // @todo remove when File Entity > alpha3 is released. This test currently fails on drupal.org due to testbot dependency issues.
     );
   }
 

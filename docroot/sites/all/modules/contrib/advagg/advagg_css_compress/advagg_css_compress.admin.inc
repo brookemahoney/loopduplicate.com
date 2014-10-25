@@ -18,7 +18,7 @@ function advagg_css_compress_admin_settings_form($form, $form_state) {
   $form = array();
   if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) < 0) {
     $form['advagg_devel_msg'] = array(
-      '#markup' => '<p>' . t('The settings below will not have any effect because AdvAgg is currently in <a href="@devel">development mode</a>. Once the cache settings have been set to normal or agressive, CSS minification will take place.', array('@devel' => url($config_path . '/advagg', array('fragment' => 'edit-advagg-cache-level')))) . '</p>',
+      '#markup' => '<p>' . t('The settings below will not have any effect because AdvAgg is currently in <a href="@devel">development mode</a>. Once the cache settings have been set to normal or aggressive, CSS minification will take place.', array('@devel' => url($config_path . '/advagg', array('fragment' => 'edit-advagg-cache-level')))) . '</p>',
     );
   }
 

@@ -1952,7 +1952,14 @@ function search_api_search_api_query_alter(SearchApiQueryInterface $query) {
       }
     }
     else {
-      watchdog('search_api', 'An illegal user UID was given for node access: @uid.', array('@uid' => $query->getOption('search_api_access_account', $user)), WATCHDOG_WARNING);
+      $account = $query->getOption('search_api_access_account', '(' . t('none') . ')');
+      if (is_object($account)) {
+        $account = $account->uid;
+      }
+      if (!is_scalar($account)) {
+        $account = var_export($account, TRUE);
+      }
+      watchdog('search_api', 'An illegal user UID was given for node access: @uid.', array('@uid' => $account), WATCHDOG_WARNING);
     }
   }
 }

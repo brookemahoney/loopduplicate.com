@@ -1603,6 +1603,7 @@ function search_api_admin_index_workflow_submit(array $form, array &$form_state)
   foreach ($form_state['callbacks'] as $name => $callback) {
     // Check whether callback status has changed.
     if ($values['callbacks'][$name]['status'] == empty($options['data_alter_callbacks'][$name]['status'])) {
+      $callbacks_changed = TRUE;
       if ($values['callbacks'][$name]['status']) {
         // Callback was just enabled, add its fields.
         $properties = $callback->propertyInfo();
@@ -1629,16 +1630,6 @@ function search_api_admin_index_workflow_submit(array $form, array &$form_state)
           }
         }
       }
-      else {
-        // Callback was just disabled, remove its fields.
-        $properties = $callback->propertyInfo();
-        if ($properties) {
-          foreach ($properties as $key => $field) {
-            unset($index->options['fields'][$key]);
-          }
-        }
-
-      }
     }
   }
 
@@ -1652,9 +1643,9 @@ function search_api_admin_index_workflow_submit(array $form, array &$form_state)
     uasort($index->options['data_alter_callbacks'], 'search_api_admin_element_compare');
     uasort($index->options['processors'], 'search_api_admin_element_compare');
 
-    // Reset the index's internal property cache to correctly incorporate the
-    // new data alterations.
-    $index->resetCaches();
+    // Re-calculate the fields, since they might have changed in hard-to-predict
+    // ways.
+    search_api_index_recalculate_fields(array($index));
 
     $index->save();
     $index->reindex();
