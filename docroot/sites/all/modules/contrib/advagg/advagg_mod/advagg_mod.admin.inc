@@ -184,9 +184,16 @@ function advagg_mod_admin_settings_form() {
     '#collapsed' => (variable_get('advagg_mod_css_head_extract', ADVAGG_MOD_CSS_HEAD_EXTRACT) || variable_get('advagg_mod_css_defer', ADVAGG_MOD_CSS_DEFER)) ? FALSE : TRUE,
   );
   $form['css']['expert']['advagg_mod_css_defer'] = array(
-    '#type' => 'checkbox',
+    '#type' => 'radios',
     '#title' => t('Deferred CSS Execution: Use JS to load CSS'),
     '#default_value' => variable_get('advagg_mod_css_defer', ADVAGG_MOD_CSS_DEFER),
+    '#options' => array(
+      0 => t('Disabled'),
+      1 => t('All in head, above js'),
+      3 => t('All in head'),
+      5 => t('All in footer except for JS loading code'),
+      7 => t('All in footer'),
+    ),
     '#description' => t('This will try to optimize CSS delivery by using JavaScript to load the CSS. This might break CSS on different browsers; only use after extensive testing! <a href="@link">More Info</a>', array(
       '@link' => 'http://stackoverflow.com/questions/19374843/css-delivery-optimization-how-to-defer-css-loading',
     )),

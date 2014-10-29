@@ -45,6 +45,11 @@ function advagg_js_compress_advagg_get_info_on_files_alter(&$return, $cached_dat
     }
   }
 
+  // If no cache ids are found bail out.
+  if (empty($cache_ids)) {
+    return;
+  }
+
   // Get cached values.
   $cache_hits = array();
   if (!$bypass_cache) {
@@ -360,6 +365,10 @@ function advagg_js_compress_jsminplus(&$contents, $log_errors = TRUE) {
   // Only include jsminplus.inc if the JSMinPlus class doesn't exist.
   if (!class_exists('JSMinPlus')) {
     include drupal_get_path('module', 'advagg_js_compress') . '/jsminplus.inc';
+    $nesting_level = ini_get('xdebug.max_nesting_level');
+    if (!empty($nesting_level) && $nesting_level < 200) {
+      ini_set('xdebug.max_nesting_level', 200);
+    }
   }
   ob_start();
   try {
