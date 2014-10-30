@@ -10,11 +10,20 @@
   article {
     background: $body-bg;
   }
-  [property="dc:title"] {
-    font-size: $font-size-h4;
+  .submitted {
+    float: left;
     margin-top: 0;
     margin-bottom: .2em;
+    padding-top: .3em;
+  }
+  [property="dc:title"] {
+    @extend .submitted;
+    font-size: $font-size-h4;
     padding-top: .2em;
+    padding-right: .5em;
+  }
+  .content {
+    clear: both;
   }
 }
 .search-filter-pane {
