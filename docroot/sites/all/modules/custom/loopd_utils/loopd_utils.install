@@ -1,7 +1,12 @@
 <?php
 
 /**
- * Implements hook_install().
+ * Updates the available Geshifilter libraries for Sass and Twig support.
  */
-function loopd_utils_install() {
+function loopd_utils_update_7001() {
+  // Deletes the geshifilter available languages cache variable so that new
+  // languages become available. The Geshi library has been updated to use
+  // the version found at https://github.com/jeffymahoney/geshi, a fork of
+  // https://github.com/easybook/geshi, which includes Sass and Twig support.
+  variable_del('geshifilter_available_languages_cache');
 }
