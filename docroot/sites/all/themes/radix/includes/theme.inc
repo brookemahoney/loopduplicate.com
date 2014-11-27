@@ -54,6 +54,12 @@ function radix_theme(&$existing, $type, $theme, $path) {
       ),
       'template' => 'templates/other/radix-grid',
     ),
+    'radix_alert' => array(
+      'variables' => array(
+        'text' => NULL,
+        'type' => 'status',
+      ),
+    ),
   );
 }
 
@@ -95,7 +101,8 @@ function theme_radix_dropdown($variables) {
       continue;
     }
 
-    if (isset($link['href']) && ($link['href'] == $_GET['q'] || ($link['href'] == '<front>' && drupal_is_front_page())) && (empty($link['language']) || $link['language']->language == $language_url->language)) {
+    if (isset($link['href']) && ($link['href'] == $_GET['q']
+        || ($link['href'] == '<front>' && drupal_is_front_page()))) {
       $class[] = 'active';
     }
 
@@ -112,7 +119,7 @@ function theme_radix_dropdown($variables) {
     }
     elseif (!empty($link['title'])) {
       // Some links are actually not links,
-      // but we wrap these in <span> for adding title and class attributes.
+      // But we wrap these in <span> for adding title and class attributes.
       if (empty($link['html'])) {
         $link['title'] = check_plain($link['title']);
       }
@@ -164,7 +171,7 @@ function theme_radix_button_group($variables) {
       $class[] = 'last';
     }
 
-    // Add Boostrap attributes.
+    // Add Bootstrap attributes.
     $button['attributes'] = drupal_array_merge_deep($button['attributes'], array('class' => $class));
 
     $output .= l($button['title'], $button['href'], $button);
@@ -331,5 +338,16 @@ function radix_preprocess_radix_tabs(&$variables) {
   if (empty($variables['type'])) {
     $variables['type'] = 'tabs';
   }
+}
+
+/**
+ * Implements template_preprocess_radix_alert().
+ */
+function template_preprocess_radix_alert(&$variables) {
+  $type = $variables['type'];
+
+  // Add classes.
+  $variables['classes_array'][] = 'alert';
+  $variables['classes_array'][] = 'alert-' . $type;
 }
 

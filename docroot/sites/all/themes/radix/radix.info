@@ -5,7 +5,6 @@ core        = 7.x
 
 ; CSS - General
 stylesheets[all][]     = assets/stylesheets/radix-style.css
-stylesheets[all][]     = assets/stylesheets/radix-livestyle.css
 stylesheets[print][]   = assets/stylesheets/radix-print.css
 
 ; CSS - Conditional
@@ -14,7 +13,6 @@ stylesheets-conditional[IE 7][all][] = assets/stylesheets/radix-ie7.css
 stylesheets-conditional[IE 8][all][] = assets/stylesheets/radix-ie8.css
 
 ; Javascript
-scripts[] = assets/javascripts/modernizr.js
 scripts[] = assets/javascripts/radix-script.js
 
 ; Regions
@@ -31,9 +29,9 @@ core = "7.x"
 project = "radix"
 datestamp = "1393170697"
 
-; Information added by Drupal.org packaging script on 2014-06-14
-version = "7.x-3.0-beta1"
+; Information added by Drupal.org packaging script on 2014-11-08
+version = "7.x-3.0-beta2"
 core = "7.x"
 project = "radix"
-datestamp = "1402765730"
+datestamp = "1415406783"
 

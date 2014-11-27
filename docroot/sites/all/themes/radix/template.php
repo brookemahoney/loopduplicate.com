@@ -29,6 +29,22 @@ function radix_preprocess_html(&$variables) {
     ),
   );
   drupal_add_html_head($element, 'bootstrap_responsive');
+
+  // Add some custom classes for panels pages.
+  if (module_exists('page_manager') && count(page_manager_get_current_page())) {
+    $variables['is_panel'] = TRUE;
+
+    // Get the current panel display and add some classes to body.
+    if ($display = panels_get_current_page_display()) {
+      $variables['classes_array'][] = 'panel-layout-' . $display->layout;
+
+      // Add a custom class for each region that has content.
+      $regions = array_keys($display->panels);
+      foreach ($regions as $region) {
+        $variables['classes_array'][] = 'panel-region-' . $region;
+      }
+    }
+  }
 }
 
 /**
@@ -88,7 +104,13 @@ function radix_preprocess_page(&$variables) {
   // Add Bootstrap JS from CDN if bootstrap library is not installed.
   if (!module_exists('bootstrap_library')) {
     $base = parse_url($base_url);
-    drupal_add_js($base['scheme'] . '://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js', 'external');
+    drupal_add_js($base['scheme'] . '://netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js', 'external');
+  }
+
+  // Add support for the Modenizr module.
+  // Load modernizr.js only if modernizr module is not present.
+  if (!module_exists('modernizr')) {
+    drupal_add_js(drupal_get_path('theme', 'radix') . '/assets/javascripts/modernizr.js');
   }
 
   // Determine if the page is rendered using panels.
