@@ -16,7 +16,7 @@
     margin-bottom: .2em;
     padding-top: .3em;
   }
-  [property="dc:title"] {
+  .teaser__title {
     @extend .submitted;
     font-size: $font-size-h4;
     padding-top: .2em;

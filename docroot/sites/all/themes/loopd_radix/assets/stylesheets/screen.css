@@ -11183,15 +11183,15 @@ html.js fieldset.collapsed {
   display: block;
 }
 /* line 14, ../../../../../../../../../../../Users/jmahoney/.rvm/gems/ruby-2.1.2@docsradix/gems/compass_radix-3.0.6/stylesheets/compass_radix/_comment.scss */
-.comment .submitted, .comment .search-results-pane [property="dc:title"], .search-results-pane .comment [property="dc:title"] {
+.comment .submitted, .comment .search-results-pane .teaser__title, .search-results-pane .comment .teaser__title {
   font-size: 0.90em;
 }
 /* line 16, ../../../../../../../../../../../Users/jmahoney/.rvm/gems/ruby-2.1.2@docsradix/gems/compass_radix-3.0.6/stylesheets/compass_radix/_comment.scss */
-.comment .submitted .permalink, .comment .search-results-pane [property="dc:title"] .permalink, .search-results-pane .comment [property="dc:title"] .permalink {
+.comment .submitted .permalink, .comment .search-results-pane .teaser__title .permalink, .search-results-pane .comment .teaser__title .permalink {
   margin-left: 5px;
 }
 /* line 19, ../../../../../../../../../../../Users/jmahoney/.rvm/gems/ruby-2.1.2@docsradix/gems/compass_radix-3.0.6/stylesheets/compass_radix/_comment.scss */
-.comment .submitted .new, .comment .search-results-pane [property="dc:title"] .new, .search-results-pane .comment [property="dc:title"] .new {
+.comment .submitted .new, .comment .search-results-pane .teaser__title .new, .search-results-pane .comment .teaser__title .new {
   color: #dd1100;
 }
 /* line 23, ../../../../../../../../../../../Users/jmahoney/.rvm/gems/ruby-2.1.2@docsradix/gems/compass_radix-3.0.6/stylesheets/compass_radix/_comment.scss */
@@ -11392,14 +11392,14 @@ span.geshifilter .javascript .me2 {
   background: #333;
 }
 /* line 13, ../sass/components/_search.scss */
-.search-results-pane .submitted, .search-results-pane [property="dc:title"] {
+.search-results-pane .submitted, .search-results-pane .teaser__title {
   float: left;
   margin-top: 0;
   margin-bottom: .2em;
   padding-top: .3em;
 }
 /* line 19, ../sass/components/_search.scss */
-.search-results-pane [property="dc:title"] {
+.search-results-pane .teaser__title {
   font-size: 18px;
   padding-top: .2em;
   padding-right: .5em;
