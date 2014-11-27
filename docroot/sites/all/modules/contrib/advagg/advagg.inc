@@ -229,30 +229,6 @@ function advagg_insert_update_files($files, $type) {
   return $write_done;
 }
 
-/**
- * Update atime advagg_aggregates_versions table & cache_advagg_info cache bin.
- *
- * @param array $files
- *   List of files in the aggregate as well as the aggregate name.
- *
- * @return bool
- *   Return TRUE if anything was written to the database.
- */
-function advagg_update_all_atimes($files) {
-  // Record if a database write was done.
-  $write_done = FALSE;
-
-  // Loop through all files.
-  foreach ($files as $aggregate_file_name => $values) {
-    // Build lock name variable.
-    if (advagg_update_atime($values['aggregate_filenames_hash'], $values['aggregate_contents_hash'])) {
-      $write_done = TRUE;
-    }
-  }
-
-  return $write_done;
-}
-
 // File operations.
 /**
  * Given a group of files calculate what the aggregate filename will be.
@@ -933,8 +909,13 @@ function advagg_create_subfile($css, $overall_split, $file_info) {
     module_load_include('inc', 'advagg', 'advagg.missing');
   }
 
+  // Get the path from $file_info['data'].
+  $uri_path = parse_url(file_create_url($file_info['data']), PHP_URL_PATH);
+  if (substr($uri_path, 0, strlen($GLOBALS['base_path'])) == $GLOBALS['base_path']) {
+    $uri_path = substr($uri_path, strlen($GLOBALS['base_path']));
+  }
   // Write the current chunk of the CSS into a file.
-  $new_filename = str_ireplace('.css', '.' . $overall_split . '.css', $file_info['data']);
+  $new_filename = str_ireplace('.css', '.' . $overall_split . '.css', $uri_path);
   $part_uri = $parts_uri . '/' . $new_filename;
   $dirname = drupal_dirname($part_uri);
   file_prepare_directory($dirname, FILE_CREATE_DIRECTORY);
@@ -983,7 +964,7 @@ function advagg_build_aggregate_plans($files_to_aggregate, $type) {
   // Insert/Update Database.
   advagg_insert_update_db($files, $type, 1);
   // Update atimes for root.
-  advagg_update_all_atimes($files);
+  advagg_multi_update_atime($files);
 
   // Run hooks to modify the aggregate.
   // Call hook_advagg_build_aggregate_plans_alter().
@@ -995,7 +976,7 @@ function advagg_build_aggregate_plans($files_to_aggregate, $type) {
     // Insert/Update Database.
     advagg_insert_update_db($files, $type, 0);
     // Update atimes for non root.
-    advagg_update_all_atimes($files);
+    advagg_multi_update_atime($files);
   }
 
   // Get file paths.

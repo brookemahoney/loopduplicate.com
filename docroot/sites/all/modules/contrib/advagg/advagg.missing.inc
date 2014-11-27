@@ -255,7 +255,10 @@ function advagg_missing_create_file($filename, $no_alters = FALSE, $data = array
   // Save aggregate file.
   $files_to_save = advagg_save_aggregate($filename, $files, $type, $aggregate_settings);
   // Update atime.
-  advagg_update_atime($aggregate_filenames_hash, $aggregate_contents_hash);
+  advagg_multi_update_atime(array(array(
+    'aggregate_filenames_hash' => $aggregate_filenames_hash,
+    'aggregate_contents_hash' => $aggregate_contents_hash,
+  )));
   // Make sure .htaccess file exists in the advagg dir.
   if (variable_get('advagg_htaccess_check_generate', ADVAGG_HTACCESS_CHECK_GENERATE)) {
     advagg_htaccess_check_generate($files_to_save, $type);

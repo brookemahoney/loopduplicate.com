@@ -99,6 +99,11 @@ function advagg_push_new_changes() {
       // Lookup the aggregates that use this file.
       $aggregates = advagg_get_aggregates_using_file($meta_data['filename_hash']);
 
+      // Do nothing if no aggregates were found.
+      if (empty($aggregates)) {
+        continue;
+      }
+
       // Get the cache ids.
       $cache_ids = array();
       foreach ($aggregates as $row) {

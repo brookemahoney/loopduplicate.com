@@ -2110,65 +2110,71 @@ function advagg_file_aggregation_enabled($type) {
 }
 
 /**
- * Update the atime value in the advagg_aggregates_versions table.
+ * Update atime advagg_aggregates_versions table & cache_advagg_info cache bin.
  *
- * @param string $aggregate_filenames_hash
- *   Hash of the groupings of files.
- * @param string $aggregate_contents_hash
- *   Hash of the files contents.
+ * @param array $files
+ *   List of files in the aggregate as well as the aggregate name.
  *
  * @return bool
- *   TRUE if a write to the DB was done.
+ *   Return TRUE if anything was written to the database.
  */
-function advagg_update_atime($aggregate_filenames_hash, $aggregate_contents_hash) {
+function advagg_multi_update_atime($files) {
   $write_done = FALSE;
-  // Set the cache id.
-  $cache_id = 'advagg:db:' . $aggregate_filenames_hash . ADVAGG_SPACE . $aggregate_contents_hash;
-  // Set db record.
-  $record = array(
-    'aggregate_filenames_hash' => $aggregate_filenames_hash,
-    'aggregate_contents_hash' => $aggregate_contents_hash,
-    'atime' => REQUEST_TIME,
-  );
+  $records = array();
+  foreach ($files as $values) {
+    // Create the cache id.
+    $cid = 'advagg:db:' . $values['aggregate_filenames_hash'] . ADVAGG_SPACE . $values['aggregate_contents_hash'];
+    // Create the db record.
+    $records[$cid] = array(
+      'aggregate_filenames_hash' => $values['aggregate_filenames_hash'],
+      'aggregate_contents_hash' => $values['aggregate_contents_hash'],
+      'atime' => REQUEST_TIME,
+    );
+  }
 
-  // Use the cache to avoid hitting the database.
-  $cache = cache_get($cache_id, 'cache_advagg_info');
-  if ($cache) {
-    // See if the atime value needs to be updated;
-    if (!empty($cache->data['atime']) && $cache->data['atime'] > REQUEST_TIME - (12 * 60 * 60)) {
-      // If atime is less than 12 hours old, do nothing.
-      return $write_done;
+  // Use the cache.
+  $cids = array_keys($records);
+  $caches = cache_get_multiple($cids, 'cache_advagg_info');
+  if (!empty($caches)) {
+    foreach ($caches as $cache) {
+      // See if the atime value needs to be updated;
+      if (!empty($cache->data['atime']) && $cache->data['atime'] > REQUEST_TIME - (12 * 60 * 60)) {
+        // If atime is less than 12 hours old, do nothing.
+        unset($records[$cache->cid]);
+      }
     }
   }
-
-  // Update atime in DB.
-  $return = db_merge('advagg_aggregates_versions')
-    ->key(array(
-      'aggregate_filenames_hash' => $record['aggregate_filenames_hash'],
-      'aggregate_contents_hash' => $record['aggregate_contents_hash'],
-      ))
-    ->updateFields(array('atime' => $record['atime']))
-    ->execute();
-
-  if ($return) {
-    $write_done = TRUE;
+  if (empty($records)) {
+    return $write_done;
   }
 
-  // Update the atime in the cache.
-  // Get fresh copy of the cache now that we are in a lock.
-  $cache = cache_get($cache_id, 'cache_advagg_info');
-  // Set the atime.
-  if (empty($cache->data)) {
-    $cache = new stdClass();
+  foreach ($records as $cid => $record) {
+    // Update atime in DB.
+    $result = db_merge('advagg_aggregates_versions')
+      ->key(array(
+        'aggregate_filenames_hash' => $record['aggregate_filenames_hash'],
+        'aggregate_contents_hash' => $record['aggregate_contents_hash'],
+        ))
+      ->updateFields(array('atime' => $record['atime']))
+      ->execute();
+    if (!$write_done && $result) {
+      $write_done = TRUE;
+    }
+
+    // Update the atime in the cache.
+    // Get fresh copy of the cache.
+    $cache = cache_get($cid, 'cache_advagg_info');
+    // Set the atime.
+    if (empty($cache->data)) {
+      $cache = new stdClass();
+    }
+    $cache->data['atime'] = REQUEST_TIME;
+
+    // Write to the cache.
+    // CACHE_PERMANENT isn't good here. Use 2 weeks from now + 0-45 days.
+    // The random 0 to 45 day addition is to prevent a cache stampede.
+    cache_set($cid, $cache->data, 'cache_advagg_info', round(REQUEST_TIME + 1209600 + mt_rand(0, 3888000), -3));
   }
-  $cache->data['atime'] = REQUEST_TIME;
-
-  // Write to the cache.
-  // CACHE_PERMANENT isn't good here. Use 2 weeks from now + 0-45 days.
-  // The random 0 to 45 day addition is to prevent a cache stampede.
-  cache_set($cache_id, $cache->data, 'cache_advagg_info', round(REQUEST_TIME + 1209600 + mt_rand(0, 3888000), -3));
-
-  // Return if a write was done.
   return $write_done;
 }
 
