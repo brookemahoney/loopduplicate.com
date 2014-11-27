@@ -5,9 +5,9 @@ core = "7.x"
 files[] = reroute_email.test
 configure = admin/config/development/reroute_email
 
-; Information added by Drupal.org packaging script on 2014-08-14
-version = "7.x-1.1+29-dev"
+; Information added by Drupal.org packaging script on 2014-11-01
+version = "7.x-1.2"
 core = "7.x"
 project = "reroute_email"
-datestamp = "1408005529"
+datestamp = "1414831432"
 

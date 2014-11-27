@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Reroute Email module
+ * Intercepts all outgoing emails to be rerouted to a configurable destination.
  */
 
 define('REROUTE_EMAIL_ADDRESS', 'reroute_email_address');
@@ -17,7 +17,22 @@ define('REROUTE_EMAIL_EMAIL_SPLIT_RE', '/[\s,;]+/');
 
 
 /**
- * Implements of hook_permission().
+ * Implements hook_module_implements_alter().
+ *
+ * Ensure reroute_email runs last when hook_mail_alter is invoked.
+ */
+function reroute_email_module_implements_alter(&$implementations, $hook) {
+  // Testing with isset is only necessary if module doesn't implement the hook.
+  if ($hook == 'mail_alter') {
+    // Move our hook implementation to the bottom.
+    $group = $implementations['reroute_email'];
+    unset($implementations['reroute_email']);
+    $implementations['reroute_email'] = $group;
+  }
+}
+
+/**
+ * Implements hook_permission().
  */
 function reroute_email_permission() {
   return array(
@@ -141,7 +156,10 @@ function reroute_email_mail_alter(&$message) {
     if (variable_get(REROUTE_EMAIL_ADDRESS, NULL) === '') {
       $message['send'] = FALSE;
       // Record a variable dump of the email in the recent log entries.
-      watchdog('reroute_email', 'Aborted email sending for <em>@message_id</em>. <br/>Detailed email data: Array $message <pre>@message</pre>', array('@message_id' => $message['id'], '@message' => print_r($message, TRUE)));
+      watchdog('reroute_email', 'Aborted email sending for <em>@message_id</em>. <br/>Detailed email data: Array $message <pre>@message</pre>', array(
+        '@message_id' => $message['id'],
+        '@message' => print_r($message, TRUE),
+      ));
       // Let users know email has been aborted, but logged.
       drupal_set_message(t('<em>@message_id</em> was aborted by reroute email, please check the <a href="@dblog">recent log entries</a> for complete details on the rerouted email.', array('@message_id' => $message['id'], '@dblog' => url('admin/reports/dblog'))));
     }

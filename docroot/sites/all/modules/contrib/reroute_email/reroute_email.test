@@ -11,25 +11,29 @@
 class RerouteEmailTestCase extends DrupalWebTestCase {
 
   /**
-   * User object to perform site browsing
+   * User object to perform site browsing.
+   *
    * @var object
    */
   protected $adminUser;
 
   /**
    * Reroute email destination address used for the tests.
+   *
    * @var string
    */
   protected $rerouteDestination = "rerouted@example.com";
 
   /**
    * Original email address used for the tests.
+   *
    * @var string
    */
   protected $originalDestination = "original@example.com";
 
   /**
    * Permissions required by the user to perform the tests.
+   *
    * @var array
    */
   protected $permissions = array(
@@ -441,7 +445,7 @@ class RerouteEmailDefaultAddressTestCase extends RerouteEmailTestCase {
     $this->assertFalse(isset($reroute_email_address), 'Reroute email destination address is not configured.');
 
     // Submit a test email and check if it is rerouted to site_mail address.
-    $this->drupalPost("admin/config/development/reroute_email/test",  array('to' => "to@example.com"), t("Send email"));
+    $this->drupalPost("admin/config/development/reroute_email/test", array('to' => "to@example.com"), t("Send email"));
     $this->assertText(t("Test email submitted for delivery."));
     $mails = $this->drupalGetMails();
     $mail = end($mails);
@@ -461,7 +465,7 @@ class RerouteEmailDefaultAddressTestCase extends RerouteEmailTestCase {
     $this->assertFieldByName('reroute_email_address', $system_email, format_string('Site email address is not configured, Email addresses field defaults to system sendmail_from: <em>@default_destination</em>.', array('@default_destination' => $system_email)));
 
     // Submit a test email to check if it is rerouted to sendmail_from address.
-    $this->drupalPost("admin/config/development/reroute_email/test",  array('to' => "to@example.com"), t("Send email"));
+    $this->drupalPost("admin/config/development/reroute_email/test", array('to' => "to@example.com"), t("Send email"));
     $this->assertText(t("Test email submitted for delivery."));
     $mails = $this->drupalGetMails();
     $mail = end($mails);
@@ -478,7 +482,7 @@ class RerouteEmailDefaultAddressTestCase extends RerouteEmailTestCase {
     variable_set('drupal_test_email_collector', array());
 
     // Submit a test email to check if it is aborted.
-    $this->drupalPost("admin/config/development/reroute_email/test",  array('to' => "to@example.com"), t("Send email"));
+    $this->drupalPost("admin/config/development/reroute_email/test", array('to' => "to@example.com"), t("Send email"));
     $mails = $this->drupalGetMails();
     $mail_aborted = end($mails);
     $this->assertFalse($mail_aborted, 'Email sending was properly aborted because rerouting email address is an empty string.');
@@ -489,7 +493,7 @@ class RerouteEmailDefaultAddressTestCase extends RerouteEmailTestCase {
     $this->drupalGet('admin/reports/dblog');
     // Check the link to the watchdog detailed message.
     $watchdog_link = $this->xpath('//table[@id="admin-dblog"]/tbody/tr[contains(@class,"dblog-reroute-email")][1]/td[text()="reroute_email"]/following-sibling::td/a[contains(text(),"reroute_email")]');
-    $link_label = (string)$watchdog_link[0];
+    $link_label = (string) $watchdog_link[0];
     $this->assertTrue(isset($watchdog_link[0]), format_string("Recorded successfully a watchdog log entry in recent log messages: <em>@link</em>.", array('@link' => $link_label)));
     // Open the full view page of the log message found for reroute_email.
     $this->clickLink($link_label);
@@ -499,6 +503,9 @@ class RerouteEmailDefaultAddressTestCase extends RerouteEmailTestCase {
     $mail['body'] = array($mail['body'], NULL);
     // Ensure the correct email is logged with default 'to' placeholder.
     $mail['to'] = REROUTE_EMAIL_ADDRESS_EMPTY_PLACEHOLDER;
-    $this->assertRaw(t('Aborted email sending for <em>@message_id</em>. <br/>Detailed email data: Array $message <pre>@message</pre>', array('@message_id' => $mail['id'], '@message' => print_r($mail, TRUE))), format_string('The log entry recorded by Reroute Email contains a full dump of the aborted email message <em>@message_id</em> and is formatted as expected.', array('@message_id' => $mail['id'])));
+    $this->assertRaw(t('Aborted email sending for <em>@message_id</em>. <br/>Detailed email data: Array $message <pre>@message</pre>', array(
+      '@message_id' => $mail['id'],
+      '@message' => print_r($mail, TRUE),
+    )), format_string('The log entry recorded by Reroute Email contains a full dump of the aborted email message <em>@message_id</em> and is formatted as expected.', array('@message_id' => $mail['id'])));
   }
 }

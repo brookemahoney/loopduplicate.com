@@ -6,6 +6,21 @@
  */
 
 /**
+ * Implements hook_module_implements_alter().
+ *
+ * Ensure reroute_email_test runs last when hook_mail_alter is invoked.
+ */
+function reroute_email_test_module_implements_alter(&$implementations, $hook) {
+  // Testing with isset is only necessary if module doesn't implement the hook.
+  if ($hook == 'mail_alter') {
+    // Move our hook implementation to the bottom.
+    $group = $implementations['reroute_email_test'];
+    unset($implementations['reroute_email_test']);
+    $implementations['reroute_email_test'] = $group;
+  }
+}
+
+/**
  * Implements hook_mail().
  *
  * This function allows testing Reroute Email's handling of a string passed for
@@ -44,8 +59,9 @@ function reroute_email_test_mail_alter(&$message) {
   if ($message['key'] != 'test_reroute_email') {
     return;
   }
-  // Prevent Warning from drupal_mail because body is not an array.
-  if (is_string($message['body'])) {
+  // Prevent Warning from drupal_mail because body is not an array, only if
+  // message has already been processed by reroute_email.
+  if (is_string($message['body']) && isset($message['headers']['X-Rerouted-Mail-Key'])) {
     // Record to be checked in test in the log entries.
     watchdog('reroute_email_test', 'A String was detected in the body: <pre>!body</pre>', array('!body' => $message['body']), WATCHDOG_NOTICE);
     // Convert body to an Array.
