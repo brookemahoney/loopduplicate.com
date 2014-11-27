@@ -866,6 +866,8 @@ function search_api_entity_insert($entity, $type) {
  * datasource controller and calls search_api_track_item_change() for the
  * updated items.
  *
+ * It also checks whether the entity's bundle changed and acts accordingly.
+ *
  * @see search_api_search_api_item_type_info()
  */
 function search_api_entity_update($entity, $type) {
@@ -874,7 +876,16 @@ function search_api_entity_update($entity, $type) {
   if (!entity_get_property_info($type)) {
     return;
   }
-  list($id) = entity_extract_ids($type, $entity);
+  list($id, , $new_bundle) = entity_extract_ids($type, $entity);
+
+  // Check if the entity's bundle changed.
+  if (isset($entity->original)) {
+    list(, , $old_bundle) = entity_extract_ids($type, $entity->original);
+    if ($new_bundle != $old_bundle) {
+      _search_api_entity_datasource_bundle_change($type, $id, $old_bundle, $new_bundle);
+    }
+  }
+
   if (isset($id)) {
     search_api_track_item_change($type, array($id));
   }
@@ -898,6 +909,26 @@ function search_api_entity_delete($entity, $type) {
   list($id) = entity_extract_ids($type, $entity);
   if (isset($id)) {
     search_api_track_item_delete($type, array($id));
+  }
+}
+
+/**
+ * Implements hook_field_attach_rename_bundle().
+ *
+ * This is implemented on behalf of the SearchApiEntityDataSourceController
+ * datasource controller, to update any bundle settings that contain the changed
+ * bundle.
+ */
+function search_api_field_attach_rename_bundle($entity_type, $bundle_old, $bundle_new) {
+  foreach (search_api_index_load_multiple(FALSE, array('item_type' => $entity_type)) as $index) {
+    $bundles = &$index->options['datasource']['bundles'];
+    if (isset($bundles) && ($pos = array_search($bundle_old, $bundles)) !== FALSE) {
+      $bundles[$pos] = $bundle_new;
+      $index->save();
+      // Clear all caches that could contain the bundle information.
+      $index->resetCaches();
+      drupal_static_reset('search_api_get_datasource_controller');
+    }
   }
 }
 
@@ -2888,6 +2919,42 @@ function _search_api_deep_copy(array $array) {
     }
   }
   return $copy;
+}
+
+/**
+ * Reacts to a change in the bundle of an entity.
+ *
+ * Used as a helper function in search_api_entity_update().
+ *
+ * @param $type
+ *   The entity's type.
+ * @param $id
+ *   The entity's ID.
+ * @param $old_bundle
+ *   The entity's previous bundle.
+ * @param $new_bundle
+ *   The entity's new bundle.
+ */
+function _search_api_entity_datasource_bundle_change($type, $id, $old_bundle, $new_bundle) {
+  $controller = search_api_get_datasource_controller($type);
+  $conditions = array(
+    'enabled' => 1,
+    'item_type' => $type,
+    'read_only' => 0,
+  );
+  foreach (search_api_index_load_multiple(FALSE, $conditions) as $index) {
+    if (!empty($index->options['datasource']['bundles'])) {
+      $bundles = drupal_map_assoc($index->options['datasource']['bundles']);
+      if (empty($bundles[$new_bundle]) != empty($bundles[$old_bundle])) {
+        if (empty($bundles[$new_bundle])) {
+          $controller->trackItemDelete(array($id), array($index));
+        }
+        else {
+          $controller->trackItemInsert(array($id), array($index));
+        }
+      }
+    }
+  }
 }
 
 /**

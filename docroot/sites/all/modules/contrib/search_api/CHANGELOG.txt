@@ -1,5 +1,15 @@
 Search API 1.x, dev (xx/xx/xxxx):
 ---------------------------------
+- #1861134 by Cyberwolf, jackbravo, drunken monkey: Fixed indexing on multiple
+  indexes with Drush.
+- #2347367 by drunken monkey, das-peter: Fixed forgotten usages of
+  $index->item_type.
+- #2359201 by drunken monkey: Added a "List" option to "Aggregated fields".
+- #2364247 by drunken monkey: Fixed documentation for
+  SearchApiQueryFilterInterface::getFilters().
+- #2364875 by Xano: Fixed Views argument handler for fulltext fields.
+- #1184610 by drunken monkey: Added option to limit indexes to specific entity
+  bundles.
 - #2174163 by drunken monkey: Fixed detection of field type changes by data
   alterations.
 - #2305755 by drunken monkey, pfrenssen: Fixed invalidation of the stored index

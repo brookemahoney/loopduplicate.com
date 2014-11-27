@@ -154,7 +154,7 @@ function search_api_autocomplete_admin_overview(array $form, array &$form_state,
     }
   }
 
-  if (empty($form)) {
+  if (!element_children($form)) {
     $form['message']['#markup'] = '<p>' . t('There are currently no searches known for this index.') . '</p>';
   }
   else {

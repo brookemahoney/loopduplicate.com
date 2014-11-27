@@ -9,13 +9,13 @@ if (typeof Drupal.jsAC != 'undefined') {
    * Extend from Drupal's autocomplete.js to automatically submit the form
    * when Enter is hit.
    */
-  Drupal.jsAC.defaultOnkeyup = Drupal.jsAC.prototype.onkeyup;
+  var default_onkeyup = Drupal.jsAC.prototype.onkeyup;
   Drupal.jsAC.prototype.onkeyup = function (input, e) {
     if (!e) {
       e = window.event;
     }
     // Fire standard function.
-    $.proxy(Drupal.jsAC.defaultOnkeyup, this)(input, e);
+    $.proxy(default_onkeyup, this)(input, e);
 
     if (13 == e.keyCode && $(input).hasClass('auto_submit')) {
       var selector;
@@ -30,18 +30,18 @@ if (typeof Drupal.jsAC != 'undefined') {
   };
 
   /**
-   * Handler for the "keyup" event.
+   * Handler for the "keydown" event.
    *
    * Extend from Drupal's autocomplete.js to avoid ajax interfering with the
    * autocomplete.
    */
-  Drupal.jsAC.defaultOnkeydown = Drupal.jsAC.prototype.onkeydown;
+  var default_onkeydown = Drupal.jsAC.prototype.onkeydown;
   Drupal.jsAC.prototype.onkeydown = function (input, e) {
     if (!e) {
       e = window.event;
     }
     // Fire standard function.
-    $.proxy(Drupal.jsAC.defaultOnkeydown, this)(input, e);
+    $.proxy(default_onkeydown, this)(input, e);
 
     // Prevent that the ajax handling of views fires to early and thus
     // misses the form update.
@@ -75,15 +75,16 @@ if (typeof Drupal.jsAC != 'undefined') {
   };
 
   /**
-   * Overwrite default behaviour that would rely on synchronous jQuery animation
-   * in Drupal.jsAC.prototype.hidePopup() - which is simply impossible.
+   * Overwrite default behaviour.
    *
-   * Just don't return any boolean value.
+   * Just always return true to make it possible to submit even when there was
+   * an autocomplete suggestion list open.
    */
   Drupal.autocompleteSubmit = function () {
     $('#autocomplete').each(function () {
       this.owner.hidePopup();
     });
+    return true;
   };
 }
 
@@ -93,7 +94,7 @@ if (typeof Drupal.jsAC != 'undefined') {
 Drupal.ACDB.prototype.search = function (searchString) {
   this.searchString = searchString;
 
-  // Check allowed length of string for autocompete.
+  // Check allowed length of string for autocomplete.
   var data = $(this.owner.input).first().data('min-autocomplete-length');
   if (data && searchString.length < data) {
     return;

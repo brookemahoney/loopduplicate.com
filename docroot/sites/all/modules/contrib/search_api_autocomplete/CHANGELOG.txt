@@ -1,5 +1,10 @@
 Search API Autocomplete 1.x, dev (xx/xx/xxxx):
 ----------------------------------------------
+- #2345683 by drunken monkey: Fixed error message in admin UI when there are no
+  (recognized) searches.
+- #2368795 by theo_: Fixed Javascript error when overriding autocomplete.
+- #2352567 by das-peter, drunken monkey: Fixed CTools incompatibility of JS
+  submit handler.
 - #2334563 by Begun, drunken monkey, marvil07: Added an advanced option to
   change the jQuery button selector.
 - #2280111 by drunken monkey: Fixed handling of settings for deleted searches.

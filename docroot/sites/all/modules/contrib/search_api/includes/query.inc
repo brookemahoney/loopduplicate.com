@@ -915,8 +915,11 @@ interface SearchApiQueryFilterInterface {
    * Return all conditions and nested filters contained in this filter.
    *
    * @return array
-   *   An array containing this filter's subfilters. Each of these is either an
-   *   array (field, value, operator), or another SearchApiFilter object.
+   *   An array containing this filter's subfilters. Each of these is either a
+   *   condition, represented as a numerically indexed array with the arguments
+   *   of a previous SearchApiQueryFilterInterface::condition() call (field,
+   *   value, operator); or a nested filter, represented by a
+   *   SearchApiQueryFilterInterface filter object.
    */
   public function &getFilters();
 
