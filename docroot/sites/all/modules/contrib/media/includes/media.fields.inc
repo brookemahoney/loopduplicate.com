@@ -15,9 +15,13 @@ function media_field_widget_info() {
       'label' => t('Media browser'),
       'field types' => array('file', 'image'),
       'settings' => array(
-        'allowed_types' => array('image'),
+        'allowed_types' => array(
+          'image' => 'image',
+        ),
         'browser_plugins' => array(),
-        'allowed_schemes' => array('public', 'private'),
+        'allowed_schemes' => array(
+          'public' => 'public',
+        ),
       ),
       'behaviors' => array(
         'multiple values' => FIELD_BEHAVIOR_CUSTOM,
