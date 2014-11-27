@@ -2055,7 +2055,6 @@ function flag_get_default_flags($include_disabled = FALSE) {
  *   An array of flagging data, keyed by the flagging ID.
  */
 function flag_get_flag_flagging_data($flag_name) {
-  $return = array();
   $flag = flag_get_flag($flag_name);
   $result = db_select('flagging', 'fc')
     ->fields('fc')
