@@ -455,17 +455,13 @@ function file_entity_add_upload_submit($form, &$form_state) {
     }
 
     // Figure out destination.
-    if (isset($_GET['destination'])) {
-      $destination = drupal_get_destination();
-      unset($_GET['destination']);
-    }
-    elseif (user_access('administer files')) {
-      $destination = array('destination' => 'admin/content/file');
+    if (user_access('administer files')) {
+      $path = 'admin/content/file';
     }
     else {
-      $destination = array('destination' => 'file/' . $file->fid);
+      $path = 'file/' . $file->fid;
     }
-    $form_state['redirect'] = $destination['destination'];
+    $form_state['redirect'] = $path;
   }
   else {
     $form_state['rebuild'] = TRUE;
@@ -558,7 +554,6 @@ function file_entity_add_upload_multiple_submit($form, &$form_state) {
       $file->status = FILE_STATUS_PERMANENT;
       file_save($file);
 
-      $saved_files[] = $file;
       $form_state['files'][$file->fid] = $file;
     }
     else {
@@ -807,7 +802,7 @@ function file_entity_edit_submit($form, &$form_state) {
   if (!empty($form_state['values']['replace_upload'])) {
     $replacement = $form_state['values']['replace_upload'];
     // Move file from temp to permanent home.
-    $destination_uri = file_uri_scheme($file->uri) . '://' . file_uri_target($replacement->uri);
+    $destination_uri = drupal_dirname($file->uri) . '/' . drupal_basename($replacement->uri);
     $replace_mode = $destination_uri == $file->uri ? FILE_EXISTS_REPLACE : FILE_EXISTS_RENAME;
     if ($new_file_uri = file_unmanaged_copy($replacement->uri, $destination_uri, $replace_mode)) {
       // @todo Add watchdog() about replaced file here?
