@@ -3,7 +3,7 @@
  * Custom scripts for theme.
  */
 (function ($, Drupal, window, document, undefined) {
-  Drupal.behaviors.loopd = {
+  Drupal.behaviors.loopdsearch = {
     attach: function () {
 
       var $filters = $('#search-filters');

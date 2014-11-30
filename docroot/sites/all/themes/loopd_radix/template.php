@@ -32,6 +32,6 @@ function loopd_radix_js_alter(&$javascript) {
   $radix_path = drupal_get_path('theme', 'radix');
 
   // Removes a Radix JS file. This theme uses a modified version which can be
-  // found in the assets/javascripts/source folder.
+  // found in the assets/javascripts/source/contrib folder.
   unset($javascript[$radix_path . '/assets/javascripts/radix-script.js']);
 }

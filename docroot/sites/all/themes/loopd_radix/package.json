@@ -2,6 +2,7 @@
   "name": "loopd_radix",
   "version": "1.0.0",
   "description": "Drupal theme for Loopduplicate; a subtheme of Radix.",
+  "dependencies": {},
   "devDependencies": {
     "grunt": "^0.4.4",
     "grunt-contrib-compass": "^0.7.2",
@@ -10,6 +11,9 @@
     "grunt-contrib-uglify": "^0.4.0",
     "grunt-contrib-watch": "^0.6.1",
     "grunt-contrib-jshint": "^0.10.0"
+  },
+  "engines": {
+    "node": ">=0.8.0"
   },
   "repository" : {}
 }

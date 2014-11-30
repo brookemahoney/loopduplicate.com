@@ -13,6 +13,7 @@ css_dir = "assets/stylesheets"
 sass_dir = "assets/sass"
 images_dir = "assets/images"
 fonts_dir = "assets/fonts"
+generated_images_dir = images_dir + "/generated"
 javascripts_dir = "assets/javascripts"
 extensions_dir = "extensions"
 
