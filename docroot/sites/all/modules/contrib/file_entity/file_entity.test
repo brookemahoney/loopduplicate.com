@@ -610,6 +610,83 @@ class FileEntityAdminTestCase extends FileEntityTestHelper {
 }
 
 /**
+ * Tests image alt and title text.
+ */
+class FileEntityAltTitleTestCase extends FileEntityTestHelper {
+  public static function getInfo() {
+    return array(
+      'name' => 'File entity alt and title text',
+      'description' => 'Create an image file with alt and title text.',
+      'group' => 'File entity',
+      'dependencies' => array('token'),
+    );
+  }
+
+  function setUp() {
+    parent::setUp('token');
+
+    $web_user = $this->drupalCreateUser(array('create files', 'edit own image files'));
+    $this->drupalLogin($web_user);
+  }
+
+  /**
+   * Create an "image" file and verify its associated alt and title text.
+   */
+  function testFileEntityAltTitle() {
+    $test_file = $this->getTestFile('image');
+    $alt_field_name = 'field_file_image_alt_text'; // Name of the default alt text field added to the image file type.
+    $title_field_name = 'field_file_image_title_text'; // Name of the default title text field added to the image file type.
+
+    // Create a file.
+    $edit = array();
+    $edit['files[upload]'] = drupal_realpath($test_file->uri);
+    $this->drupalPost('file/add', $edit, t('Next'));
+
+    // Step 2: Scheme selection.
+    if ($this->xpath('//input[@name="scheme"]')) {
+      $this->drupalPost(NULL, array(), t('Next'));
+    }
+
+    // Step 3: Attached fields.
+    $alt = 'Quote&quot; Amp&amp; ' . 'Файл для тестирования ' . $this->randomName(); // Generate alt text containing HTML entities, spaces and non-latin characters.
+    $title = 'Quote&quot; Amp&amp; ' . 'Файл для тестирования ' . $this->randomName(); // Generate title text containing HTML entities, spaces and non-latin characters.
+
+    $edit = array();
+    $edit[$alt_field_name . '[' . LANGUAGE_NONE . '][0][value]'] = $alt;
+    $edit[$title_field_name . '[' . LANGUAGE_NONE . '][0][value]'] = $title;
+    $this->drupalPost(NULL, $edit, t('Save'));
+
+    // Check that the image file has been uploaded.
+    $this->assertRaw(t('!type %name was uploaded.', array('!type' => 'Image', '%name' => $test_file->filename)), t('Image file uploaded.'));
+
+    // Check that the file exists in the database.
+    $file = $this->getFileByFilename($test_file->filename);
+    $this->assertTrue($file, t('File found in database.'));
+
+    // Check that the alt and title text was loaded from the fields.
+    $this->assertEqual($file->alt, $alt, t('Alt text was stored as file metadata.'));
+    $this->assertEqual($file->title, $title, t('Title text was stored as file metadata.'));
+
+    // Verify that the alt and title text is present on the page.
+    $image_info = array(
+      'path' => $file->uri,
+      'alt' => $alt,
+      'title' => $title,
+      'width' => $file->width,
+      'height' => $file->height,
+    );
+    $default_output = theme('image', $image_info);
+    $this->assertRaw($default_output, 'Image displayed using user supplied alt and title attributes.');
+
+    // Verify that the alt and title text fields are found on the file edit
+    // page.
+    $this->drupalGet('file/' . $file->fid . '/edit');
+    $this->assertFieldByName($alt_field_name  . '[' . LANGUAGE_NONE . '][0][value]');
+    $this->assertFieldByName($title_field_name  . '[' . LANGUAGE_NONE . '][0][value]');
+  }
+}
+
+/**
  * Tests replacing the file associated with a file entity.
  */
 class FileEntityReplaceTestCase extends FileEntityTestHelper {
