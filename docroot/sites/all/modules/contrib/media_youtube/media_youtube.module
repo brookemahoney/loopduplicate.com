@@ -150,16 +150,13 @@ function media_youtube_add($form, &$form_state = array()) {
         $file->fid = 0;
       }
       media_browser_build_media_item($file);
-      $file->preview = l($file->preview, 'media/browser', array(
-        'html' => TRUE,
-        'attributes' => array(
-          'data-uri' => $uri,
-        ),
-        'query' => array('render' => 'media-popup', 'uri' => $uri),
-      ));
+      $attributes = array(
+        'data-uri' => $uri,
+        'class' => array('media-youtube-wrapper'),
+      );
       $form['videos'][$uri] = array(
         '#markup' => $file->preview,
-        '#prefix' => '<li>',
+        '#prefix' => '<li' . drupal_attributes($attributes) . '>',
         '#suffix' => '</li>',
       );
       $files[$uri] = $file;
