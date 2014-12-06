@@ -29,6 +29,13 @@ class FileEntityTestHelper extends DrupalWebTestCase {
   }
 
   /**
+   * Retrieves the fid of the last inserted file.
+   */
+  function getLastFileId() {
+    return (int) db_query('SELECT MAX(fid) FROM {file_managed}')->fetchField();
+  }
+
+  /**
    * Get a file from the database based on its filename.
    *
    * @param $filename
@@ -531,11 +538,12 @@ class FileEntityAdminTestCase extends FileEntityTestHelper {
     $files['private_image'] = $this->createFileEntity(array('scheme' => 'private', 'uid' => $this->base_user_1->uid, 'type' => 'image'));
     $files['private_document'] = $this->createFileEntity(array('scheme' => 'private', 'uid' => $this->base_user_2->uid, 'type' => 'document'));
 
-    // Verify view, edit, and delete links for any file.
+    // Verify view, usage, edit, and delete links for any file.
     $this->drupalGet('admin/content/file');
     $this->assertResponse(200);
     foreach ($files as $file) {
       $this->assertLinkByHref('file/' . $file->fid);
+      $this->assertLinkByHref('file/' . $file->fid . '/usage');
       $this->assertLinkByHref('file/' . $file->fid . '/edit');
       $this->assertLinkByHref('file/' . $file->fid . '/delete');
       // Verify tableselect.
@@ -592,6 +600,7 @@ class FileEntityAdminTestCase extends FileEntityTestHelper {
     $this->assertResponse(200);
     foreach ($files as $file) {
       $this->assertLinkByHref('file/' . $file->fid);
+      $this->assertLinkByHref('file/' . $file->fid . '/usage');
       $this->assertLinkByHref('file/' . $file->fid . '/edit');
       $this->assertLinkByHref('file/' . $file->fid . '/delete');
     }
@@ -603,8 +612,96 @@ class FileEntityAdminTestCase extends FileEntityTestHelper {
     $this->assertResponse(200);
     foreach ($files as $file) {
       $this->assertLinkByHref('file/' . $file->fid);
+      $this->assertLinkByHref('file/' . $file->fid . '/usage');
       $this->assertLinkByHref('file/' . $file->fid . '/edit');
       $this->assertLinkByHref('file/' . $file->fid . '/delete');
+    }
+  }
+}
+
+/**
+ * Tests the file usage page.
+ */
+class FileEntityUsageTestCase extends FileEntityTestHelper {
+  public static function getInfo() {
+    return array(
+      'name' => 'File entity usage',
+      'description' => 'Create a file and verify its usage.',
+      'group' => 'File entity',
+    );
+  }
+
+  function setUp() {
+    parent::setUp();
+
+    $web_user = $this->drupalCreateUser(array('create files', 'bypass file access', 'edit own article content'));
+    $this->drupalLogin($web_user);
+  }
+
+  /**
+   * Create a file and verify its usage information.
+   */
+  function testFileEntityUsagePage() {
+    $image_field = 'field_image';
+    $image = $this->getTestFile('image');
+
+    // Create a node, save it, then edit it to upload a file.
+    $edit = array(
+      "files[" . $image_field . "_" . LANGUAGE_NONE . "_0]" => drupal_realpath($image->uri),
+    );
+    $node = $this->drupalCreateNode(array('type' => 'article'));
+    $this->drupalPost('node/' . $node->nid . '/edit', $edit, t('Save'));
+
+    // Load the uploaded file.
+    $fid = $this->getLastFileId();
+    $file = file_load($fid);
+
+    // View the file's usage page.
+    $this->drupalGet('file/' . $file->fid . '/usage');
+
+    // Verify that a link to the entity is available.
+    $this->assertLink($node->title);
+    $this->assertLinkByHref('node/' . $node->nid);
+
+    // Verify that the entity type and use count information is also present.
+    $expected_values = array(
+      'type' => 'node',
+      'count' => 1,
+    );
+    foreach ($expected_values as $name => $value) {
+      $this->assertTrue($this->xpath('//table/tbody/tr/td[normalize-space(text())=:text]', array(':text' => $value)), t('File usage @name was found in the table.', array('@name' => $name)));
+    }
+
+    // Add a reference to the file from the same entity but registered by a
+    // different module to ensure that the usage count is incremented and no
+    // additional table rows are created.
+    file_usage_add($file, 'example_module', 'node', $node->nid, 2);
+
+    // Reload the page and verify that the expected values are present.
+    $this->drupalGet('file/' . $file->fid . '/usage');
+    $expected_values['count'] = 3;
+    foreach ($expected_values as $name => $value) {
+      $this->assertTrue($this->xpath('//table/tbody/tr/td[normalize-space(text())=:text]', array(':text' => $value)), t('File usage @name was found in the table.', array('@name' => $name)));
+    }
+
+    // Add a reference to the file from an entity that doesn't exist to ensure
+    // that this case is handled.
+    file_usage_add($file, 'test_module', 'imaginary', 1);
+
+    // Reload the page.
+    $this->drupalGet('file/' . $file->fid . '/usage');
+
+    // Verify that the module name is used in place of a link to the entity.
+    $this->assertNoLink('test_module');
+    $this->assertRaw('test_module', 'Module name used in place of link to the entity.');
+
+    // Verify that the entity type and use count information is also present.
+    $expected_values = array(
+      'type' => 'imaginary',
+      'count' => 1,
+    );
+    foreach ($expected_values as $name => $value) {
+      $this->assertTrue($this->xpath('//table/tbody/tr/td[normalize-space(text())=:text]', array(':text' => $value)), t('File usage @name was found in the table.', array('@name' => $name)));
     }
   }
 }
@@ -678,11 +775,24 @@ class FileEntityAltTitleTestCase extends FileEntityTestHelper {
     $default_output = theme('image', $image_info);
     $this->assertRaw($default_output, 'Image displayed using user supplied alt and title attributes.');
 
-    // Verify that the alt and title text fields are found on the file edit
-    // page.
-    $this->drupalGet('file/' . $file->fid . '/edit');
-    $this->assertFieldByName($alt_field_name  . '[' . LANGUAGE_NONE . '][0][value]');
-    $this->assertFieldByName($title_field_name  . '[' . LANGUAGE_NONE . '][0][value]');
+    // Verify that the alt and title text can be edited.
+    $new_alt = $this->randomName();
+    $new_title = $this->randomName();
+
+    $edit = array();
+    $edit[$alt_field_name . '[' . LANGUAGE_NONE . '][0][value]'] = $new_alt;
+    $edit[$title_field_name . '[' . LANGUAGE_NONE . '][0][value]'] = $new_title;
+    $this->drupalPost('file/' . $file->fid . '/edit', $edit, t('Save'));
+
+    $image_info = array(
+      'path' => $file->uri,
+      'alt' => $new_alt,
+      'title' => $new_title,
+      'width' => $file->width,
+      'height' => $file->height,
+    );
+    $default_output = theme('image', $image_info);
+    $this->assertRaw($default_output, 'Image displayed using updated alt and title attributes.');
   }
 }
 
@@ -1185,12 +1295,14 @@ class FileEntityAccessTestCase extends FileEntityTestHelper {
   }
 
   /**
-   * Test to see if we have access to view files when granted the permissions.
-   * In this test we aim to prove the permissions work in the following pages:
+   * Tests page access.
+   *
+   * Verifies the privileges required to access the following pages:
    *  file/add
    *  file/%/view
    *  file/%/download
    *  file/%/edit
+   *  file/%/usage
    *  file/%/delete
    */
   function testFileEntityPageAccess() {
@@ -1281,6 +1393,10 @@ class FileEntityAccessTestCase extends FileEntityTestHelper {
     $this->drupalGet("file/{$file->fid}/edit");
     $this->assertResponse(403, 'Users without access can not edit own files');
 
+    // Tests checking the usage of their own files without permission.
+    $this->drupalGet("file/{$file->fid}/usage");
+    $this->assertResponse(403, 'Users without access can not check the usage of their own files');
+
     // Tests editing own files with permission.
     user_role_change_permissions(DRUPAL_AUTHENTICATED_RID, array(
       'edit own document files' => TRUE,
@@ -1288,11 +1404,19 @@ class FileEntityAccessTestCase extends FileEntityTestHelper {
     $this->drupalGet("file/{$file->fid}/edit");
     $this->assertResponse(200, 'Users with access can edit own files');
 
+    // Tests checking the usage of their own files without permission.
+    $this->drupalGet("file/{$file->fid}/usage");
+    $this->assertResponse(200, 'Users with access can check the usage of their own files');
+
     // Tests editing any files without permission.
     $file->uid = 1;
     file_save($file);
     $this->drupalGet("file/{$file->fid}/edit");
     $this->assertResponse(403, 'Users without access can not edit any file');
+
+    // Tests checking the usage of any files without permission.
+    $this->drupalGet("file/{$file->fid}/usage");
+    $this->assertResponse(403, 'Users without access can not check the usage of any file');
 
     // Tests editing any files with permission.
     user_role_change_permissions(DRUPAL_AUTHENTICATED_RID, array(
@@ -1300,6 +1424,10 @@ class FileEntityAccessTestCase extends FileEntityTestHelper {
     ));
     $this->drupalGet("file/{$file->fid}/edit");
     $this->assertResponse(200, 'Users with access can edit any file');
+
+    // Tests checking the usage of any files with permission.
+    $this->drupalGet("file/{$file->fid}/usage");
+    $this->assertResponse(200, 'Users with access can check the usage of any file');
 
     // Tests deleting own files without permission.
     $file->uid = $web_user->uid;
