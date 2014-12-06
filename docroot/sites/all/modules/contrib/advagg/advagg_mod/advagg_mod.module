@@ -369,7 +369,7 @@ function advagg_mod_html_head_alter(&$head_elements) {
           ) {
         $type = 'external';
       }
-      drupal_add_css($element['#attributes']['src'], array(
+      drupal_add_js($element['#attributes']['src'], array(
         'type' => $type,
         'scope' => 'header',
         'group' => JS_LIBRARY,
