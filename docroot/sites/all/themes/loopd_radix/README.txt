@@ -8,7 +8,7 @@ Node.js is required. It's really easy to install:
 "If you're using Mac or Windows, the best way to install Node.js is to use one of the installers from nodejs.org."
 For more details, see https://docs.npmjs.com/getting-started/installing-node
 
-Use of RVM (Ruby Version Manager) is recommended so that this theme can use a specific version of Ruby, as this theme most likely requires a different version that the system version.
+Use of RVM (Ruby Version Manager) is recommended so that this theme can use a specific version of Ruby.
 To install RVM, see https://rvm.io/rvm/install#installation
 
 Ruby 2.1.2 is required. Using RVM, it can be installed with:
