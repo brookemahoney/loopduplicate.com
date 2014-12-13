@@ -2,7 +2,7 @@
  * @file
  * Custom scripts for theme.
  */
-(function ($, Drupal, window, document, undefined) {
+(function ($, Drupal) {
   Drupal.behaviors.loopdsearch = {
     attach: function () {
 
@@ -33,4 +33,4 @@
       });
     }
   };
-})(jQuery, Drupal, this, this.document);
+})(jQuery, Drupal);

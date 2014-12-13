@@ -2,13 +2,11 @@
  * @file
  * JS for Radix.
  */
-(function ($, Drupal, window, document, undefined) {
+(function ($, Drupal, window) {
   
-  var $tab;
-
   // Show dropdown on hover.
   Drupal.behaviors.radix_dropdown = {
-    attach: function(context, setting) {
+    attach: function() {
       $('.dropdown').once('radix-dropdown', function(){
         // Show dropdown on hover.
         $(this).mouseenter(function(){
@@ -23,14 +21,14 @@
 
   // Bootstrap tooltip.
   Drupal.behaviors.radix_tooltip = {
-    attach: function(context, setting) {
+    attach: function() {
       $("[data-toggle='tooltip']").tooltip();
     }
   }
 
   // Bootstrap popover.
   Drupal.behaviors.radix_popover = {
-    attach: function(context, setting) {
+    attach: function() {
       $("[data-toggle='popover']").popover();
     }
   }
@@ -54,4 +52,4 @@
   if (hash = window.location.hash) {
     $('.nav-tabs > li > a[href$=' + hash + ']').tab('show');
   }
-})(jQuery, Drupal, this, this.document);
+})(jQuery, Drupal, this);

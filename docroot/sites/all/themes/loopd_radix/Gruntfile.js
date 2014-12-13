@@ -3,18 +3,26 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
 
     watch: {
-      options: {
-        livereload: true
+      livereload: {
+        options: {
+          livereload: true
+        },
+        files: [
+          'assets/javascripts/script.js',
+          'assets/stylesheets/**/*']
       },
       images: {
         files: ['assets/images/**']
       },
       css: {
-        files: './**/*.scss',
+        files: 'assets/sass/**/*.scss',
         tasks: ['compass:dev']
       },
       js: {
-        files: ['js/{,**/}*.js', '!js/{,**/}*.min.js'],
+        files: [
+          'assets/javascripts/{,**/}*.js',
+          '!assets/javascripts/{,**/}*.min.js',
+          '!assets/javascripts/script.js'],
         tasks: ['jshint', 'concat', 'uglify:dist']
       }
     },
@@ -59,8 +67,8 @@ module.exports = function(grunt) {
           'assets/javascripts/source/contrib/bootstrap/transition.js',
           //'assets/javascripts/source/contrib/bootstrap/scrollspy.js',
           //'assets/javascripts/source/contrib/bootstrap/modal.js',
-          //'assets/javascripts/source/contrib/bootstrap/tooltip.js',
-          //'assets/javascripts/source/contrib/bootstrap/popover.js',
+          'assets/javascripts/source/contrib/bootstrap/tooltip.js',
+          'assets/javascripts/source/contrib/bootstrap/popover.js',
           // JQuery Cookie
           'assets/javascripts/source/contrib/_jquery-cookie.js',
           // Radix
@@ -83,14 +91,8 @@ module.exports = function(grunt) {
           expand: true,
           flatten: true,
           cwd: 'assets/javascripts',
-          dest: 'assets/javascripts',
-          src: ['assets/javascripts/script.js'],
-          rename: function(dest, src) {
-            var folder = src.substring(0, src.lastIndexOf('/'));
-            var filename = src.substring(src.lastIndexOf('/'), src.length);
-            filename = filename.substring(0, filename.lastIndexOf('.'));
-            return dest + '/' + folder + filename + '.min.js';
-          }
+          src: ['script.js'],
+          dest: 'assets/javascripts'
         }]
       },
       dist: {
@@ -102,14 +104,8 @@ module.exports = function(grunt) {
           expand: true,
           flatten: true,
           cwd: 'assets/javascripts',
-          dest: 'assets/javascripts',
-          src: ['assets/javascripts/script.js'],
-          rename: function(dest, src) {
-            var folder = src.substring(0, src.lastIndexOf('/'));
-            var filename = src.substring(src.lastIndexOf('/'), src.length);
-            filename = filename.substring(0, filename.lastIndexOf('.'));
-            return dest + '/' + folder + filename + '.min.js';
-          }
+          src: ['script.js'],
+          dest: 'assets/javascripts'
         }]
       }
     },
@@ -138,15 +134,13 @@ module.exports = function(grunt) {
     }
   });
 
-  //plugins
   grunt.loadNpmTasks('grunt-contrib-compass');
   grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.loadNpmTasks('grunt-pagespeed');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-pagespeed');
 
-  //tasks
   grunt.registerTask('default', [
     'compass:dev',
     'watch'
