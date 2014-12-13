@@ -1,6 +1,3 @@
-This
-It uses bundler, compass, and grunt.
-
 This theme uses rvm, bundler, compass, grunt, and npm shrinkwrap. It is a sub theme of Radix.
 
 Ruby 2.1.2 is required. Using rvm, it can be installed with:
