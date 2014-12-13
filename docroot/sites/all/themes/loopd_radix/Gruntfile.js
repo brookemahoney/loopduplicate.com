@@ -3,22 +3,19 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
 
     watch: {
+      options: {
+        livereload: true
+      },
       images: {
         files: ['assets/images/**']
       },
       css: {
         files: './**/*.scss',
-        tasks: ['compass:dev'],
-        options: {
-          livereload: true
-        }
+        tasks: ['compass:dev']
       },
       js: {
         files: ['js/{,**/}*.js', '!js/{,**/}*.min.js'],
-        tasks: ['jshint', 'concat', 'uglify:dist'],
-        options: {
-          livereload: true
-        }
+        tasks: ['jshint', 'concat', 'uglify:dist']
       }
     },
 
