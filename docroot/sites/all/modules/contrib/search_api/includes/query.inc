@@ -226,6 +226,9 @@ interface SearchApiQueryInterface {
    *
    * This method should always be called by execute() and contain all necessary
    * operations before the query is passed to the server's search() method.
+   *
+   * @throws SearchApiException
+   *   If any error occurred during the preparation of the query.
    */
   public function preExecute();
 

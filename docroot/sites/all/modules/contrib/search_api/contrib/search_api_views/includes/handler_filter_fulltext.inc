@@ -170,7 +170,13 @@ class SearchApiViewsHandlerFilterFulltext extends SearchApiViewsHandlerFilterTex
       $this->query->setOption('conjunction', 'OR');
     }
 
-    $this->query->fields($fields);
+    try {
+      $this->query->fields($fields);
+    }
+    catch (SearchApiException $e) {
+      $this->query->abort($e->getMessage());
+      return;
+    }
     $old = $this->query->getKeys();
     $old_original = $this->query->getOriginalKeys();
     $this->query->keys($this->value);

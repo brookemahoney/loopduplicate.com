@@ -1,5 +1,7 @@
 Search API 1.x, dev (xx/xx/xxxx):
 ---------------------------------
+- #2382385 by illusionuk, drunken monkey: Fixed error handling when using
+  invalid fulltext or sort field in Views.
 - #2371099 by drunken monkey: Fixed display of active "Exclude" facets.
 - #1861134 by Cyberwolf, jackbravo, drunken monkey: Fixed indexing on multiple
   indexes with Drush.
