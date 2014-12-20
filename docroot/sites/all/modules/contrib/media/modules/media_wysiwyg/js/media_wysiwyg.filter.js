@@ -46,6 +46,7 @@
             var source = Drupal.settings.mediaSourceMap[media_definition.fid];
             media = document.createElement(source.tagName);
             media.src = source.src;
+            media.innerHTML = source.innerHTML;
           }
 
           // Apply attributes.
@@ -129,7 +130,8 @@
         Drupal.media.filter.ensureSourceMap();
         Drupal.settings.mediaSourceMap[info.fid] = {
           tagName: element[0].tagName,
-          src: element[0].src
+          src: element[0].src,
+          innerHTML: element[0].innerHTML
         }
       }
 
@@ -151,6 +153,11 @@
       }
       element.addClass(classes.join(' '));
 
+      // Apply link_text if present.
+      if (info.link_text) {
+        $('a', element).html(info.link_text);
+      }
+
       return element;
     },
 
@@ -163,6 +170,10 @@
     create_macro: function (element) {
       var file_info = Drupal.media.filter.extract_file_info(element);
       if (file_info) {
+        if (typeof file_info.link_text == 'string') {
+          // Make sure the link_text-html-tags are properly escaped.
+          file_info.link_text = file_info.link_text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
         return '[[' + JSON.stringify(file_info) + ']]';
       }
       return false;

@@ -155,11 +155,15 @@ function media_browser($selected = NULL) {
  *   The element array to attach to.
  */
 function media_attach_browser_js(&$element) {
-  $javascript = media_browser_js();
-  foreach ($javascript as $key => $definitions) {
-    foreach ($definitions as $definition) {
-      $element['#attached'][$key][] = $definition;
+  static $js_attached = FALSE;
+  if (!$js_attached) {
+    $javascript = media_browser_js();
+    foreach ($javascript as $key => $definitions) {
+      foreach ($definitions as $definition) {
+        $element['#attached'][$key][] = $definition;
+      }
     }
+    $js_attached = TRUE;
   }
 }
 
