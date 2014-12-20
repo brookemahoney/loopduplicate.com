@@ -76,6 +76,15 @@ function media_youtube_file_mimetype_mapping_alter(&$mapping) {
 }
 
 /**
+ * Implements hook_ctools_plugin_api().
+ */
+function media_youtube_ctools_plugin_api($module, $api) {
+  if ($module == 'file_entity' && $api == 'file_default_displays') {
+    return array('version' => 1);
+  }
+}
+
+/**
  * YouTube search tab for the Media browser.
  */
 
