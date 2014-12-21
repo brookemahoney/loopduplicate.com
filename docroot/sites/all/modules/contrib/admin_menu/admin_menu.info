@@ -9,8 +9,8 @@ dependencies[] = system (>7.10)
 files[] = tests/admin_menu.test
 
 ; Information added by Drupal.org packaging script on 2014-12-19
-version = "7.x-3.0-rc4+8-dev"
+version = "7.x-3.0-rc5"
 core = "7.x"
 project = "admin_menu"
-datestamp = "1419026581"
+datestamp = "1419029284"
 
