@@ -262,7 +262,7 @@ function flag_menu() {
     'access callback' => 'user_access',
     'access arguments' => array('administer flags'),
     'file' => 'includes/flag.admin.inc',
-    'type' => MENU_CALLBACK,
+    'type' => MENU_LOCAL_TASK,
     // Make the flag title the default title for descendant menu items.
     'title callback' => '_flag_menu_title',
     'title arguments' => array(FLAG_ADMIN_PATH_START + 1),
@@ -360,7 +360,7 @@ function flag_admin_menu_map() {
             );
 
             $path = $bundle_info['admin']['path'];
-            $map["$path/fields/%field_ui_menu"]['parent'] = "$path/fields";
+            $map["$path/fields/%field_ui_menu"]['parent'] = "$path";
             $map["$path/fields/%field_ui_menu"]['arguments'][] = $arguments;
           }
         }
