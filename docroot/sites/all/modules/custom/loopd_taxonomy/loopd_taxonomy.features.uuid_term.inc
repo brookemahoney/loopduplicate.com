@@ -11,6 +11,20 @@ function loopd_taxonomy_uuid_features_default_terms() {
   $terms = array();
 
   $terms[] = array(
+    'name' => 'Drupal module',
+    'description' => '',
+    'format' => 'full_html_no_linebreaks',
+    'weight' => 0,
+    'rh_action' => NULL,
+    'rh_redirect' => NULL,
+    'rh_redirect_response' => NULL,
+    'uuid' => '020351f6-69cd-4e2d-893d-e010808a8b29',
+    'vocabulary_machine_name' => 'article_types',
+    'path' => array(
+      'pathauto' => 1,
+    ),
+  );
+  $terms[] = array(
     'name' => 'Theming',
     'description' => '',
     'format' => 'full_html_no_linebreaks',
@@ -230,6 +244,20 @@ function loopd_taxonomy_uuid_features_default_terms() {
     'rh_redirect_response' => NULL,
     'uuid' => 'dd678623-3f45-46a9-9158-8e0c6ca79500',
     'vocabulary_machine_name' => 'tags',
+    'path' => array(
+      'pathauto' => 1,
+    ),
+  );
+  $terms[] = array(
+    'name' => 'General',
+    'description' => '',
+    'format' => 'full_html_no_linebreaks',
+    'weight' => 0,
+    'rh_action' => NULL,
+    'rh_redirect' => NULL,
+    'rh_redirect_response' => NULL,
+    'uuid' => 'ef632662-e459-4834-ab31-d25c1755ac9b',
+    'vocabulary_machine_name' => 'article_types',
     'path' => array(
       'pathauto' => 1,
     ),

@@ -20,6 +20,13 @@ function loopd_taxonomy_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'rh_taxonomy_term_action_article_types';
+  $strongarm->value = '3';
+  $export['rh_taxonomy_term_action_article_types'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'rh_taxonomy_term_action_tags';
   $strongarm->value = '3';
   $export['rh_taxonomy_term_action_tags'] = $strongarm;
@@ -27,9 +34,30 @@ function loopd_taxonomy_strongarm() {
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'rh_taxonomy_term_override_article_types';
+  $strongarm->value = 0;
+  $export['rh_taxonomy_term_override_article_types'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'rh_taxonomy_term_override_tags';
   $strongarm->value = 0;
   $export['rh_taxonomy_term_override_tags'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'rh_taxonomy_term_redirect_article_types';
+  $strongarm->value = '[site:url]';
+  $export['rh_taxonomy_term_redirect_article_types'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'rh_taxonomy_term_redirect_response_article_types';
+  $strongarm->value = '301';
+  $export['rh_taxonomy_term_redirect_response_article_types'] = $strongarm;
 
   $strongarm = new stdClass();
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
@@ -44,6 +72,16 @@ function loopd_taxonomy_strongarm() {
   $strongarm->name = 'rh_taxonomy_term_redirect_tags';
   $strongarm->value = '?f[0]=field_tags%3A[term:tid]';
   $export['rh_taxonomy_term_redirect_tags'] = $strongarm;
+
+  $strongarm = new stdClass();
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
+  $strongarm->name = 'uuid_features_entity_taxonomy_term';
+  $strongarm->value = array(
+    'tags' => 'tags',
+    'article_types' => 'article_types',
+  );
+  $export['uuid_features_entity_taxonomy_term'] = $strongarm;
 
   return $export;
 }
