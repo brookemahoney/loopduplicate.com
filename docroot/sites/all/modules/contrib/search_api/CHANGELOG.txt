@@ -1,6 +1,3 @@
-Search API 1.x, dev (xx/xx/xxxx):
----------------------------------
-
 Search API 1.14 (12/26/2014):
 -----------------------------
 - #2382385 by illusionuk, drunken monkey: Fixed error handling when using
