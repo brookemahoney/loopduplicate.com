@@ -10,6 +10,48 @@
 function loopd_article_field_default_field_instances() {
   $field_instances = array();
 
+  // Exported field_instance: 'node-article-field_article_type'
+  $field_instances['node-article-field_article_type'] = array(
+    'bundle' => 'article',
+    'default_value' => array(
+      0 => array(
+        'tid' => 23,
+      ),
+    ),
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'taxonomy',
+        'settings' => array(),
+        'type' => 'taxonomy_term_reference_link',
+        'weight' => 6,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'fences_wrapper' => 'div',
+    'field_name' => 'field_article_type',
+    'label' => 'Article Type',
+    'required' => 1,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(),
+      'type' => 'options_buttons',
+      'weight' => 4,
+    ),
+  );
+
   // Exported field_instance: 'node-article-field_body'
   $field_instances['node-article-field_body'] = array(
     'bundle' => 'article',
@@ -51,7 +93,7 @@ function loopd_article_field_default_field_instances() {
         'rows' => 8,
       ),
       'type' => 'text_textarea',
-      'weight' => 3,
+      'weight' => 7,
     ),
   );
 
@@ -110,7 +152,7 @@ function loopd_article_field_default_field_instances() {
         'maxlength_js_label' => 'Content limited to @limit characters, remaining: <strong>@remaining</strong>',
       ),
       'type' => 'link_field',
-      'weight' => 7,
+      'weight' => 2,
     ),
   );
 
@@ -189,7 +231,7 @@ function loopd_article_field_default_field_instances() {
         'maxlength_js_label' => 'Content limited to @limit characters, remaining: <strong>@remaining</strong>',
       ),
       'type' => 'media_generic',
-      'weight' => 4,
+      'weight' => 8,
     ),
   );
 
@@ -234,7 +276,7 @@ function loopd_article_field_default_field_instances() {
         'size' => 60,
       ),
       'type' => 'entityreference_autocomplete',
-      'weight' => 6,
+      'weight' => 3,
     ),
   );
 
@@ -319,12 +361,13 @@ function loopd_article_field_default_field_instances() {
         'rows' => 3,
       ),
       'type' => 'text_textarea',
-      'weight' => 2,
+      'weight' => 6,
     ),
   );
 
   // Translatables
   // Included for use with string extractors like potx.
+  t('Article Type');
   t('Body');
   t('External References');
   t('Featured Image');
