@@ -13,7 +13,7 @@ function loopd_taxonomy_taxonomy_default_vocabularies() {
       'name' => 'Article Types',
       'machine_name' => 'article_types',
       'description' => '',
-      'hierarchy' => 0,
+      'hierarchy' => 1,
       'module' => 'taxonomy',
       'weight' => 0,
       'rdf_mapping' => array(

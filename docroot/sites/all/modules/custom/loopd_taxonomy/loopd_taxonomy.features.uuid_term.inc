@@ -53,6 +53,23 @@ function loopd_taxonomy_uuid_features_default_terms() {
     ),
   );
   $terms[] = array(
+    'name' => 'Essential',
+    'description' => '',
+    'format' => 'full_html_no_linebreaks',
+    'weight' => 0,
+    'rh_action' => NULL,
+    'rh_redirect' => NULL,
+    'rh_redirect_response' => NULL,
+    'uuid' => '0fff95c5-6edb-4846-8c48-4c422f712d11',
+    'vocabulary_machine_name' => 'article_types',
+    'path' => array(
+      'pathauto' => 1,
+    ),
+    'parent' => array(
+      0 => '020351f6-69cd-4e2d-893d-e010808a8b29',
+    ),
+  );
+  $terms[] = array(
     'name' => 'Content Structure',
     'description' => '',
     'format' => 'full_html_no_linebreaks',
@@ -109,6 +126,23 @@ function loopd_taxonomy_uuid_features_default_terms() {
     ),
   );
   $terms[] = array(
+    'name' => 'Development',
+    'description' => '',
+    'format' => 'full_html_no_linebreaks',
+    'weight' => 0,
+    'rh_action' => NULL,
+    'rh_redirect' => NULL,
+    'rh_redirect_response' => NULL,
+    'uuid' => '56ef2429-573e-4b6d-aea4-4822c35dc1c6',
+    'vocabulary_machine_name' => 'article_types',
+    'path' => array(
+      'pathauto' => 1,
+    ),
+    'parent' => array(
+      0 => '020351f6-69cd-4e2d-893d-e010808a8b29',
+    ),
+  );
+  $terms[] = array(
     'name' => 'Workflow',
     'description' => '',
     'format' => 'full_html_no_linebreaks',
@@ -148,6 +182,23 @@ function loopd_taxonomy_uuid_features_default_terms() {
     'vocabulary_machine_name' => 'tags',
     'path' => array(
       'pathauto' => 1,
+    ),
+  );
+  $terms[] = array(
+    'name' => 'Specialty',
+    'description' => '',
+    'format' => 'full_html_no_linebreaks',
+    'weight' => 0,
+    'rh_action' => NULL,
+    'rh_redirect' => NULL,
+    'rh_redirect_response' => NULL,
+    'uuid' => '6cbed1cc-605e-4314-a6da-3f4b622ca666',
+    'vocabulary_machine_name' => 'article_types',
+    'path' => array(
+      'pathauto' => 1,
+    ),
+    'parent' => array(
+      0 => '020351f6-69cd-4e2d-893d-e010808a8b29',
     ),
   );
   $terms[] = array(
@@ -232,6 +283,23 @@ function loopd_taxonomy_uuid_features_default_terms() {
     'vocabulary_machine_name' => 'tags',
     'path' => array(
       'pathauto' => 1,
+    ),
+  );
+  $terms[] = array(
+    'name' => 'Common',
+    'description' => '',
+    'format' => 'full_html_no_linebreaks',
+    'weight' => 0,
+    'rh_action' => NULL,
+    'rh_redirect' => NULL,
+    'rh_redirect_response' => NULL,
+    'uuid' => 'd75f4ec2-2924-4042-9461-49fc6dad7e38',
+    'vocabulary_machine_name' => 'article_types',
+    'path' => array(
+      'pathauto' => 1,
+    ),
+    'parent' => array(
+      0 => '020351f6-69cd-4e2d-893d-e010808a8b29',
     ),
   );
   $terms[] = array(
