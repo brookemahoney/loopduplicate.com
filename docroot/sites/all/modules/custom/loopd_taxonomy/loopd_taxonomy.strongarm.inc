@@ -49,7 +49,7 @@ function loopd_taxonomy_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'rh_taxonomy_term_redirect_article_types';
-  $strongarm->value = '[site:url]';
+  $strongarm->value = '?f[0]=field_article_type%3A[term:tid]';
   $export['rh_taxonomy_term_redirect_article_types'] = $strongarm;
 
   $strongarm = new stdClass();

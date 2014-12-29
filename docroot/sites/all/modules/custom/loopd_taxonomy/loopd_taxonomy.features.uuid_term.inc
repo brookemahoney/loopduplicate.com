@@ -14,7 +14,7 @@ function loopd_taxonomy_uuid_features_default_terms() {
     'name' => 'Drupal module',
     'description' => '',
     'format' => 'full_html_no_linebreaks',
-    'weight' => 0,
+    'weight' => 1,
     'rh_action' => NULL,
     'rh_redirect' => NULL,
     'rh_redirect_response' => NULL,
@@ -53,10 +53,10 @@ function loopd_taxonomy_uuid_features_default_terms() {
     ),
   );
   $terms[] = array(
-    'name' => 'Essential',
+    'name' => 'Drupal Module: Essential',
     'description' => '',
     'format' => 'full_html_no_linebreaks',
-    'weight' => 0,
+    'weight' => 3,
     'rh_action' => NULL,
     'rh_redirect' => NULL,
     'rh_redirect_response' => NULL,
@@ -126,10 +126,10 @@ function loopd_taxonomy_uuid_features_default_terms() {
     ),
   );
   $terms[] = array(
-    'name' => 'Development',
+    'name' => 'Drupal Module: Development',
     'description' => '',
     'format' => 'full_html_no_linebreaks',
-    'weight' => 0,
+    'weight' => 2,
     'rh_action' => NULL,
     'rh_redirect' => NULL,
     'rh_redirect_response' => NULL,
@@ -185,7 +185,7 @@ function loopd_taxonomy_uuid_features_default_terms() {
     ),
   );
   $terms[] = array(
-    'name' => 'Specialty',
+    'name' => 'Drupal Module: Specialty',
     'description' => '',
     'format' => 'full_html_no_linebreaks',
     'weight' => 0,
@@ -286,10 +286,10 @@ function loopd_taxonomy_uuid_features_default_terms() {
     ),
   );
   $terms[] = array(
-    'name' => 'Common',
+    'name' => 'Drupal Module: Common',
     'description' => '',
     'format' => 'full_html_no_linebreaks',
-    'weight' => 0,
+    'weight' => 1,
     'rh_action' => NULL,
     'rh_redirect' => NULL,
     'rh_redirect_response' => NULL,

@@ -60,6 +60,7 @@ function loopd_search_default_search_api_index() {
         "author:uid" : { "type" : "integer" },
         "changed" : { "type" : "date" },
         "created" : { "type" : "date" },
+        "field_article_type" : { "type" : "list\\u003Cinteger\\u003E", "entity_type" : "taxonomy_term" },
         "field_body:value" : { "type" : "list\\u003Ctext\\u003E" },
         "field_tags" : { "type" : "list\\u003Cinteger\\u003E", "entity_type" : "taxonomy_term" },
         "promote" : { "type" : "boolean" },
@@ -238,6 +239,12 @@ function loopd_search_default_search_api_server() {
           "field_body:value" : {
             "table" : "search_api_db_db_node_text",
             "type" : "list\\u003Ctext\\u003E",
+            "boost" : "1.0"
+          },
+          "field_article_type" : {
+            "table" : "search_api_db_db_node_field_article_type",
+            "column" : "value",
+            "type" : "list\\u003Cinteger\\u003E",
             "boost" : "1.0"
           }
         }

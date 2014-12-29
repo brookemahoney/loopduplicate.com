@@ -42,17 +42,17 @@ function loopd_search_views_default_views() {
   $handler->display->display_options['style_options']['row_class_special'] = FALSE;
   $handler->display->display_options['row_plugin'] = 'entity';
   $handler->display->display_options['row_options']['view_mode'] = 'teaser';
-  /* Field: Indexed Node: CER » Context */
+  /* Field: Indexed Content: CER » Context */
   $handler->display->display_options['fields']['cer_lineage']['id'] = 'cer_lineage';
   $handler->display->display_options['fields']['cer_lineage']['table'] = 'search_api_index_db_node';
   $handler->display->display_options['fields']['cer_lineage']['field'] = 'cer_lineage';
-  /* Sort criterion: Indexed Node: Date created */
+  /* Sort criterion: Indexed Content: Date created */
   $handler->display->display_options['sorts']['created']['id'] = 'created';
   $handler->display->display_options['sorts']['created']['table'] = 'search_api_index_db_node';
   $handler->display->display_options['sorts']['created']['field'] = 'created';
   $handler->display->display_options['sorts']['created']['order'] = 'DESC';
   $handler->display->display_options['sorts']['created']['expose']['label'] = 'Date created';
-  /* Filter criterion: Indexed Node: Status */
+  /* Filter criterion: Indexed Content: Status */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'search_api_index_db_node';
   $handler->display->display_options['filters']['status']['field'] = 'status';

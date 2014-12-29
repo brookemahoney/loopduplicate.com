@@ -1,0 +1,68 @@
+<?php
+
+/**
+ * Updates articles so that they use the new Article Type vocab for module reviews.
+ */
+function loopd_article_update_7001() {
+  $map = array(
+    // Dev
+    '2' => '20',
+    // Common
+    '6' => '22',
+    // Essential
+    '8' => '19',
+    // Specialty
+    '12' => '21',
+  );
+  $old_tids = array_keys($map);
+
+  $controller = entity_get_controller('node');
+  $count = 0;
+  foreach ($map as $old_tid => $new_tid) {
+    $nodes = array();
+    $query = new EntityFieldQuery();
+    $query->entityCondition('entity_type', 'node')
+      ->entityCondition('bundle', 'article')
+      ->fieldCondition('field_tags', 'tid', $old_tid, '=')
+      ->addMetaData('account', user_load(1)); // Run the query as user 1.
+    $result = $query->execute();
+    if (isset($result['node'])) {
+      $nids = array_keys($result['node']);
+      $count = count($nids);
+      $nodes = node_load_multiple($nids);
+    }
+    foreach ($nodes as $node) {
+      $nid = $node->nid;
+      $node->field_article_type['und'][]['tid'] = $new_tid;
+      field_attach_update('node', $node);
+      // Clears field cache.
+      cache_clear_all("field:node:$nid", 'cache_field');
+      // Clears node cache.
+      $controller->resetCache(array($nid));
+    }
+  }
+
+  $nodes = array();
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'article')
+    ->fieldCondition('field_tags', 'tid', $old_tids, 'not in')
+    ->addMetaData('account', user_load(1)); // Run the query as user 1.
+  $result = $query->execute();
+  if (isset($result['node'])) {
+    $nids = array_keys($result['node']);
+    $count += count($nids);
+    $nodes = node_load_multiple($nids);
+  }
+  foreach ($nodes as $node) {
+    $nid = $node->nid;
+    $node->field_article_type['und'][]['tid'] = 23;
+    field_attach_update('node', $node);
+    // Clears field cache.
+    cache_clear_all("field:node:$nid", 'cache_field');
+    // Clears node cache.
+    $controller->resetCache(array($nid));
+  }
+
+  drupal_set_message(t('Updated ' . $count . ' nodes.'));
+}
