@@ -39,20 +39,6 @@ function loopd_taxonomy_uuid_features_default_terms() {
     ),
   );
   $terms[] = array(
-    'name' => 'Modules: Development',
-    'description' => '',
-    'format' => 'full_html_no_linebreaks',
-    'weight' => 0,
-    'rh_action' => NULL,
-    'rh_redirect' => NULL,
-    'rh_redirect_response' => NULL,
-    'uuid' => '0fd8b3d7-fa5b-4224-b95d-6e5c7488377e',
-    'vocabulary_machine_name' => 'tags',
-    'path' => array(
-      'pathauto' => 1,
-    ),
-  );
-  $terms[] = array(
     'name' => 'Drupal Module: Essential',
     'description' => '',
     'format' => 'full_html_no_linebreaks',
@@ -112,20 +98,6 @@ function loopd_taxonomy_uuid_features_default_terms() {
     ),
   );
   $terms[] = array(
-    'name' => 'Modules: Common',
-    'description' => '',
-    'format' => 'full_html_no_linebreaks',
-    'weight' => 0,
-    'rh_action' => NULL,
-    'rh_redirect' => NULL,
-    'rh_redirect_response' => NULL,
-    'uuid' => '3c96af1a-2e75-4982-87cc-9bc14aa6d77b',
-    'vocabulary_machine_name' => 'tags',
-    'path' => array(
-      'pathauto' => 1,
-    ),
-  );
-  $terms[] = array(
     'name' => 'Drupal Module: Development',
     'description' => '',
     'format' => 'full_html_no_linebreaks',
@@ -151,20 +123,6 @@ function loopd_taxonomy_uuid_features_default_terms() {
     'rh_redirect' => NULL,
     'rh_redirect_response' => NULL,
     'uuid' => '59cc5407-950a-442c-953d-6c80a1aaa27a',
-    'vocabulary_machine_name' => 'tags',
-    'path' => array(
-      'pathauto' => 1,
-    ),
-  );
-  $terms[] = array(
-    'name' => 'Modules: Essential',
-    'description' => '',
-    'format' => 'full_html_no_linebreaks',
-    'weight' => 0,
-    'rh_action' => NULL,
-    'rh_redirect' => NULL,
-    'rh_redirect_response' => NULL,
-    'uuid' => '5a64a731-f9ef-4081-ace8-cbfc445472b0',
     'vocabulary_machine_name' => 'tags',
     'path' => array(
       'pathauto' => 1,
@@ -210,20 +168,6 @@ function loopd_taxonomy_uuid_features_default_terms() {
     'rh_redirect' => NULL,
     'rh_redirect_response' => NULL,
     'uuid' => '780a608c-d24b-429c-9f50-bcf0e115d761',
-    'vocabulary_machine_name' => 'tags',
-    'path' => array(
-      'pathauto' => 1,
-    ),
-  );
-  $terms[] = array(
-    'name' => 'Modules: Specialty',
-    'description' => '',
-    'format' => 'full_html_no_linebreaks',
-    'weight' => 0,
-    'rh_action' => NULL,
-    'rh_redirect' => NULL,
-    'rh_redirect_response' => NULL,
-    'uuid' => '7b9e048e-30ec-4671-a59a-37ea73b5a51c',
     'vocabulary_machine_name' => 'tags',
     'path' => array(
       'pathauto' => 1,
