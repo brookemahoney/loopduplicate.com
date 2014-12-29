@@ -66,3 +66,53 @@ function loopd_article_update_7001() {
 
   drupal_set_message(t('Updated ' . $count . ' nodes.'));
 }
+
+/**
+ * Updates articles so that if the are a tagged as a module article type, they are not tagged as a general article type.
+ */
+function loopd_article_update_7002() {
+  $controller = entity_get_controller('node');
+  $nodes = array();
+
+  // Gets all nodes.
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'article')
+    ->addMetaData('account', user_load(1)); // Run the query as user 1.
+  $result = $query->execute();
+  if (isset($result['node'])) {
+    $nids = array_keys($result['node']);
+    $nodes = node_load_multiple($nids);
+  }
+
+  foreach ($nodes as $node) {
+    $update_needed = FALSE;
+    $nid = $node->nid;
+
+    // Removes the General Article Type term reference if found.
+    if (!empty($node->field_article_type['und'])) {
+      foreach ($node->field_article_type['und'] as $field_key => $field_value) {
+        if ($field_value['tid'] == '23') {
+          unset($node->field_article_type['und'][$field_key]);
+          $update_needed = TRUE;
+          break;
+        }
+      }
+    }
+
+    // If there are no term refs left, mark it as a General Article Type.
+    if (empty($node->field_article_type['und'])) {
+      $node->field_article_type['und'][]['tid'] = '23';
+      $update_needed = TRUE;
+    }
+
+    // Updates field and caches.
+    if ($update_needed === TRUE) {
+      field_attach_update('node', $node);
+      // Clears field cache.
+      cache_clear_all("field:node:$nid", 'cache_field');
+      // Clears node cache.
+      $controller->resetCache(array($nid));
+    }
+  }
+}
