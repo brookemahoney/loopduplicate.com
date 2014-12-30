@@ -12,13 +12,7 @@ group :development do
   gem 'toolkit'                 # Compass utility from the fabulous Snugug.
   gem 'oily_png'                # Faster Compass sprite generation.
   gem 'css_parser'              # Helps `compass stats` output statistics.
-  gem 'breakpoint'              # Helps `compass stats` output statistics.
-
-  # Guard
-  gem 'guard'                   # Guard event handler.
-  gem 'guard-compass'           # Compile on sass/scss change.
-  gem 'guard-shell'             # Run shell commands.
-  gem 'guard-livereload'        # Browser reload.
+  gem 'breakpoint'              # Media query helper.
   gem 'yajl-ruby'               # Faster JSON with LiveReload in the browser.
   
   # Radix Bootstrap
