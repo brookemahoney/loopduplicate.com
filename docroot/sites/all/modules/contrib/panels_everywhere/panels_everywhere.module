@@ -215,7 +215,10 @@ function panels_everywhere_should_override() {
     // should override based on the admin theme.
     if (!variable_get('panels_everywhere_site_template_enabled_admin', FALSE)) {
       $admin_theme = variable_get('admin_theme', '0');
-      if ($admin_theme && $admin_theme == $theme) {
+      // Check that the admin theme is not the same as the default theme, which
+      // is functionally equivalent with not having an admin theme set at all.
+      $default_theme = variable_get('theme_default', 'bartik');
+      if ($admin_theme && (!$default_theme || $default_theme != $admin_theme) && $admin_theme == $theme) {
         return FALSE;
       }
     }

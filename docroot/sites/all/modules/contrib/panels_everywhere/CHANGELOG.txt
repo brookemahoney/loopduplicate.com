@@ -1,5 +1,8 @@
 Panels Everywhere 7.x-1.x-dev, xxxx-xx-xx
 -----------------------------------------
+#1959130 by tstoeckler: Didn't work if the admin theme and default theme were
+  the same.
+By DamienMcKenna: Verify system message variables exist before printing them.
 #2346255 by DamienMcKenna, magicmyth: Wrong method of outputting system help.
 #1255228 by EclipseGc: Don't load the sample variant if it's not wanted.
 #1550294 by logaritmisk: Load the correct context on term_view page_manager

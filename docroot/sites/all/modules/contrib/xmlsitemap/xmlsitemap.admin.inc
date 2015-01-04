@@ -105,7 +105,7 @@ function xmlsitemap_sitemap_list_form() {
     '#type' => 'tableselect',
     '#header' => $header,
     '#options' => $options,
-    '#empty' => t('No XML sitemaps available.') . ' ' . l('Add a new XML sitemap', 'admin/config/search/xmlsitemap/add'),
+    '#empty' => t('No XML sitemaps available.') . ' ' . l(t('Add a new XML sitemap'), 'admin/config/search/xmlsitemap/add'),
   );
   return $form;
 }

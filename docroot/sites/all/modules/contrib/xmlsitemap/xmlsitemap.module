@@ -1547,5 +1547,6 @@ function xmlsitemap_get_operation_link($url, $options = array()) {
   }
 
   $link += array('query' => $destination);
+  drupal_alter('xmlsitemap_operation_link', $link);
   return $link;
 }
