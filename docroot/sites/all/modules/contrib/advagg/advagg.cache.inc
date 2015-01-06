@@ -95,29 +95,20 @@ function advagg_push_new_changes() {
     $types = array();
     module_load_include('inc', 'advagg', 'advagg');
     foreach ($files as $filename => $meta_data) {
+      // Lookup the aggregates/cache ids that use this file.
+      $cache_ids = advagg_get_aggregates_using_file($meta_data['filename_hash'], TRUE);
+      $cache_hits = array();
       $ext = pathinfo($filename, PATHINFO_EXTENSION);
-      // Lookup the aggregates that use this file.
-      $aggregates = advagg_get_aggregates_using_file($meta_data['filename_hash']);
+      $types[$ext] = TRUE;
 
-      // Do nothing if no aggregates were found.
-      if (empty($aggregates)) {
-        continue;
-      }
-
-      // Get the cache ids.
-      $cache_ids = array();
-      foreach ($aggregates as $row) {
-        $cache_ids[] = $row['cid'];
-      }
-      $cache_hits = cache_get_multiple($cache_ids, 'cache_advagg_info');
-      if (!empty($cache_hits)) {
+      if (!empty($cache_ids)) {
+        $cache_hits = cache_get_multiple($cache_ids, 'cache_advagg_info');
         foreach ($cache_hits as $cid => $data) {
           cache_clear_all($cid, 'cache_advagg_info', FALSE);
         }
       }
-      $types[$ext] = TRUE;
-      $results[$filename] = array($aggregates, $cache_hits);
 
+      $results[$filename] = array(count($cache_ids), count($cache_hits));
       // Update database.
       advagg_insert_update_files(array($filename => $meta_data), $ext);
     }
@@ -139,12 +130,14 @@ function advagg_push_new_changes() {
  * Given a filename hash get back all aggregates that include it.
  *
  * @param string $filename_hash
- *   hash of the filename.
+ *   Hash of the filename.
+ * @param bool $cid_only
+ *   Set to TRUE to only have cache ids returned.
  *
  * @return array
  *   array of aggregates that use this file.
  */
-function advagg_get_aggregates_using_file($filename_hash) {
+function advagg_get_aggregates_using_file($filename_hash, $cid_only = FALSE) {
   // Create main query for the advagg_aggregates table.
   $query = db_select('advagg_aggregates', 'aa')
     ->condition('aa.filename_hash', $filename_hash);
@@ -158,8 +151,14 @@ function advagg_get_aggregates_using_file($filename_hash) {
   $aggregates = array();
   foreach ($results as $row) {
     $row = (array) $row;
-    $row['cid'] = 'advagg:db:' . $row['aggregate_filenames_hash'] . ADVAGG_SPACE . $row['aggregate_contents_hash'];
-    $aggregates[] = $row;
+    $cid = 'advagg:db:' . $row['aggregate_filenames_hash'] . ADVAGG_SPACE . $row['aggregate_contents_hash'];
+    if ($cid_only) {
+      $aggregates[] = $cid;
+    }
+    else {
+      $row['cid'] = $cid;
+      $aggregates[] = $row;
+    }
   }
   return $aggregates;
 }

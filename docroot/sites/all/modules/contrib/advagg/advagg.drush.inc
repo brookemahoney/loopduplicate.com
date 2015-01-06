@@ -171,18 +171,24 @@ function drush_advagg_smart_cache_flush() {
   module_load_include('inc', 'advagg', 'advagg.cache');
   $flushed = advagg_push_new_changes();
 
-  // Report back the results.
-  if (empty($flushed)) {
-    drush_log(dt('No changes found. Nothing was cleared.'), 'ok');
-    return;
+  if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) >= 0) {
+    // Display a simple message if not in Development mode.
+    drush_log('Advagg Cache Cleared', 'ok');
   }
-  foreach ($flushed as $filename => $data) {
-    $ext = pathinfo($filename, PATHINFO_EXTENSION);
-    drush_log(dt('The file %filename has changed. %db_usage aggregates are using this file. %db_count db cache entries and all %type full cache entries have been flushed from the cache bins.', array(
-      '%filename' => $filename,
-      '%db_usage' => count($data[0]),
-      '%db_count' => count($data[1]),
-      '%type' => $ext,
-    )), 'ok');
+  else {
+    // Report back the results.
+    if (empty($flushed)) {
+      drush_log(dt('No changes found. Nothing was cleared.'), 'ok');
+      return;
+    }
+    foreach ($flushed as $filename => $data) {
+      $ext = pathinfo($filename, PATHINFO_EXTENSION);
+      drush_log(dt('The file %filename has changed. %db_usage aggregates are using this file. %db_count db cache entries and all %type full cache entries have been flushed from the cache bins.', array(
+        '%filename' => $filename,
+        '%db_usage' => $data[0],
+        '%db_count' => $data[1],
+        '%type' => $ext,
+      )), 'ok');
+    }
   }
 }

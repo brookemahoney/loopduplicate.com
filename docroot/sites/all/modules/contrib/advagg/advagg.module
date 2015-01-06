@@ -510,9 +510,9 @@ function advagg_flush_caches($all_bins = FALSE) {
     return array();
   }
 
-  // Scan for new changes.
+  // Scan for & push new changes.
   module_load_include('inc', 'advagg', 'advagg.cache');
-  $flushed = advagg_push_new_changes();
+  advagg_push_new_changes();
 
   // Get list of cache bins to clear.
   $bins = array('cache_advagg_aggregates');
@@ -2795,7 +2795,7 @@ function advagg_scan_filesystem_for_changes_live() {
   $flushed = advagg_push_new_changes();
 
   // Report back the results.
-  if (empty($flushed)) {
+  if (empty($flushed) || !user_is_logged_in()) {
     return;
   }
   foreach ($flushed as $filename => $data) {

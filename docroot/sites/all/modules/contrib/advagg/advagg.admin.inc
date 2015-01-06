@@ -771,19 +771,25 @@ function advagg_admin_flush_cache_button() {
   module_load_include('inc', 'advagg', 'advagg.cache');
   $flushed = advagg_push_new_changes();
 
-  // Report back the results.
-  if (empty($flushed)) {
-    drupal_set_message(t('No changes found. Nothing was cleared.'));
-    return;
+  if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) >= 0) {
+    // Display a simple message if not in Development mode.
+    drupal_set_message(t('Advagg Cache Cleared'));
   }
-  foreach ($flushed as $filename => $data) {
-    $ext = pathinfo($filename, PATHINFO_EXTENSION);
-    drupal_set_message(t('The file %filename has changed. %db_usage aggregates are using this file. %db_count db cache entries and all %type full cache entries have been flushed from the cache bins.', array(
-      '%filename' => $filename,
-      '%db_usage' => count($data[0]),
-      '%db_count' => count($data[1]),
-      '%type' => $ext,
-    )));
+  else {
+    // Report back the results.
+    if (empty($flushed)) {
+      drupal_set_message(t('No changes found. Nothing was cleared.'));
+      return;
+    }
+    foreach ($flushed as $filename => $data) {
+      $ext = pathinfo($filename, PATHINFO_EXTENSION);
+      drupal_set_message(t('The file %filename has changed. %db_usage aggregates are using this file. %db_count db cache entries and all %type full cache entries have been flushed from the cache bins.', array(
+        '%filename' => $filename,
+        '%db_usage' => $data[0],
+        '%db_count' => $data[1],
+        '%type' => $ext,
+      )));
+    }
   }
 }
 
