@@ -13,8 +13,6 @@
 // @ignore style_paren_spacing:file
 // @ignore style_no_tabs:file
 // @ignore :file
-// @ignore :file
-// @ignore :file
 
 /**
  * JSMinPlus version 1.4
