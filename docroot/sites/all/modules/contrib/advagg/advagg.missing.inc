@@ -774,7 +774,7 @@ function advagg_save_data($uri, $data, $overwrite = FALSE) {
   $temporary_file = str_replace(substr($temporary_file, 0, strpos($temporary_file, 'file_advagg_')), $dir, $temporary_file) . $extension;
 
   // Remove if rename failed.
-  if (!rename($temporary_file_copy, $temporary_file)) {
+  if (!@rename($temporary_file_copy, $temporary_file)) {
     @unlink($temporary_file_copy);
   }
 

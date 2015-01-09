@@ -30,7 +30,7 @@ Drupal.behaviors.MediaBrowser = {
       }
     };
     var activeTab = Drupal.media.browser.tabFromHash();
-    $('#media-browser-tabset').tabs({
+    $('#media-browser-tabset').once('MediaBrowser').tabs({
       selected: activeTab, // jquery < 1.9
       active: activeTab, // jquery >= 1.9
       show: showFunc, // jquery ui < 1.8

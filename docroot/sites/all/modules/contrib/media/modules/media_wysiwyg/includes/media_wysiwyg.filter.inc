@@ -262,6 +262,10 @@ function media_wysiwyg_pre_render_text_format($element) {
     'field' => $field['#id'],
   );
 
+  if (!isset($field['#value'])) {
+    return $element;
+  }
+
   $tagmap = _media_wysiwyg_generate_tagMap($field['#value']);
 
   if (isset($tagmap)) {

@@ -70,28 +70,42 @@
     replacePlaceholderWithToken: function(content) {
       Drupal.media.filter.ensure_tagmap();
 
-      // Wrap the content to be able to use replaceWith() and html().
-      content = $('<div>').append(content);
-      var media = $('[data-media-element]', content);
+      // Rewrite the tagmap in case any of the macros have changed.
+      Drupal.settings.tagmap = {};
 
-      if (media.length) {
-        // Replace all media elements with their respective macros.
-        media.replaceWith(function() {
-          var el = $(this),
-            macro = Drupal.media.filter.create_macro(el);
-
-          // Store the markup for more efficient rendering later.
-          // @see replaceTokenWidthPlaceholder()
-          Drupal.settings.tagmap[macro] = Drupal.media.filter.outerHTML(el);
-          if (macro == false) {
-            return el[0].outerHTML;
-          }
-
-          return macro;
-        });
+      // Replace all media placeholders with their JSON macro representations.
+      //
+      // There are issues with using jQuery to parse the WYSIWYG content (see
+      // http://drupal.org/node/1280758), and parsing HTML with regular
+      // expressions is a terrible idea (see http://stackoverflow.com/a/1732454/854985)
+      //
+      // WYSIWYG editors act wacky with complex placeholder markup anyway, so an
+      // image is the most reliable and most usable anyway: images can be moved by
+      // dragging and dropping, and can be resized using interactive handles.
+      //
+      // Media requests a WYSIWYG place holder rendering of the file by passing
+      // the wysiwyg => 1 flag in the settings array when calling
+      // media_get_file_without_label().
+      //
+      // Finds the media-element class.
+      var classRegex = 'class=[\'"][^\'"]*?media-element';
+      // Image tag with the media-element class.
+      var regex = '<img[^>]+' + classRegex + '[^>]*?>';
+      // Or a span with the media-element class (used for documents).
+      // \S\s catches any character, including a linebreak; JavaScript does not
+      // have a dotall flag.
+      regex += '|<span[^>]+' + classRegex + '[^>]*?>[\\S\\s]+?</span>';
+      var matches = content.match(RegExp(regex, 'gi'));
+      if (matches) {
+        for (i = 0; i < matches.length; i++) {
+          markup = matches[i];
+          macro = Drupal.media.filter.create_macro($(markup));
+          Drupal.settings.tagmap[macro] = markup;
+          content = content.replace(markup, macro);
+        }
       }
 
-      return content.html();
+      return content;
     },
 
     /**
