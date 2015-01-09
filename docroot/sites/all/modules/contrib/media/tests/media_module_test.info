@@ -4,9 +4,9 @@ package = Media
 core = 7.x
 hidden = TRUE
 
-; Information added by Drupal.org packaging script on 2015-01-08
-version = "7.x-2.0-alpha4+19-dev"
+; Information added by Drupal.org packaging script on 2015-01-09
+version = "7.x-2.0-alpha4+20-dev"
 core = "7.x"
 project = "media"
-datestamp = "1420730050"
+datestamp = "1420798085"
 
