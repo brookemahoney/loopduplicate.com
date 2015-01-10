@@ -11481,6 +11481,12 @@ span.geshifilter .javascript .me2 {
   color: #505e80;
 }
 
+/* line 1, ../sass/components/_node.scss */
+.node-unpublished {
+  background-color: #240c00;
+  padding: 5px;
+}
+
 /* line 1, ../sass/components/_pagination.scss */
 .pagination {
   font-weight: bold;
