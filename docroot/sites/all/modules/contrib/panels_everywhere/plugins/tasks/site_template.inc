@@ -54,13 +54,23 @@ function panels_everywhere_site_template_get_arguments($task, $subtask_id) {
 function panels_everywhere_site_template_get_base_contexts($task, $subtask, $placeholders) {
   $contexts = array();
 
+  // Only load taxonomy support if the Taxonomy module is loaded.
+  $load_taxonomy = FALSE;
+  if (module_exists('taxonomy')) {
+    $load_taxonomy = TRUE;
+  }
+
   if ($placeholders) {
     $managed_page = ctools_context_create_empty('managed_page');
     $url = ctools_context_create_empty('string');
     $alias = ctools_context_create_empty('string');
     $node = ctools_context_create_empty('node');
     $account = ctools_context_create_empty('user');
-    $term = ctools_context_create_empty('entity:taxonomy_term');
+
+    // This context will only be created if the Taxonomy module is loaded.
+    if ($load_taxonomy) {
+      $term = ctools_context_create_empty('entity:taxonomy_term');
+    }
   }
   else {
     $page = page_manager_get_current_page();
@@ -68,7 +78,8 @@ function panels_everywhere_site_template_get_base_contexts($task, $subtask, $pla
     $url = ctools_context_create('string', $_GET['q']);
     $alias = ctools_context_create('string', drupal_get_path_alias($_GET['q']));
 
-    // If using a Page Manager Page, attempt to inherit our known contexts from this.
+    // If using a Page Manager Page, attempt to inherit our known contexts from
+    // this.
     if ($page) {
       $node = _panels_everywhere_find_context($page['contexts'], 'node');
       $account = _panels_everywhere_find_context($page['contexts'], 'user');
@@ -80,7 +91,10 @@ function panels_everywhere_site_template_get_base_contexts($task, $subtask, $pla
         $account = ctools_context_create_empty('user');
       }
 
-      $term = _panels_everywhere_find_context($page['contexts'], 'entity:taxonomy_term');
+      // This context will only be loaded if the Taxonomy module is loaded.
+      if ($load_taxonomy) {
+        $term = _panels_everywhere_find_context($page['contexts'], 'entity:taxonomy_term');
+      }
     }
     else {
       // Attempt to drive our basic contexts from the environemnt if we are
@@ -95,22 +109,30 @@ function panels_everywhere_site_template_get_base_contexts($task, $subtask, $pla
       $account = (!empty($raw_user)) ? ctools_context_create('user', $raw_user) : ctools_context_create_empty('user');
 
       // Now try to find a term.
-      $raw_term = _panels_everywhere_find_term_context();
-      $term = (!empty($raw_term)) ? ctools_context_create('entity:taxonomy_term', $raw_term) : ctools_context_create_empty('entity:taxonomy_term');
+      // This context will only be loaded if the Taxonomy module is loaded.
+      if ($load_taxonomy) {
+        $raw_term = _panels_everywhere_find_term_context();
+        $term = (!empty($raw_term)) ? ctools_context_create('entity:taxonomy_term', $raw_term) : ctools_context_create_empty('entity:taxonomy_term');
+      }
     }
   }
 
   $user = ctools_context_create('user', $GLOBALS['user']);
 
-  // First, the managed page. The id is weird because this was formerly an object
-  // so we want to retain that so pre-existing templates don't just break.
+  // First, the managed page. The id is weird because this was formerly an
+  // object so we want to retain that so pre-existing templates don't just
+  // break.
   panels_everywhere_site_template_add_context($contexts, $url, t('Internal URL'), 'url', 'argument_string_1');
   panels_everywhere_site_template_add_context($contexts, $alias, t('Aliased URL'), 'alias', 'alias');
   panels_everywhere_site_template_add_context($contexts, $managed_page, t('Managed page'), 'page', 'argument_managed_page_1');
   panels_everywhere_site_template_add_context($contexts, $user, t('Logged in user'), 'user', 'logged-in-user');
   panels_everywhere_site_template_add_context($contexts, $node, t('Node being viewed'), 'node', 'node');
   panels_everywhere_site_template_add_context($contexts, $account, t('User being viewed'), 'account', 'account');
-  panels_everywhere_site_template_add_context($contexts, $term, t('Taxonomy term being viewed'), 'term', 'term');
+
+  // This context will only be added if the Taxonomy module is loaded.
+  if ($load_taxonomy) {
+    panels_everywhere_site_template_add_context($contexts, $term, t('Taxonomy term being viewed'), 'term', 'term');
+  }
 
   // Allow other modules to also add contexts to the site template.
   drupal_alter('panels_everywhere_contexts', $contexts, $placeholders);
@@ -182,6 +204,9 @@ function _panels_everywhere_find_user_context() {
   }
 }
 
+/**
+ * Attempt to extract a term from the environment to turn into a context.
+ */
 function _panels_everywhere_find_term_context() {
   if (arg(0) == 'taxonomy' && arg(1) == 'term' && is_numeric(arg(2))) {
     return taxonomy_term_load(arg(2));

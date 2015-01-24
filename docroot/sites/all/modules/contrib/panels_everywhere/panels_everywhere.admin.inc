@@ -64,19 +64,13 @@ function panels_everywhere_settings_page() {
     }
   }
 
-/*
   $form['head_title'] = array(
     '#type' => 'fieldset',
     '#title' => t('Head title'),
-    '#description' => t('The head title is the version of the site title that the browser places in the title bar.'),
-    '#input' => TRUE,
-    '#process' => array('ctools_dependent_process'),
+    '#description' => t('The head title is the version of the page title that the browser places in the title bar.'),
     '#dependency' => array(
-      'edit-panels-everywhere-override-page-tpl' => array(1),
+      'edit-panels-everywhere-site-template-enabled' => array(1),
     ),
-    '#id' => 'edit-head-title',
-    '#prefix' => '<div id="edit-head-title-wrapper">',
-    '#suffix' => '</div>',
   );
 
   $form['head_title']['panels_everywhere_head_title_include_name'] = array(
@@ -86,7 +80,7 @@ function panels_everywhere_settings_page() {
   );
 
   $form['head_title']['panels_everywhere_head_title_include_slogan'] = array(
-    '#title' => t('Use site slogan if there is no page title'),
+    '#title' => t('Use site slogan if the page title is blank'),
     '#type' => 'checkbox',
     '#default_value' => variable_get('panels_everywhere_head_title_include_slogan', TRUE),
   );
@@ -96,7 +90,6 @@ function panels_everywhere_settings_page() {
     '#type' => 'textfield',
     '#default_value' => variable_get('panels_everywhere_head_title_separator', ' | '),
   );
-*/
 
   return system_settings_form($form);
 }

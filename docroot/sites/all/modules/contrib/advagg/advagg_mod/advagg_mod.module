@@ -1160,16 +1160,29 @@ function advagg_remove_js_if_not_used(&$js) {
   $include_drupal = FALSE;
   module_load_include('inc', 'advagg', 'advagg');
 
-  // Look at each JavaScript entry.
+  // Look at each JavaScript entry & get the info on it.
+  $files_info_filenames = array();
   foreach ($js as $name => &$values) {
-    $info = array();
     if ($values['type'] === 'file' || $values['type'] === 'external') {
       foreach ($files_skiplist as $skip_name) {
         if (substr_compare($values['data'], $skip_name, -strlen($skip_name), strlen($skip_name)) === 0) {
           continue 2;
         }
       }
-      $info = advagg_get_info_on_file($values['data']);
+      $files_info_filenames[] = $values['data'];
+
+    }
+  }
+  $files_info = advagg_get_info_on_files($files_info_filenames);
+
+  // Look at each JavaScript entry & see if it uses jquery or drupal.
+  foreach ($js as $name => &$values) {
+    if ($values['type'] === 'file' || $values['type'] === 'external') {
+      foreach ($files_skiplist as $skip_name) {
+        if (substr_compare($values['data'], $skip_name, -strlen($skip_name), strlen($skip_name)) === 0) {
+          continue 2;
+        }
+      }
     }
     if ($values['type'] === 'inline' && !empty($inline_skiplist)) {
       foreach ($inline_skiplist as $skip_string) {
@@ -1179,14 +1192,14 @@ function advagg_remove_js_if_not_used(&$js) {
       }
     }
     // Get advagg_mod info if not set.
-    if (!isset($info['advagg_mod'])) {
-      $info['advagg_mod'] = advagg_mod_js_contains_jquery_drupal($values['data'], $values['type']);
+    if (!isset($files_info[$name]['advagg_mod'])) {
+      $files_info[$name]['advagg_mod'] = advagg_mod_js_contains_jquery_drupal($values['data'], $values['type']);
     }
-    if ($info['advagg_mod']['contents']['drupal']) {
+    if ($files_info[$name]['advagg_mod']['contents']['drupal']) {
       $include_jquery = TRUE;
       $include_drupal = TRUE;
     }
-    elseif ($info['advagg_mod']['contents']['jquery']) {
+    elseif ($files_info[$name]['advagg_mod']['contents']['jquery']) {
       $include_jquery = TRUE;
     }
   }

@@ -56,6 +56,7 @@ function media_wysiwyg_parse_css_declarations($declarations) {
  * @see hook_media_wysiwyg_token_to_markup_alter()
  */
 function media_wysiwyg_token_to_markup($match, $wysiwyg = FALSE) {
+  static $recursion_stop;
   $settings = array();
   $match = str_replace("[[", "", $match);
   $match = str_replace("]]", "", $match);
@@ -107,6 +108,13 @@ function media_wysiwyg_token_to_markup($match, $wysiwyg = FALSE) {
     if (!$file) {
       throw new Exception('Could not load media object');
     }
+    // Check if we've got a recursion. Happens because a file_load() may
+    // triggers file_entity_is_page() which then again triggers a file load.
+    if (isset($recursion_stop[$file->fid])) {
+      return '';
+    }
+    $recursion_stop[$file->fid] = TRUE;
+
     $tag_info['file'] = $file;
 
     // The class attributes is a string, but drupal requires it to be
@@ -212,7 +220,9 @@ function media_wysiwyg_token_to_markup($match, $wysiwyg = FALSE) {
     }
   }
   drupal_alter('media_wysiwyg_token_to_markup', $element, $tag_info, $settings);
-  return drupal_render($element);
+  $output = drupal_render($element);
+  unset($recursion_stop[$file->fid]);
+  return $output;
 }
 
 /**
@@ -241,37 +251,6 @@ function media_wysiwyg_filter_field_parser($tag_info) {
     }
   }
   return $fields;
-}
-
-/**
- * Builds a map of media tags in the element.
- *
- * Builds a map of the media tags in an element that are being rendered to their
- * rendered HTML. The map is stored in JS, so we can transform them when the
- * editor is being displayed.
- */
-function media_wysiwyg_pre_render_text_format($element) {
-  // filter_process_format() copies properties to the expanded 'value' child
-  // element.
-  if (!isset($element['format'])) {
-    return $element;
-  }
-
-  $field = &$element['value'];
-  $settings = array(
-    'field' => $field['#id'],
-  );
-
-  if (!isset($field['#value'])) {
-    return $element;
-  }
-
-  $tagmap = _media_wysiwyg_generate_tagMap($field['#value']);
-
-  if (isset($tagmap)) {
-    drupal_add_js(array('tagmap' => $tagmap), 'setting');
-  }
-  return $element;
 }
 
 /**

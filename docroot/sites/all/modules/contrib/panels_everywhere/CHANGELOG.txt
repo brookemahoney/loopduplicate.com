@@ -1,5 +1,12 @@
-Panels Everywhere 7.x-1.x-dev, xxxx-xx-xx
+Panels Everywhere 7.x-1.0-rc2, 2015-01-17
 -----------------------------------------
+#2408973 by DamienMcKenna: Require recent versions of CTools, Panels.
+#1082010 by DamienMcKenna, mattyoung: Make head title controllable, themable.
+By DamienMcKenna: Don't repeat the 'IPE can't be used' message.
+#1266214 by DamienMcKenna: hook_uninstall() now removes all site templates and
+  variables.
+#2349583 by DamienMcKenna, slv_, emattias: Don't fail if the Taxonomy module is
+  not enabled.
 #1959130 by tstoeckler: Didn't work if the admin theme and default theme were
   the same.
 By DamienMcKenna: Verify system message variables exist before printing them.

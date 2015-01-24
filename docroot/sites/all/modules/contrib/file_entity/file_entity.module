@@ -1390,8 +1390,7 @@ function file_entity_views_api() {
  *   A file object.
  */
 function file_entity_is_page($file) {
-  $page_file = menu_get_object('file', 1);
-  return (!empty($page_file) ? $page_file->fid == $file->fid : FALSE);
+  return (arg(0) == 'file' && arg(1) == ($file->fid));
 }
 
 /**
@@ -1500,6 +1499,7 @@ function file_entity_type_get_names() {
   $names = &drupal_static(__FUNCTION__);
 
   if (!isset($names)) {
+    $names = array();
     $info = entity_get_info('file');
     foreach ($info['bundles'] as $bundle => $bundle_info) {
       $names[$bundle] = $bundle_info['label'];

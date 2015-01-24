@@ -9,21 +9,40 @@
  */
 function panels_everywhere_uninstall() {
   // Delete the variables.
+  variable_del('panels_everywhere_head_title_include_name');
+  variable_del('panels_everywhere_head_title_include_slogan');
+  variable_del('panels_everywhere_head_title_separator');
   variable_del('panels_everywhere_provide_sample');
   variable_del('panels_everywhere_site_template_enabled');
   variable_del('panels_everywhere_site_template_enabled_admin');
   variable_del('panels_everywhere_site_template_per_theme');
-  foreach (list_themes() as $theme) {
-    variable_get('panels_everywhere_override_theme_' . $theme->name);
+  foreach (list_themes() as $theme_name => $theme) {
+    variable_del('panels_everywhere_override_theme_' . $theme_name);
   }
 
-  // @todo Delete the variant(s).
-  // Steps (to be confirmed):
+  // Delete the variant(s).
+  // Steps:
   // 1. Query {page_manager_handlers} for any records with 'task' ==
   //   'site_template'.
-  // 2. Extra the 'conf' field using unserialize(), obtain the 'did' value.
-  // 3. Delete records in {panels_display} with the did value identified above.
-  // 3. Delete records in {panels_pane} with the did value identified above.
+  $templates = db_select('page_manager_handlers', 'h')
+    ->fields('h')
+    ->condition('task', 'site_template')
+    ->execute();
+  foreach ($templates as $site_template) {
+    // 2. Extract the 'conf' field using unserialize(), obtain the 'did' value.
+    $site_template->conf = unserialize($site_template->conf);
+
+    // 3. Delete the display referenced above.
+    panels_delete_display($site_template->conf['did']);
+
+    // 4. Delete the site template record.
+    db_delete('page_manager_handlers')
+      ->condition('task', 'site_template')
+      ->condition('did', $site_template->did)
+      ->execute();
+  }
+
+  drupal_set_message(t('Removed the Panels Everywhere site templates.'));
 }
 
 /**

@@ -16,7 +16,7 @@ function theme_panels_everywhere_page($vars) {
   $task = page_manager_get_task('site_template');
 
   $content = new stdClass();
-  $content->title = drupal_get_title();
+  $content->title = theme('head_title');
   $content->content = isset($page['content']) ? $page['content'] : '';
 
   $args = array($content);
@@ -37,6 +37,39 @@ function theme_panels_everywhere_page($vars) {
 
   return is_array($info['content']) ? drupal_render($info['content']) : $info['content'];
 }
+
+/**
+ * Customize the page title.
+ */
+function theme_head_title($vars) {
+  $head_title = array();
+  $page_title = drupal_get_title();
+  if (!empty($page_title)) {
+    $head_title[] = strip_tags($page_title);
+  }
+
+  // Optionally include the site name in the title.
+  if (variable_get('panels_everywhere_head_title_include_name', TRUE)) {
+    $site_name = variable_get('site_name', 'Drupal');
+    if (!empty($site_name)) {
+      $head_title[] = strip_tags($site_name);
+    }
+  }
+
+  // Optionally use the site's slogan if the page title is empty.
+  if (empty($page_title) && variable_get('panels_everywhere_head_title_include_slogan', TRUE)) {
+    $site_slogan = variable_get('site_slogan', '');
+    if (!empty($site_slogan)) {
+      $head_title[] = strip_tags($site_slogan);
+    }
+  }
+
+  return implode(variable_get('panels_everywhere_head_title_separator', ' | '), $head_title);
+}
+
+/**
+ * Default preprocess functions.
+ */
 
 function template_preprocess_pane_header(&$vars) {
   $vars['site_name'] = (theme_get_setting('toggle_name') ? filter_xss_admin(variable_get('site_name', 'Drupal')) : '');

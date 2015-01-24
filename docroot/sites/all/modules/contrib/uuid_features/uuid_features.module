@@ -42,6 +42,7 @@ function uuid_features_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('uuid_features_settings'),
     'title' => 'UUID Export Settings',
+    'type' => MENU_LOCAL_TASK,
     'description' => 'Configure the settings for UUID Features Integration.',
     'weight' => 20,
   );

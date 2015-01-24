@@ -57,6 +57,9 @@ function panels_everywhere_theme() {
     'variables' => array(),
     'template' => 'pane-navigation',
   ) + $base;
+  $theme['head_title'] = array(
+    'arguments' => array(),
+  ) + $base;
 
   // Our alternative to theme('page').
   $theme['panels_everywhere_page'] = array(
@@ -69,8 +72,8 @@ function panels_everywhere_theme() {
 /**
  * Impleme of hook_theme_registry_alter()
  *
- * This is the magic of this module, which allows us to completely override
- * how pages are output.
+ * This is the magic of this module, which allows us to completely override how
+ * pages are output.
  */
 function panels_everywhere_page_build(&$page) {
   if (!panels_everywhere_should_override()) {
@@ -82,8 +85,8 @@ function panels_everywhere_page_build(&$page) {
 
   $task = page_manager_get_task('site_template');
 
-  // Test to see if something has specified that we use a specific
-  // template on this page.
+  // Test to see if something has specified that we use a specific template on
+  // this page.
   if ($handler_name = panels_everywhere_get_site_template()) {
     $handler = page_manager_load_task_handler($task, '', $handler_name);
   }
@@ -98,8 +101,8 @@ function panels_everywhere_page_build(&$page) {
     }
 
     // Normally the args contain the page content, but since this is just
-    // choosing the handler not actually rendering it, we'll leave that
-    // blank and let the page content be added later.
+    // choosing the handler not actually rendering it, we'll leave that blank
+    // and let the page content be added later.
     $args = array('');
     $contexts = ctools_context_handler_get_task_contexts($task, '', $args);
 
@@ -113,14 +116,14 @@ function panels_everywhere_page_build(&$page) {
   if (!empty($handler)) {
     global $theme;
 
-    // Reset the page theme to use the panels everywhere output
-    // instead of the normal page.
+    // Reset the page theme to use the panels everywhere output instead of the
+    // normal page.
     $page['#theme'] = 'panels_everywhere_page';
     $page['#handler'] = $handler;
 
     // This completely disables blocks on a page without disabling block.module
-    // and without going through the extra processor time of building blocks that
-    // do not exist.
+    // and without going through the extra processor time of building blocks
+    // that do not exist.
 
     // Ensure the list of themes is built.
     $themes = list_themes();
@@ -131,8 +134,8 @@ function panels_everywhere_page_build(&$page) {
     // Get the real list so we can modify it.
     $list = &drupal_static('list_themes', array());
 
-    // Clear out the list of regions. Block module will not try to
-    // render anything not in this regions list.
+    // Clear out the list of regions. Block module will not try to render
+    // anything not in this regions list.
     $list[$theme]->info['regions'] = array();
   }
 }
@@ -146,7 +149,7 @@ function panels_everywhere_form_panels_panel_context_edit_settings_alter(&$form,
   if (isset($form_state['task_name']) && $form_state['task_name'] == 'site_template') {
     if (isset($form['conf']['pipeline']['#options']['ipe'])) {
       unset($form['conf']['pipeline']['#options']['ipe']);
-      drupal_set_message(t('The In-Place Editor may not be used with the Site Template.'));
+      drupal_set_message(t('The In-Place Editor may not be used with the Site Template.'), 'status', FALSE);
     }
   }
 }
@@ -211,8 +214,8 @@ function panels_everywhere_should_override() {
   global $theme;
 
   if (!variable_get('panels_everywhere_site_template_per_theme', FALSE)) {
-    // If we've not selected to override 'per theme' check to see if we
-    // should override based on the admin theme.
+    // If we've not selected to override 'per theme' check to see if we should
+    // override based on the admin theme.
     if (!variable_get('panels_everywhere_site_template_enabled_admin', FALSE)) {
       $admin_theme = variable_get('admin_theme', '0');
       // Check that the admin theme is not the same as the default theme, which
@@ -232,8 +235,8 @@ function panels_everywhere_should_override() {
 /**
  * Manually set the template to use.
  *
- * This can be used to force the page to use the specified template rather
- * than going through the access rules.
+ * This can be used to force the page to use the specified template rather than
+ * going through the access rules.
  *
  * @param $handler
  *   The name of the task handler to use.
@@ -247,8 +250,8 @@ function panels_everywhere_set_site_template($handler) {
  * Get the site template to be used.
  *
  * If the site template has been manually set via
- * panels_everywhere_set_site_template(), this function will return what it
- * was set to.
+ * panels_everywhere_set_site_template(), this function will return what it was
+ * set to.
  */
 function panels_everywhere_get_site_template() {
   return drupal_static('panels_everywhere_site_template');
@@ -257,8 +260,8 @@ function panels_everywhere_get_site_template() {
 /**
  * Callback to edit our site template.
  *
- * This is just a pass-through that allows us to add a special tab to make
- * it easier to edit the site template.
+ * This is just a pass-through that allows us to add a special tab to make it
+ * easier to edit the site template.
  */
 function panels_everywhere_edit_site_template() {
   ctools_include('context');
@@ -292,8 +295,8 @@ function panels_everywhere_get_site_templates() {
  * Alter the panel context settings form
  */
 function panels_everywhere_page_manager_variant_operations_alter(&$operations, $handler) {
-  // Do not add this to variants on the site template, as tempaltes
-  // cannot select templates.
+  // Do not add this to variants on the site template, as templates cannot
+  // select templates.
   if ($handler->task == 'site_template') {
     return;
   }
@@ -354,8 +357,8 @@ function panels_everywhere_variant_template_submit(&$form, &$form_state) {
 /**
  * Implement hook_ctools_render_alter()
  *
- * When a Page Manager page is rendered, set the selected site template
- * if it has been chosen.
+ * When a Page Manager page is rendered, set the selected site template if it
+ * has been chosen.
  */
 function panels_everywhere_ctools_render_alter(&$info, &$page, &$context) {
   if ($context['task']['name'] == 'site_template') {

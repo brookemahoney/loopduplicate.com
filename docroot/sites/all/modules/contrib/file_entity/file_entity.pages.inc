@@ -559,7 +559,7 @@ function file_entity_add_upload_multiple_submit($form, &$form_state) {
   }
 
   // Redirect to the file edit page.
-  if (file_entity_access('update', $file) && module_exists('multiform') && module_exists('media')) {
+  if (file_entity_access('update', $file) && module_exists('media_bulk_upload')) {
     $destination = array();
     if (isset($_GET['destination'])) {
       $destination = drupal_get_destination();
