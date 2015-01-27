@@ -87,17 +87,14 @@ function jquery_update_library_alter(&$javascript, $module) {
     $cdn = variable_get('jquery_update_jquery_cdn', 'none');
 
     // Replace jQuery with the alternative version.
-    $admin_version = variable_get('jquery_update_jquery_admin_version', '');
-
-    if (!empty($admin_version) && path_is_admin(current_path())) {
-      if (version_compare($version, $admin_version, '!=')) {
-        $version = $admin_version;
-      }
+    $theme_version = theme_get_setting('jquery_update_jquery_version');
+    if ($theme_version && version_compare($version, $theme_version, '!=')) {
+      $version = $theme_version;
     }
     // If the ajax version is set then that one always win.
     if (!empty($_POST['ajax_page_state']['jquery_version'])) {
       $ajax_version = $_POST['ajax_page_state']['jquery_version'];
-      if (in_array($ajax_version, array('default', '1.5', '1.6', '1.7', '1.8', '1.9', '1.10'))) {
+      if ($ajax_version == 'default' || in_array($ajax_version, jquery_update_get_versions())) {
         $version = $ajax_version;
       }
     }
@@ -172,34 +169,89 @@ function jquery_update_settings_form() {
     '#title' => t('Version options'),
   );
 
+  $default_version = variable_get('jquery_update_jquery_version', '1.10');
+  $version_options = jquery_update_get_version_options(FALSE);
   $form['version_options']['jquery_update_jquery_version'] = array(
     '#type' => 'select',
-    '#title' => t('Default jQuery Version'),
-    '#options' => array(
-      'default' => t('Default (provided by Drupal)'),
-      '1.5' => '1.5',
-      '1.7' => '1.7',
-      '1.8' => '1.8',
-      '1.9' => '1.9',
-      '1.10' => '1.10',
-    ),
-    '#default_value' => variable_get('jquery_update_jquery_version', '1.10'),
-    '#description' => t('Select which jQuery version to use by default.'),
+    '#title' => t('Site default jQuery version'),
+    '#options' => $version_options,
+    '#default_value' => $default_version,
+    '#description' => t('Select which version of jQuery to use on the site.'),
   );
 
-  $form['version_options']['jquery_update_jquery_admin_version'] = array(
-    '#type' => 'select',
-    '#title' => t('Alternate jQuery version for administrative pages'),
-    '#options' => array(
-      '' => t('Default jQuery Version'),
-      'default' => t('Default (provided by Drupal)'),
-      '1.5' => '1.5',
-      '1.7' => '1.7',
-      '1.8' => '1.8',
-      '1.10' => '1.10',
-    ),
-    '#default_value' => variable_get('jquery_update_jquery_admin_version', ''),
-    '#description' => t('Optionally select a different version of jQuery to use on administrative pages.'),
+  $themes = list_themes();
+  $theme_default = variable_get('theme_default', FALSE);
+  $admin_theme = variable_get('admin_theme', FALSE);
+  $header = array(t('Theme'), t('jQuery version'), t('Operations'));
+  $rows = array();
+  $themes_collapsed = TRUE;
+  // Go through all themes.
+  foreach ($themes as $theme_key => $theme) {
+    // Skip disabled themes, but only if they are not configured as admin
+    // theme. This is an inconsistency in drupal core, that you can select a
+    // disabled theme as admin theme.
+    if (!$theme->status && $theme_key !== $admin_theme) {
+      continue;
+    }
+
+    // Retrieve the version jQuery for this theme.
+    $theme_version = theme_get_setting('jquery_update_jquery_version', $theme_key);
+    // Do not collapse the fieldset if a theme has set a jQuery version.
+    if ($theme_version) {
+      $themes_collapsed = FALSE;
+    }
+
+    // Replace or modify the version name to be displayed.
+    if (empty($theme_version)) {
+      $theme_version = t('Site Default');
+    }
+    elseif (in_array($theme_version, array_keys($version_options))) {
+      $theme_version = $version_options[$theme_version];
+    }
+    else {
+      $theme_version .= ' (' . t('unknown version') . ')';
+    }
+
+    // Provide additional information for default and admin themes.
+    $theme_name = $theme->info['name'];
+    if ($theme_key === $theme_default && ($theme_key === $admin_theme || empty($admin_theme))) {
+      $theme_name .= ' (' . t('default/admin theme') . ')';
+    }
+    elseif ($theme_key === $theme_default) {
+      $theme_name .= ' (' . t('default theme') . ')';
+    }
+    elseif ($theme_key === $admin_theme) {
+      $theme_name .= ' (' . t('admin theme') . ')';
+    }
+
+    // Construct the table row.
+    $rows[] = array(
+      $theme_name,
+      $theme_version,
+      l(t('Configure'), 'admin/appearance/settings/' . $theme_key, array(
+        'attributes' => array(
+          'class' => array(
+            'module-link',
+            'module-link-configure',
+          ),
+        ),
+        'query' => drupal_get_destination(),
+        'fragment' => 'edit-jquery-update',
+      )),
+    );
+  }
+
+  $form['version_options']['themes'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Theme specific versions'),
+    '#description' => t('You can override the default jQuery version above on each themes settings page. This is useful for administrative based themes.'),
+    '#collapsible' => TRUE,
+    '#collapsed' => $themes_collapsed,
+  );
+  $form['version_options']['themes']['overrides'] = array(
+    '#theme' => 'table',
+    '#header' => $header,
+    '#rows' => $rows,
   );
 
   $form['jquery_update_compression_type'] = array(
@@ -237,6 +289,68 @@ function jquery_update_settings_form() {
   );
 
   return system_settings_form($form);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function jquery_update_form_system_theme_settings_alter(&$form, $form_state) {
+  // Ignore global theme settings.
+  if (empty($form_state['build_info']['args'][0])) {
+    return;
+  }
+  $form['jquery_update'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('jQuery Update'),
+    '#description' => t('You can optionally select a different version of jQuery to use for pages that are rendered using this theme. This is useful for administrative based themes.'),
+  );
+  $form['jquery_update']['jquery_update_jquery_version'] = array(
+    '#type' => 'select',
+    '#title' => t('Theme specific jQuery version'),
+    '#options' => jquery_update_get_version_options(),
+    '#default_value' => theme_get_setting('jquery_update_jquery_version', $form_state['build_info']['args'][0]),
+  );
+}
+
+/**
+ * Retrieve the jQuery versions available by this module.
+ *
+ * @return array
+ *   The available jQuery versions.
+ */
+function jquery_update_get_versions() {
+  // Use the advanced drupal_static() pattern, since this has the potential
+  // to be called very often.
+  static $drupal_static_fast;
+  if (!isset($drupal_static_fast)) {
+    $drupal_static_fast['versions'] = &drupal_static(__FUNCTION__, drupal_map_assoc(array(
+      '1.5', '1.7', '1.8', '1.9', '1.10',
+    )));
+  }
+  return $drupal_static_fast['versions'];
+}
+
+/**
+ * Retrieve the jQuery versions available by this module as select options.
+ *
+ * @param bool $empty
+ *   Toggle on whether or not to return an empty option, which will default
+ *   to the site wide default setting.
+ *
+ * @return array
+ *   The available jQuery versions used to populate a select input.
+ */
+function jquery_update_get_version_options($empty = TRUE) {
+  $options = array_merge(array(
+    '' => t('Site default (!version)', array(
+      '!version' => variable_get('jquery_update_jquery_version', '1.10'),
+    )),
+    'default' => t('1.4 (Drupal core)'),
+  ), jquery_update_get_versions());
+  if (!$empty) {
+    unset($options['']);
+  }
+  return $options;
 }
 
 /**
