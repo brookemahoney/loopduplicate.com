@@ -7,9 +7,9 @@ dependencies[] = i18n
 files[] = xmlsitemap_i18n.module
 files[] = xmlsitemap_i18n.test
 
-; Information added by Drupal.org packaging script on 2015-01-02
-version = "7.x-2.1+4-dev"
+; Information added by Drupal.org packaging script on 2015-01-30
+version = "7.x-2.2+1-dev"
 core = "7.x"
 project = "xmlsitemap"
-datestamp = "1420231085"
+datestamp = "1422608587"
 
