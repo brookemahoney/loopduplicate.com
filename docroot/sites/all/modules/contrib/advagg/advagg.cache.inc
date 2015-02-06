@@ -252,15 +252,30 @@ function advagg_flush_all_cache_bins() {
 /**
  * Remove all files from the advagg CSS/JS directories.
  *
+ * @param bool $kill_htaccess
+ *   Set to TRUE to remove the htaccess files as well.
+ *
  * @return array
  *   array of all files removed.
  */
-function advagg_remove_all_aggregated_files() {
+function advagg_remove_all_aggregated_files($kill_htaccess = FALSE) {
   list($css_path, $js_path) = advagg_get_root_files_dir();
 
   // Find all files in the advagg CSS/JS directories and delete them.
   $css_files = file_scan_directory($css_path[0], '/.*/', array('callback' => 'file_unmanaged_delete'));
   $js_files = file_scan_directory($js_path[0], '/.*/', array('callback' => 'file_unmanaged_delete'));
+
+  // Remove the htaccess files as well.
+  if ($kill_htaccess) {
+    if (file_exists($css_path[0] . '/.htaccess')) {
+      file_unmanaged_delete($css_path[0] . '/.htaccess');
+      $css_files[] = $css_path[0] . '/.htaccess';
+    }
+    if (file_exists($js_path[0] . '/.htaccess')) {
+      file_unmanaged_delete($js_path[0] . '/.htaccess');
+      $js_files[] = $js_path[0] . '/.htaccess';
+    }
+  }
   return array($css_files, $js_files);
 }
 

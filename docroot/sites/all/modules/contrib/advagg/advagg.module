@@ -1239,8 +1239,8 @@ function _advagg_process_html(&$variables) {
         }
       }
 
-      if (!empty($js_cache_id) && !empty($js_cache)) {
-        cache_set($js_cache_id, $js_cache, 'cache_advagg_aggregates', CACHE_TEMPORARY);
+      if (!empty($js_cache_id_full) && !empty($js_cache)) {
+        cache_set($js_cache_id_full, $js_cache, 'cache_advagg_aggregates', CACHE_TEMPORARY);
       }
     }
   }
@@ -2753,7 +2753,12 @@ function advagg_aggressive_cache_conflicts() {
   }
 
   $whitelist = array(
+    // Core.
     'locale',
+    'simpletest',
+    'seven',
+
+    // Popular contrib.
     'css_injector',
     'disable_css',
     'excluded',
