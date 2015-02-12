@@ -113,6 +113,10 @@ function advagg_push_new_changes() {
       advagg_insert_update_files(array($filename => $meta_data), $ext);
     }
 
+    // Change query-strings on css/js files to enforce reload for all users.
+    // Change css_js_query_string variable.
+    _drupal_flush_css_js();
+
     // Let other modules know about the changed files.
     // Call hook_advagg_changed_files().
     module_invoke_all('advagg_changed_files', $files, $types);

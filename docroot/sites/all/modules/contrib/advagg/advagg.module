@@ -143,6 +143,25 @@ define('ADVAGG_FAST_FILESYSTEM', TRUE);
  */
 define('ADVAGG_PREGENERATE_AGGREGATE_FILES', TRUE);
 
+/**
+ * Include the base_url global as part of the hooks hash array.
+ */
+define('ADVAGG_INCLUDE_BASE_URL', FALSE);
+
+/**
+ * Convert absolute path CSS/JS src/url() to be relative if self referencing.
+ */
+define('ADVAGG_CONVERT_ABSOLUTE_TO_RELATIVE_PATH', TRUE);
+
+/**
+ * Convert absolute path CSS/JS src/url() to be protocol relative.
+ */
+define('ADVAGG_CONVERT_ABSOLUTE_TO_PROTOCOL_RELATIVE_PATH', TRUE);
+
+/**
+ * Convert absolute path CSS/JS src/url() to be https.
+ */
+define('ADVAGG_FORCE_HTTPS_PATH', FALSE);
 
 // Core hook implementations.
 /**
@@ -174,7 +193,7 @@ function advagg_url_inbound_alter(&$path, $original_path, $path_language) {
   // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace:2
   if (   !empty($path)
       && $path != $request_path
-      && preg_match('/^.*\/advagg_(j|cs)s\/(j|cs)s' . ADVAGG_SPACE . '[A-Za-z0-9-_]{43}' . ADVAGG_SPACE . '[A-Za-z0-9-_]{43}' . ADVAGG_SPACE . '[A-Za-z0-9-_]{43}\.(j|cs)s.*$/', $request_path)
+      && advagg_match_file_pattern($request_path)
       ) {
     // Get the advagg paths.
     $advagg_path = advagg_get_root_files_dir();
@@ -364,26 +383,31 @@ function advagg_permission() {
  * Implements hook_file_url_alter().
  */
 function advagg_file_url_alter(&$original_uri) {
+  // Do nothing if URI does not contain /advagg_
+  // OR file does not have the correct pattern.
+  if (strpos($original_uri, '/advagg_') === FALSE || !advagg_match_file_pattern($original_uri)) {
+    return;
+  }
+
   // Ignore coder warnings.
   // @ignore sniffer_commenting_inlinecomment_spacingbefore:10
   // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace:11
   // @ignore sniffer_whitespace_closebracketspacing_closingwhitespace:19
   // @ignore sniffer_commenting_inlinecomment_spacingafter
 
+  // CDN fix.
   // Do nothing if
   //  in maintenance_mode
   //  CDN module does not exist
   //  CDN far future is disabled
   //  CDN mode is not basic
-  //  URI does not contain /advagg_
   //  URI does not contain cdn/farfuture/
-  if (   variable_get('maintenance_mode', FALSE)
-      || !module_exists('cdn')
-      || !variable_get(CDN_BASIC_FARFUTURE_VARIABLE, CDN_BASIC_FARFUTURE_DEFAULT)
-      || variable_get(CDN_MODE_VARIABLE, CDN_MODE_BASIC) != CDN_MODE_BASIC
-      || strpos($original_uri, '/advagg_') === FALSE
-      || strpos($original_uri, 'cdn/farfuture/') === FALSE
-        ) {
+  if ( variable_get('maintenance_mode', FALSE)
+    || !module_exists('cdn')
+    || !variable_get(CDN_BASIC_FARFUTURE_VARIABLE, CDN_BASIC_FARFUTURE_DEFAULT)
+    || variable_get(CDN_MODE_VARIABLE, CDN_MODE_BASIC) != CDN_MODE_BASIC
+    || strpos($original_uri, 'cdn/farfuture/') === FALSE
+    ) {
     return;
   }
 
@@ -529,7 +553,10 @@ function advagg_element_info_alter(&$type) {
   // Swap in our own aggregation callback.
   if (isset($type['styles']['#aggregate_callback'])) {
     $type['styles']['#aggregate_callback'] = '_advagg_aggregate_css';
-    $type['styles']['#pre_render'][] = 'advagg_modify_css_pre_render';
+    $type['styles']['#pre_render'] = array(
+      'advagg_pre_render_styles',
+      'advagg_modify_css_pre_render',
+    );
   }
 
   // Swap in our own aggregation callback.
@@ -1928,12 +1955,19 @@ function advagg_current_hooks_hash_array() {
       'advagg_ie_css_selector_limiter_value' => variable_get('advagg_ie_css_selector_limiter_value', ADVAGG_IE_CSS_SELECTOR_LIMITER_VALUE),
       'advagg_scripts_scope_anywhere' => variable_get('advagg_scripts_scope_anywhere', ADVAGG_SCRIPTS_SCOPE_ANYWHERE),
       'advagg_devel' => variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) < 0 ? TRUE : FALSE,
+      'advagg_convert_absolute_to_relative_path' => variable_get('advagg_convert_absolute_to_relative_path', ADVAGG_CONVERT_ABSOLUTE_TO_RELATIVE_PATH),
+      'advagg_convert_absolute_to_protocol_relative_path' => variable_get('advagg_convert_absolute_to_protocol_relative_path', ADVAGG_CONVERT_ABSOLUTE_TO_PROTOCOL_RELATIVE_PATH),
+      'advagg_force_https_path' => variable_get('advagg_force_https_path', ADVAGG_FORCE_HTTPS_PATH),
     ),
     'hooks' => advagg_hooks_implemented(FALSE),
   );
   // Add in language if locale is enabled.
   if (module_exists('locale')) {
     $aggregate_settings['variables']['language'] = isset($GLOBALS['language']->language) ? $GLOBALS['language']->language : '';
+  }
+
+  if (variable_get('advagg_include_base_url', ADVAGG_INCLUDE_BASE_URL)) {
+    $aggregate_settings['variables']['base_url'] = $GLOBALS['base_url'];
   }
 
   // Allow other modules to add in their own settings and hooks.
@@ -2409,7 +2443,7 @@ function advagg_pre_render_scripts($elements) {
     // script element for this file.
     if (isset($group['type']) && $group['type'] === 'file' && isset($group['data'])) {
       $element = $element_defaults;
-      $element['#attributes']['src'] = file_create_url($group['data']) . ($group['cache'] ? '' : '?' . REQUEST_TIME);
+      $element['#attributes']['src'] = advagg_file_create_url($group['data']) . ($group['cache'] ? '' : '?' . REQUEST_TIME);
       $element['#browsers'] = $group['browsers'];
       if (!empty($group['defer'])) {
         $element['#attributes']['defer'] = 'defer';
@@ -2478,16 +2512,256 @@ function advagg_pre_render_scripts($elements) {
           case 'file':
             $query_string = empty($item['version']) ? $default_query_string : $js_version_string . $item['version'];
             $query_string_separator = (strpos($item['data'], '?') !== FALSE) ? '&' : '?';
-            $element['#attributes']['src'] = file_create_url($item['data']) . $query_string_separator . ($item['cache'] ? $query_string : REQUEST_TIME);
+
+            $element['#attributes']['src'] = advagg_file_create_url($item['data']) . $query_string_separator . ($item['cache'] ? $query_string : REQUEST_TIME);
             break;
 
           case 'external':
-            $element['#attributes']['src'] = $item['data'];
+            // Convert to protocol relative path.
+            $file_uri = $item['data'];
+            if (variable_get('advagg_convert_absolute_to_protocol_relative_path', ADVAGG_CONVERT_ABSOLUTE_TO_PROTOCOL_RELATIVE_PATH)) {
+              $file_uri = advagg_convert_abs_to_protocol($item['data']);
+            }
+            $element['#attributes']['src'] = $file_uri;
             break;
         }
 
         $elements[] = $element;
       }
+    }
+  }
+
+  return $elements;
+}
+
+
+/**
+ * #pre_render callback to add the elements needed for CSS tags to be rendered.
+ *
+ * For production websites, LINK tags are preferable to STYLE tags with @import
+ * statements, because:
+ * - They are the standard tag intended for linking to a resource.
+ * - On Firefox 2 and perhaps other browsers, CSS files included with @import
+ *   statements don't get saved when saving the complete web page for offline
+ *   use: http://drupal.org/node/145218.
+ * - On IE, if only LINK tags and no @import statements are used, all the CSS
+ *   files are downloaded in parallel, resulting in faster page load, but if
+ *   @import statements are used and span across multiple STYLE tags, all the
+ *   ones from one STYLE tag must be downloaded before downloading begins for
+ *   the next STYLE tag. Furthermore, IE7 does not support media declaration on
+ *   the @import statement, so multiple STYLE tags must be used when different
+ *   files are for different media types. Non-IE browsers always download in
+ *   parallel, so this is an IE-specific performance quirk:
+ *   http://www.stevesouders.com/blog/2009/04/09/dont-use-import/.
+ *
+ * However, IE has an annoying limit of 31 total CSS inclusion tags
+ * (http://drupal.org/node/228818) and LINK tags are limited to one file per
+ * tag, whereas STYLE tags can contain multiple @import statements allowing
+ * multiple files to be loaded per tag. When CSS aggregation is disabled, a
+ * Drupal site can easily have more than 31 CSS files that need to be loaded, so
+ * using LINK tags exclusively would result in a site that would display
+ * incorrectly in IE. Depending on different needs, different strategies can be
+ * employed to decide when to use LINK tags and when to use STYLE tags.
+ *
+ * The strategy employed by this function is to use LINK tags for all aggregate
+ * files and for all files that cannot be aggregated (e.g., if 'preprocess' is
+ * set to FALSE or the type is 'external'), and to use STYLE tags for groups
+ * of files that could be aggregated together but aren't (e.g., if the site-wide
+ * aggregation setting is disabled). This results in all LINK tags when
+ * aggregation is enabled, a guarantee that as many or only slightly more tags
+ * are used with aggregation disabled than enabled (so that if the limit were to
+ * be crossed with aggregation enabled, the site developer would also notice the
+ * problem while aggregation is disabled), and an easy way for a developer to
+ * view HTML source while aggregation is disabled and know what files will be
+ * aggregated together when aggregation becomes enabled.
+ *
+ * This function evaluates the aggregation enabled/disabled condition on a group
+ * by group basis by testing whether an aggregate file has been made for the
+ * group rather than by testing the site-wide aggregation setting. This allows
+ * this function to work correctly even if modules have implemented custom
+ * logic for grouping and aggregating files.
+ *
+ * @param $element
+ *   A render array containing:
+ *   - '#items': The CSS items as returned by drupal_add_css() and altered by
+ *     drupal_get_css().
+ *   - '#group_callback': A function to call to group #items to enable the use
+ *     of fewer tags by aggregating files and/or using multiple @import
+ *     statements within a single tag.
+ *   - '#aggregate_callback': A function to call to aggregate the items within
+ *     the groups arranged by the #group_callback function.
+ *
+ * @return
+ *   A render array that will render to a string of XHTML CSS tags.
+ *
+ * @see drupal_get_css()
+ */
+function advagg_pre_render_styles($elements) {
+  // Group and aggregate the items.
+  if (isset($elements['#group_callback'])) {
+    $elements['#groups'] = $elements['#group_callback']($elements['#items']);
+  }
+  if (isset($elements['#aggregate_callback'])) {
+    $elements['#aggregate_callback']($elements['#groups']);
+  }
+
+  // A dummy query-string is added to filenames, to gain control over
+  // browser-caching. The string changes on every update or full cache
+  // flush, forcing browsers to load a new copy of the files, as the
+  // URL changed.
+  $query_string = variable_get('css_js_query_string', '0');
+
+  // For inline CSS to validate as XHTML, all CSS containing XHTML needs to be
+  // wrapped in CDATA. To make that backwards compatible with HTML 4, we need to
+  // comment out the CDATA-tag.
+  $embed_prefix = "\n<!--/*--><![CDATA[/*><!--*/\n";
+  $embed_suffix = "\n/*]]>*/-->\n";
+
+  // Defaults for LINK and STYLE elements.
+  $link_element_defaults = array(
+    '#type' => 'html_tag',
+    '#tag' => 'link',
+    '#attributes' => array(
+      'type' => 'text/css',
+      'rel' => 'stylesheet',
+    ),
+  );
+  $style_element_defaults = array(
+    '#type' => 'html_tag',
+    '#tag' => 'style',
+    '#attributes' => array(
+      'type' => 'text/css',
+    ),
+  );
+
+  // Loop through each group.
+  foreach ($elements['#groups'] as $group) {
+    switch ($group['type']) {
+      // For file items, there are three possibilites.
+      // - The group has been aggregated: in this case, output a LINK tag for
+      //   the aggregate file.
+      // - The group can be aggregated but has not been (most likely because
+      //   the site administrator disabled the site-wide setting): in this case,
+      //   output as few STYLE tags for the group as possible, using @import
+      //   statement for each file in the group. This enables us to stay within
+      //   IE's limit of 31 total CSS inclusion tags.
+      // - The group contains items not eligible for aggregation (their
+      //   'preprocess' flag has been set to FALSE): in this case, output a LINK
+      //   tag for each file.
+      case 'file':
+        // The group has been aggregated into a single file: output a LINK tag
+        // for the aggregate file.
+        if (isset($group['data'])) {
+          $element = $link_element_defaults;
+          $element['#attributes']['href'] = advagg_file_create_url($group['data']);
+          $element['#attributes']['media'] = $group['media'];
+          $element['#browsers'] = $group['browsers'];
+          $elements[] = $element;
+        }
+        // The group can be aggregated, but hasn't been: combine multiple items
+        // into as few STYLE tags as possible.
+        elseif ($group['preprocess']) {
+          $import = array();
+          foreach ($group['items'] as $item) {
+            // A theme's .info file may have an entry for a file that doesn't
+            // exist as a way of overriding a module or base theme CSS file from
+            // being added to the page. Normally, file_exists() calls that need
+            // to run for every page request should be minimized, but this one
+            // is okay, because it only runs when CSS aggregation is disabled.
+            // On a server under heavy enough load that file_exists() calls need
+            // to be minimized, CSS aggregation should be enabled, in which case
+            // this code is not run. When aggregation is enabled,
+            // drupal_load_stylesheet() checks file_exists(), but only when
+            // building the aggregate file, which is then reused for many page
+            // requests.
+            if (file_exists($item['data'])) {
+              // The dummy query string needs to be added to the URL to control
+              // browser-caching. IE7 does not support a media type on the
+              // @import statement, so we instead specify the media for the
+              // group on the STYLE tag.
+              $import[] = '@import url("' . check_plain(advagg_file_create_url($item['data']) . '?' . $query_string) . '");';
+            }
+          }
+          // In addition to IE's limit of 31 total CSS inclusion tags, it also
+          // has a limit of 31 @import statements per STYLE tag.
+          while (!empty($import)) {
+            $import_batch = array_slice($import, 0, 31);
+            $import = array_slice($import, 31);
+            $element = $style_element_defaults;
+            // This simplifies the JavaScript regex, allowing each line
+            // (separated by \n) to be treated as a completely different string.
+            // This means that we can use ^ and $ on one line at a time, and not
+            // worry about style tags since they'll never match the regex.
+            $element['#value'] = "\n" . implode("\n", $import_batch) . "\n";
+            $element['#attributes']['media'] = $group['media'];
+            $element['#browsers'] = $group['browsers'];
+            $elements[] = $element;
+          }
+        }
+        // The group contains items ineligible for aggregation: output a LINK
+        // tag for each file.
+        else {
+          foreach ($group['items'] as $item) {
+            $element = $link_element_defaults;
+            // We do not check file_exists() here, because this code runs for
+            // files whose 'preprocess' is set to FALSE, and therefore, even
+            // when aggregation is enabled, and we want to avoid needlessly
+            // taxing a server that may be under heavy load. The file_exists()
+            // performed above for files whose 'preprocess' is TRUE is done for
+            // the benefit of theme .info files, but code that deals with files
+            // whose 'preprocess' is FALSE is responsible for ensuring the file
+            // exists.
+            // The dummy query string needs to be added to the URL to control
+            // browser-caching.
+            $query_string_separator = (strpos($item['data'], '?') !== FALSE) ? '&' : '?';
+            $element['#attributes']['href'] = advagg_file_create_url($item['data']) . $query_string_separator . $query_string;
+            $element['#attributes']['media'] = $item['media'];
+            $element['#browsers'] = $group['browsers'];
+            $elements[] = $element;
+          }
+        }
+        break;
+      // For inline content, the 'data' property contains the CSS content. If
+      // the group's 'data' property is set, then output it in a single STYLE
+      // tag. Otherwise, output a separate STYLE tag for each item.
+      case 'inline':
+        if (isset($group['data'])) {
+          $element = $style_element_defaults;
+          $element['#value'] = $group['data'];
+          $element['#value_prefix'] = $embed_prefix;
+          $element['#value_suffix'] = $embed_suffix;
+          $element['#attributes']['media'] = $group['media'];
+          $element['#browsers'] = $group['browsers'];
+          $elements[] = $element;
+        }
+        else {
+          foreach ($group['items'] as $item) {
+            $element = $style_element_defaults;
+            $element['#value'] = $item['data'];
+            $element['#value_prefix'] = $embed_prefix;
+            $element['#value_suffix'] = $embed_suffix;
+            $element['#attributes']['media'] = $item['media'];
+            $element['#browsers'] = $group['browsers'];
+            $elements[] = $element;
+          }
+        }
+        break;
+      // Output a LINK tag for each external item. The item's 'data' property
+      // contains the full URL.
+      case 'external':
+        foreach ($group['items'] as $item) {
+          $element = $link_element_defaults;
+          // Convert to protocol relative path.
+          $file_uri = $item['data'];
+          if (variable_get('advagg_convert_absolute_to_protocol_relative_path', ADVAGG_CONVERT_ABSOLUTE_TO_PROTOCOL_RELATIVE_PATH)) {
+            $file_uri = advagg_convert_abs_to_protocol($item['data']);
+          }
+          $element['#attributes']['href'] = $file_uri;
+          $element['#attributes']['media'] = $item['media'];
+          $element['#browsers'] = $group['browsers'];
+          $elements[] = $element;
+        }
+        break;
     }
   }
 
@@ -2809,10 +3083,17 @@ function advagg_scan_filesystem_for_changes_live() {
   }
   $function_has_ran = TRUE;
 
-  // Scan for changes to any CSS/JS files.
-  if (!advagg_enabled() || variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) >= 0) {
+  $bypass_cookie = FALSE;
+  $cookie_name = 'AdvAggDisabled';
+  $key = drupal_hash_base64(drupal_get_private_key());
+  if (!empty($_COOKIE[$cookie_name]) && $_COOKIE[$cookie_name] == $key) {
+    $bypass_cookie = TRUE;
+  }
+  if ((!advagg_enabled() && !$bypass_cookie) || variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) >= 0) {
     return;
   }
+
+  // Scan for changes to any CSS/JS files.
   module_load_include('inc', 'advagg', 'advagg.cache');
   $flushed = advagg_push_new_changes();
 
@@ -2829,4 +3110,106 @@ function advagg_scan_filesystem_for_changes_live() {
       '%type' => $ext,
     )));
   }
+}
+
+/**
+ * Checks if the filename matches the advagg file pattern.
+ *
+ * @param string $filename
+ *   Path to check.
+ *
+ * @return int
+ *   Returns 1 if the pattern matches, 0 if it does not.
+ */
+function advagg_match_file_pattern($filename) {
+  return preg_match('/.*(j|cs)s' . ADVAGG_SPACE . '[A-Za-z0-9-_]{43}' . ADVAGG_SPACE . '[A-Za-z0-9-_]{43}' . ADVAGG_SPACE . '[A-Za-z0-9-_]{43}\.(j|cs)s$/', $filename);
+}
+
+/**
+ * Converts absolute paths to be self references.
+ *
+ * @param string $path
+ *   Path to check.
+ *
+ * @return string
+ *   The path.
+ */
+function advagg_convert_abs_to_rel($path) {
+  if (strpos($path, $GLOBALS['base_url']) === 0) {
+    $path = str_replace($GLOBALS['base_url'] . '/', $GLOBALS['base_path'], $path);
+  }
+  return $path;
+}
+
+/**
+ * Converts absolute paths to be protocol relative paths.
+ *
+ * @param string $path
+ *   Path to check.
+ *
+ * @return string
+ *   The path.
+ */
+function advagg_convert_abs_to_protocol($path) {
+  if (strpos($path, 'https://') === 0) {
+    $path = substr($path, 6);
+  }
+  elseif (strpos($path, 'http://') === 0) {
+    $path = substr($path, 5);
+  }
+  return $path;
+}
+
+/**
+ * Convert http:// to https://.
+ *
+ * @param string $path
+ *   Path to check.
+ *
+ * @return string
+ *   The path.
+ */
+function advagg_force_https_path($path) {
+  if (strpos($path, 'http://') === 0) {
+    $path = 'https://' . substr($path, 7);
+  }
+  return $path;
+}
+
+/**
+ * Wrapper around file_create_url() to do post-processing on the created url.
+ *
+ * @param string $file_uri
+ *   Path to check.
+ *
+ * @return string
+ *   The file uri.
+ */
+function advagg_file_create_url($path, $aggregate_settings = array()) {
+  $file_uri = file_create_url($path);
+  // Ideally convert to relative path.
+  if ((isset($aggregate_settings['variables']['advagg_convert_absolute_to_relative_path'])
+    && $aggregate_settings['variables']['advagg_convert_absolute_to_relative_path'])
+    || (!isset($aggregate_settings['variables']['advagg_convert_absolute_to_relative_path'])
+    && variable_get('advagg_convert_absolute_to_relative_path', ADVAGG_CONVERT_ABSOLUTE_TO_RELATIVE_PATH))
+    ) {
+    $file_uri = advagg_convert_abs_to_rel($file_uri);
+  }
+  // Next try protocol relative path.
+  if ((isset($aggregate_settings['variables']['advagg_convert_absolute_to_protocol_relative_path'])
+    && $aggregate_settings['variables']['advagg_convert_absolute_to_protocol_relative_path'])
+    || (!isset($aggregate_settings['variables']['advagg_convert_absolute_to_protocol_relative_path'])
+    && variable_get('advagg_convert_absolute_to_protocol_relative_path', ADVAGG_CONVERT_ABSOLUTE_TO_PROTOCOL_RELATIVE_PATH))
+    ) {
+    $file_uri = advagg_convert_abs_to_protocol($file_uri);
+  }
+  // Finally force https.
+  if ((isset($aggregate_settings['variables']['advagg_force_https_path'])
+    && $aggregate_settings['variables']['advagg_force_https_path'])
+    || (!isset($aggregate_settings['variables']['advagg_force_https_path'])
+    && variable_get('advagg_force_https_path', ADVAGG_FORCE_HTTPS_PATH))
+    ) {
+    $file_uri = advagg_force_https_path($file_uri);
+  }
+  return $file_uri;
 }

@@ -363,7 +363,7 @@ function advagg_htaccess_check_generate($files_to_save, $type, $force = FALSE) {
  */
 function advagg_get_hashes_from_filename($filename) {
   // Verify requested filename has the correct pattern.
-  if (!preg_match('/^(j|cs)s' . ADVAGG_SPACE . '[A-Za-z0-9-_]{43}' . ADVAGG_SPACE . '[A-Za-z0-9-_]{43}' . ADVAGG_SPACE . '[A-Za-z0-9-_]{43}\.(j|cs)s$/', $filename)) {
+  if (!advagg_match_file_pattern($filename)) {
     return t('Wrong pattern.');
   }
 
@@ -567,7 +567,10 @@ function advagg_get_css_aggregate_contents($files, $aggregate_settings) {
       $regexp = '/@import[^;]+;/i';
       preg_match_all($regexp, $contents, $matches);
       $contents = preg_replace($regexp, '', $contents);
-      $import_statements[] = array($last_media, $matches[0]);
+      // Add the import statements with the media query of the current file.
+      $import_media = isset($settings['media']) ? $settings['media'] : '';
+      $import_media = trim(str_replace('all', '', $import_media));
+      $import_statements[] = array($import_media, $matches[0]);
 
       // Close any open comment blocks.
       $contents .= '/**/';

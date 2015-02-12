@@ -158,24 +158,29 @@ function advagg_advagg_context_alter(&$original, $aggregate_settings, $mode) {
  * Used to make sure the info is up to date in the cache.
  */
 function advagg_advagg_get_info_on_files_alter(&$return, $cached_data, $bypass_cache) {
+  // Do nothing if the ie_css_selector_limiter is disabled.
   if (!variable_get('advagg_ie_css_selector_limiter', ADVAGG_IE_CSS_SELECTOR_LIMITER)) {
     return;
   }
   $limit_value = variable_get('advagg_ie_css_selector_limiter_value', ADVAGG_IE_CSS_SELECTOR_LIMITER_VALUE);
-  list($css_path, $js_path) = advagg_get_root_files_dir();
+
+  // Get the css path.
+  list($css_path) = advagg_get_root_files_dir();
   $parts_path = $css_path[1] . '/parts';
 
   foreach ($return as $filename => &$info) {
+    // Skip if not a css file.
     if (empty($info['fileext']) || $info['fileext'] !== 'css') {
       continue;
     }
 
-    // Break large file into multiple small files.
-    if ($info['linecount'] > $limit_value) {
-      advagg_split_css_file($info);
-    }
-    elseif (strpos($info['data'], $parts_path) === 0) {
+    // Check if this is a split css file.
+    if (strpos($info['data'], $parts_path) === 0) {
       $info['split'] = TRUE;
+    }
+    // Break large file into multiple small files if needed.
+    elseif ($info['linecount'] > $limit_value) {
+      advagg_split_css_file($info);
     }
   }
 }

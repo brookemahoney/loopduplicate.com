@@ -763,6 +763,7 @@ function advagg_split_css_file($file_info) {
   $parts = array();
   $overall_split = 0;
   $split_at = $selector_split_value;
+  $chunk_split_value = (int) variable_get('advagg_ie_css_selector_limiter_value', ADVAGG_IE_CSS_SELECTOR_LIMITER_VALUE) - $selector_split_value - 1;
   foreach ($major_chunks as $chunk_key => $chunks) {
     $last_chunk = FALSE;
     $file_info['split_last_part'] = FALSE;
@@ -831,13 +832,34 @@ function advagg_split_css_file($file_info) {
         --$split_at;
       }
 
-      // Combine parts of the so that it can be saved to disk.
+      // Combine parts of the css so that it can be saved to disk.
       foreach ($new_css_chunk as $key => $value) {
-        $string_to_write .= $value;
-        unset($new_css_chunk[$key]);
-        if ($key == $split_at) {
-          $overall_split = $split_at;
-          $split_at += $selector_split_value;
+        if ($key !== $split_at) {
+          // Move this css row to the $string_to_write variable.
+          $string_to_write .= $value;
+          unset($new_css_chunk[$key]);
+        }
+        // We are at the split point.
+        else {
+          // Get the number of selectors in this chunk.
+          $matched = array();
+          $chunk_selector_count = preg_match_all('/\{.+?\}|,/s', $new_css_chunk[$key], $matched);
+          if ($chunk_selector_count < $chunk_split_value) {
+            // The number of selectors at this point is below the threshold;
+            // move this chunk to the write variable and break out of the loop.
+            $string_to_write .= $value;
+            unset($new_css_chunk[$key]);
+            $overall_split = $split_at;
+            $split_at += $selector_split_value;
+          }
+          else {
+            // The number of selectors with this chunk included is over the
+            // threshold; do not move it. Change split position so the next
+            // iteration of the while loop ends at the correct spot. Because we
+            // skip unset here, this chunk will start the next part file.
+            $overall_split = $split_at;
+            $split_at += $selector_split_value - $chunk_selector_count;
+          }
           break;
         }
       }
@@ -916,6 +938,21 @@ function advagg_create_subfile($css, $overall_split, $file_info) {
   }
   // Write the current chunk of the CSS into a file.
   $new_filename = str_ireplace('.css', '.' . $overall_split . '.css', $uri_path);
+
+  // Fix for things like LESS which write dynamically to the public file system.
+  $scheme = file_uri_scheme($new_filename);
+  if ($scheme) {
+    $wrapper = file_stream_wrapper_get_instance_by_scheme($scheme);
+    if ($wrapper) {
+      // Use the wrappers directory path.
+      $new_filename = $wrapper->getDirectoryPath() . '/' . file_uri_target($new_filename);
+    }
+    else {
+      // If the scheme does not have a wrapper; prefix file with the scheme.
+      $new_filename = $scheme . '/' . file_uri_target($new_filename);
+    }
+  }
+
   $part_uri = $parts_uri . '/' . $new_filename;
   $dirname = drupal_dirname($part_uri);
   file_prepare_directory($dirname, FILE_CREATE_DIRECTORY);
@@ -1126,7 +1163,7 @@ function advagg_load_css_stylesheet($file, $optimize, $aggregate_settings = NULL
   if (count($url_parts) === 2) {
     $css_base_url = $url_parts[1];
   }
-  _advagg_build_css_path(NULL, $css_base_url . '/');
+  _advagg_build_css_path(NULL, $css_base_url . '/', $aggregate_settings);
 
   // Anchor all paths in the CSS with its base URL, ignoring external,
   // absolute paths, and urls that start with # (SVG).
@@ -1167,11 +1204,15 @@ function advagg_context_css($aggregate_settings, $mode) {
  * @see https://drupal.org/node/1961340#comment-7735815
  * @see https://drupal.org/node/1514182#comment-7875489
  */
-function _advagg_build_css_path($matches, $base = NULL) {
+function _advagg_build_css_path($matches, $base = NULL, $aggregate_settings = NULL) {
   $_base = &drupal_static(__FUNCTION__);
+  $_aggregate_settings = &drupal_static(__FUNCTION__ . '_aggregate_settings');
   // Store base path for preg_replace_callback.
   if (isset($base)) {
     $_base = $base;
+  }
+  if (isset($aggregate_settings)) {
+    $_aggregate_settings = $aggregate_settings;
   }
   // Short circuit if no matches were passed in.
   if (empty($matches)) {
@@ -1186,9 +1227,10 @@ function _advagg_build_css_path($matches, $base = NULL) {
     $path = preg_replace('`(^|/)(?!\.\./)([^/]+)/\.\./`', '$1', $path);
   }
 
-  $path = file_create_url($path);
+  $path = advagg_file_create_url($path, $_aggregate_settings);
   // Decoding path because some browsers can not handle encoded urls inside of
   // CSS. file_create_url() -> drupal_encode_path() -> rawurlencode().
   $path = rawurldecode($path);
+
   return 'url(' . $path . ')';
 }
