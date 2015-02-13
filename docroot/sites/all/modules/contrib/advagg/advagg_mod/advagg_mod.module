@@ -96,6 +96,13 @@ define('ADVAGG_MOD_JS_ASYNC', FALSE);
  */
 define('ADVAGG_MOD_JS_FOOTER_INLINE_ALTER', TRUE);
 
+/**
+ * Define values from the block module if it isn't enabled.
+ */
+if (!defined('BLOCK_VISIBILITY_NOTLISTED')) define('BLOCK_VISIBILITY_NOTLISTED', 0);
+if (!defined('BLOCK_VISIBILITY_LISTED')) define('BLOCK_VISIBILITY_LISTED', 1);
+if (!defined('BLOCK_VISIBILITY_PHP')) define('BLOCK_VISIBILITY_PHP', 2);
+
 // Core hook implementations.
 /**
  * Implements hook_init().

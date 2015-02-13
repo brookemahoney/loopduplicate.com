@@ -625,45 +625,83 @@ function advagg_generate_groups($files_to_aggregate) {
         // Check to see if media, browsers, defer, async, cache, or scope has
         // changed from the previous run of this loop.
         $changed = FALSE;
-        if (isset($file_info['media'])) {
-          if (variable_get('advagg_combine_css_media', ADVAGG_COMBINE_CSS_MEDIA)) {
-            $file_info['media_query'] = $file_info['media'];
+        $ext = isset($file_info['fileext']) ? $file_info['fileext'] : pathinfo($file_info['data'], PATHINFO_EXTENSION);
+        if ($ext === 'css') {
+          if (isset($file_info['media'])) {
+            if (variable_get('advagg_combine_css_media', ADVAGG_COMBINE_CSS_MEDIA)) {
+              $file_info['media_query'] = $file_info['media'];
+            }
+            elseif ($media != $file_info['media']) {
+              // Media changed.
+              $changed = TRUE;
+              $media = $file_info['media'];
+            }
           }
-          elseif ($media != $file_info['media']) {
+          if (empty($file_info['media']) && !empty($media)) {
+            // Media changed to empty.
             $changed = TRUE;
-            $media = $file_info['media'];
+            $media = '';
           }
         }
+
         if (isset($file_info['browsers'])) {
+          // Browsers changed.
           $diff = array_merge(array_diff_assoc($file_info['browsers'], $browsers), array_diff_assoc($browsers, $file_info['browsers']));
           if (!empty($diff)) {
             $changed = TRUE;
             $browsers = $file_info['browsers'];
           }
         }
+        if (empty($file_info['browsers']) && !empty($browsers)) {
+          // Browsers changed to empty.
+          $changed = TRUE;
+          $browsers = array();
+        }
+
         if (isset($file_info['defer']) && $defer != $file_info['defer']) {
+          // Defer value changed.
           $changed = TRUE;
           $defer = $file_info['defer'];
         }
+        if (!empty($defer) && empty($file_info['defer'])) {
+          // Defer value changed to empty.
+          $changed = TRUE;
+          $defer = '';
+        }
         if (isset($file_info['async']) && $async != $file_info['async']) {
+          // Async value changed.
           $changed = TRUE;
           $async = $file_info['async'];
         }
+        if (!empty($async) && empty($file_info['async'])) {
+          // Async value changed to empty.
+          $changed = TRUE;
+          $async = '';
+        }
         if (isset($file_info['cache']) && $cache != $file_info['cache']) {
+          // Cache value changed.
           $changed = TRUE;
           $cache = $file_info['cache'];
         }
+        if (!empty($cache) && empty($file_info['cache'])) {
+          // Cache value changed to empty.
+          $changed = TRUE;
+          $cache = '';
+        }
         if (isset($file_info['scope']) && $scope != $file_info['scope']) {
+          // Scope value changed.
           $changed = TRUE;
           $scope = $file_info['scope'];
         }
-        if (isset($file_info['onload'])) {
-          $onload[] = trim(rtrim($file_info['onload'], ';'));
+        if (!empty($scope) && empty($file_info['scope'])) {
+          // Scope value changed to empty.
+          $changed = TRUE;
+          $scope = '';
         }
+
         if (variable_get('advagg_ie_css_selector_limiter', ADVAGG_IE_CSS_SELECTOR_LIMITER)) {
           $file_info += $files_info[$file_info['data']];
           // Prevent CSS rules exceeding 4095 due to limits with IE9 and below.
-          $ext = isset($file_info['fileext']) ? $file_info['fileext'] : pathinfo($file_info['data'], PATHINFO_EXTENSION);
           if ($ext === 'css') {
             $selector_count += $file_info['linecount'];
             if ($selector_count > $limit_value) {
@@ -678,16 +716,34 @@ function advagg_generate_groups($files_to_aggregate) {
           }
         }
 
+        // Handle onload.
+        if ($changed) {
+          $onload = array_filter(array_unique($onload));
+          if (!empty($onload)) {
+            end($groups[$location][$count]);
+            $key = key($groups[$location][$count]);
+            $groups[$location][$count][$key]['onload'] = implode(';', $onload) . ';';
+          }
+          $onload = array();
+        }
+        if (isset($file_info['onload'])) {
+          $onload[] = trim(rtrim($file_info['onload'], ';'));
+          unset($file_info['onload']);
+        }
+
         // If one of the above options changed, it needs to be in a different
         // aggregate.
         if (!empty($parts)) {
-          $onload_local = array_filter(array_unique($onload));
           foreach ($parts as $part) {
             ++$count;
             $groups[$location][$count][] = $part;
-            if (!empty($onload_local)) {
-              $groups[$location][$count][0]['onload'] = implode(';', $onload) . ';';
-            }
+          }
+          // Put onload on the last segment of the split file.
+          $onload_local = array_filter(array_unique($onload));
+          if (!empty($onload_local)) {
+            end($groups[$location][$count]);
+            $key = key($groups[$location][$count]);
+            $groups[$location][$count][$key]['onload'] = implode(';', $onload_local) . ';';
           }
         }
         else {
@@ -699,12 +755,15 @@ function advagg_generate_groups($files_to_aggregate) {
       }
       $onload = array_filter(array_unique($onload));
       if (!empty($onload)) {
-        $groups[$location][$count][0]['onload'] = implode(';', $onload) . ';';
+        end($groups[$location][$count]);
+        $key = key($groups[$location][$count]);
+        $groups[$location][$count][$key]['onload'] = implode(';', $onload) . ';';
       }
     }
     // Grouping if inline is mixed between files.
     ++$location;
   }
+
   return $groups;
 }
 
@@ -1040,6 +1099,7 @@ function advagg_build_aggregate_plans($files_to_aggregate, $type) {
     }
 
     $first = reset($values['files']);
+    $last = end($values['files']);
     if (!empty($mixed_media)) {
       $first['media'] = 'all';
     }
@@ -1050,7 +1110,7 @@ function advagg_build_aggregate_plans($files_to_aggregate, $type) {
       'media' => isset($first['media']) ? $first['media'] : '',
       'defer' => isset($first['defer']) ? $first['defer'] : '',
       'async' => isset($first['async']) ? $first['async'] : '',
-      'onload' => isset($first['onload']) ? $first['onload'] : '',
+      'onload' => isset($last['onload']) ? $last['onload'] : '',
       'browsers' => isset($first['browsers']) ? $first['browsers'] : array(),
       'cache' => isset($first['cache']) ? $first['cache'] : TRUE,
       'type' => $first['type'],

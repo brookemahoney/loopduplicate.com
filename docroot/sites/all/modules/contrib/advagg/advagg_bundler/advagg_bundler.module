@@ -163,17 +163,19 @@ function advagg_bundler_analysis($filename = '', $force = FALSE) {
       // old site structure from influencing new bundles.
       // Grouping by the filename gives us the count and makes it so we don't
       // return a lot of rows;
-      // @ignore sniffer_commenting_inlinecomment_spacingafter
-
-
-
+      $db_type = Database::getConnection()->databaseType();
 
       // Create join query for the advagg_aggregates table.
       $subquery_aggregates = db_select('advagg_aggregates', 'aa');
-      $subquery_aggregates->addExpression("LPAD(CAST(COUNT(aav.aggregate_filenames_hash) AS char(8)), 8, '0')", 'counter');
+      if ($db_type === 'sqlsrv') {
+        // MS SQL does not support LPAD.
+        $subquery_aggregates->addExpression("RIGHT(REPLICATE('0',8) + CAST(COUNT(aav.aggregate_filenames_hash) AS char(8)),8)", 'counter');
+      }
+      else {
+        $subquery_aggregates->addExpression("LPAD(CAST(COUNT(aav.aggregate_filenames_hash) AS char(8)), 8, '0')", 'counter');
+      }
 
       $fields = array('counter');
-      $db_type = Database::getConnection()->databaseType();
       if ($db_type === 'mysql') {
         db_query('SET SESSION group_concat_max_len = 65535');
         $fields = array('counter', 'hashlist');

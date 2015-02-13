@@ -688,19 +688,34 @@ function advagg_js_alter(&$js) {
       continue;
     }
 
-    // If type is external but doesn't start with http or // change it to file.
-    if ($value['type'] === 'external' && stripos($value['data'], 'http://') !== 0 && stripos($value['data'], 'https://') !== 0 && stripos($value['data'], '//') !== 0) {
+    // If type is external but doesn't start with http, https, or // change it
+    // to file.
+    if ( $value['type'] === 'external'
+      && stripos($value['data'], 'http://') !== 0
+      && stripos($value['data'], 'https://') !== 0
+      && stripos($value['data'], '//') !== 0
+      ) {
       $value['type'] = 'file';
     }
 
-    // If type is file but it starts with http or // change it to external.
-    if ((stripos($value['data'], 'http://') === 0 || stripos($value['data'], 'https://') === 0 || stripos($value['data'], '//') === 0) && $value['type'] === 'file') {
+    // If type is file but it starts with http, https, or // change it to
+    // external.
+    if ( $value['type'] === 'file'
+      && (stripos($value['data'], 'http://') === 0
+      || stripos($value['data'], 'https://') === 0
+      || (stripos($value['data'], '//') === 0 && stripos($value['data'], '///') === FALSE))
+      ) {
       $value['type'] = 'external';
     }
 
-    // If type is external & starts with http or // but points to this host
-    // change it to file, but move it to the top of the aggregation stack.
-    if ($value['type'] === 'external' && stripos($value['data'], $mod_base_url) !== FALSE && (stripos($value['data'], 'http://') === 0 || stripos($value['data'], 'https://') === 0 || stripos($value['data'], '//') === 0)) {
+    // If type is external & starts with http, https, or // but points to this
+    // host change it to file, but move it to the top of the aggregation stack.
+    if ( $value['type'] === 'external'
+      && stripos($value['data'], $mod_base_url) !== FALSE
+      && (stripos($value['data'], 'http://') === 0
+      || stripos($value['data'], 'https://') === 0
+      || stripos($value['data'], '//') === 0)
+      ) {
       $value['type'] = 'file';
       $value['group'] = JS_LIBRARY;
       $value['every_page'] = TRUE;
@@ -724,13 +739,23 @@ function advagg_css_alter(&$css) {
       continue;
     }
 
-    // If type is external but doesn't start with http or // change it to file.
-    if ($value['type'] === 'external' && stripos($value['data'], 'http://') !== 0 && stripos($value['data'], 'https://') !== 0 && stripos($value['data'], '//') !== 0) {
+    // If type is external but doesn't start with http, https, or // change it
+    // to file.
+    if ( $value['type'] === 'external'
+      && stripos($value['data'], 'http://') !== 0
+      && stripos($value['data'], 'https://') !== 0
+      && stripos($value['data'], '//') !== 0
+      ) {
       $value['type'] = 'file';
     }
 
-    // If type is file but it starts with http or // change it to external.
-    if ((stripos($value['data'], 'http://') === 0 || stripos($value['data'], 'https://') === 0 || stripos($value['data'], '//') === 0) && $value['type'] === 'file') {
+    // If type is file but it starts with http, https, or // change it to
+    // external.
+    if ( $value['type'] === 'file'
+      && (stripos($value['data'], 'http://') === 0
+      || stripos($value['data'], 'https://') === 0
+      || (stripos($value['data'], '//') === 0 && stripos($value['data'], '///') === FALSE))
+      ) {
       $value['type'] = 'external';
     }
   }
