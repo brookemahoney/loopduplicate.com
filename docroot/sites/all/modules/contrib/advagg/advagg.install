@@ -748,7 +748,9 @@ $base_url = str_replace("http://", "https://", $base_url);
     if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) < 3) {
       $aggressive_cache_conflicts = advagg_aggressive_cache_conflicts();
       if (empty($aggressive_cache_conflicts)) {
-        $description .= ' ' . $t('It appears that there are no incompatible modules, so you should be able to safely use the Aggressive cache.');
+        $description .= ' ' . $t('It appears that there are no incompatible modules, so you should be able to safely use the Aggressive cache. To adjust this setting, go to the <a href="@config">AdvAgg: configuration page</a> and under "AdvAgg Cache Settings" select Aggressive and then save.', array(
+          '@config' => url('admin/config/development/performance/advagg', array('fragment' => 'edit-advagg-cache-level')),
+        ));
       }
     }
 
@@ -819,7 +821,12 @@ function advagg_install_check_via_http(&$requirements) {
             'title' => $t('Adv CSS/JS Agg - Self Request Failure'),
             'severity' => REQUIREMENT_ERROR,
             'value' => $t('HTTP loopback requests to this server are returning a non positive response code of %code', array('%code' => $new_request->code)),
-            'description' => $t('If you have manually verified that AdvAgg is working correctly you can set the advagg_skip_404_check variable to TRUE in your settings.php. Editing the servers hosts file so the host name points to the localhost might also fix this (127.0.0.1 !hostname).', array('!hostname' => $_SERVER['HTTP_HOST'])) . ' ' . $description,
+            'description' => $t('If you have manually verified that AdvAgg is working correctly you can set the advagg_skip_404_check variable to TRUE in your settings.php. Editing the servers hosts file so the host name points to the localhost might also fix this (127.0.0.1 !hostname). To manually check go to <a href="@url">@url</a>, view the source and check for this string <code>@string</code>. If that string is in the source, you can safely add this to your settings.php file <code>@code</code>', array(
+              '!hostname' => $_SERVER['HTTP_HOST'],
+              '@url' => $url,
+              '@string' => '<!-- advagg_missing_fast404 -->',
+              '@code' => '$conf[\'advagg_skip_404_check\'] = TRUE;',
+            )) . ' ' . $description,
           );
           // Skip the rest of the advagg checks as they will all fail.
           $types = array();

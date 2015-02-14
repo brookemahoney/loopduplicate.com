@@ -357,7 +357,7 @@ function advagg_mod_admin_test_css_files() {
       continue;
     }
     // Load CSS file.
-    $file_contents = drupal_load_stylesheet_content(file_get_contents($filename), TRUE);
+    $file_contents = advagg_drupal_load_stylesheet_content(file_get_contents($filename), TRUE);
 
     // Code taken from drupal_load_stylesheet_content().
     // Regexp to match double quoted strings.

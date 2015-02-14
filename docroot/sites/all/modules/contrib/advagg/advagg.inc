@@ -1212,7 +1212,7 @@ function advagg_load_css_stylesheet($file, $optimize, $aggregate_settings = NULL
   advagg_context_css($aggregate_settings, 0);
 
   // Get the stylesheets contents.
-  $contents = drupal_load_stylesheet($file, $optimize);
+  $contents = advagg_load_stylesheet($file, $optimize);
 
   // Get the parent directory of this file, relative to the Drupal root.
   $css_base_url = substr($file, 0, strrpos($file, '/'));
@@ -1227,7 +1227,7 @@ function advagg_load_css_stylesheet($file, $optimize, $aggregate_settings = NULL
 
   // Anchor all paths in the CSS with its base URL, ignoring external,
   // absolute paths, and urls that start with # (SVG).
-  $contents = preg_replace_callback('/url\(\s*[\'"]?(?![a-z]+:|\/+|\#+)([^\'")]+)[\'"]?\s*\)/i', '_advagg_build_css_path', $contents);
+  $contents = preg_replace_callback('%url\(\s*+[\'"]?+(?![a-z]++:|/|\#+)([^\'"()\s]++)[\'"]?+\s*+\)%i', '_advagg_build_css_path', $contents);
 
   // Change context back.
   advagg_context_css($aggregate_settings, 1);

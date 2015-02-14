@@ -666,7 +666,7 @@ function advagg_ajax_render_alter(&$commands) {
     $commands = array_merge($extra_commands, $commands);
   }
   if (!empty($settings)) {
-    array_unshift($commands, ajax_command_settings(call_user_func_array('array_merge_recursive', $settings['data']), TRUE));
+    array_unshift($commands, ajax_command_settings(drupal_array_merge_deep_array($settings['data']), TRUE));
   }
 }
 
@@ -956,7 +956,7 @@ function _advagg_aggregate_css(&$css_groups) {
         ++$gap_counter;
         $css_groups[$key]['data'] = '';
         foreach ($group['items'] as $item) {
-          $css_groups[$key]['data'] .= drupal_load_stylesheet_content($item['data'], $item['preprocess']);
+          $css_groups[$key]['data'] .= advagg_load_stylesheet_content($item['data'], $item['preprocess']);
         }
         break;
 
@@ -1357,7 +1357,7 @@ function advagg_get_css($css = NULL, $skip_alter = FALSE) {
   }
 
   // Sort CSS items, so that they appear in the correct order.
-  uasort($css, 'drupal_sort_css_js');
+  advagg_drupal_sort_css_js_stable($css);
 
   // Provide the page with information about the individual CSS files used,
   // information not otherwise available when CSS aggregation is enabled. The
@@ -1494,12 +1494,7 @@ function advagg_get_js($scope = 'header', $javascript = NULL, $skip_alter = FALS
   }
 
   // Sort the JavaScript so that it appears in the correct order.
-  if (is_callable('drupal_sort_css_js')) {
-    uasort($items, 'drupal_sort_css_js');
-  }
-  else {
-    advagg_drupal_sort_css_js_stable($items);
-  }
+  advagg_drupal_sort_css_js_stable($items);
 
   // Set the js_in_footer variable.
   // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace:2
@@ -2639,8 +2634,9 @@ function advagg_pre_render_styles($elements) {
   // For inline CSS to validate as XHTML, all CSS containing XHTML needs to be
   // wrapped in CDATA. To make that backwards compatible with HTML 4, we need to
   // comment out the CDATA-tag.
-  $embed_prefix = "\n<!--/*--><![CDATA[/*><!--*/\n";
-  $embed_suffix = "\n/*]]>*/-->\n";
+  // @see https://www.drupal.org/node/1021622
+  $embed_prefix = "\n/* <![CDATA[ */\n";
+  $embed_suffix = "\n/* ]]> */\n";
 
   // Defaults for LINK and STYLE elements.
   $link_element_defaults = array(
@@ -3237,4 +3233,155 @@ function advagg_file_create_url($path, $aggregate_settings = array()) {
     $file_uri = advagg_force_https_path($file_uri);
   }
   return $file_uri;
+}
+
+
+/**
+ * Loads the stylesheet and resolves all @import commands.
+ *
+ * Loads a stylesheet and replaces @import commands with the contents of the
+ * imported file. Use this instead of file_get_contents when processing
+ * stylesheets.
+ *
+ * The returned contents are compressed removing white space and comments only
+ * when CSS aggregation is enabled. This optimization will not apply for
+ * color.module enabled themes with CSS aggregation turned off.
+ *
+ * @param $file
+ *   Name of the stylesheet to be processed.
+ * @param $optimize
+ *   Defines if CSS contents should be compressed or not.
+ * @param $reset_basepath
+ *   Used internally to facilitate recursive resolution of @import commands.
+ *
+ * @return
+ *   Contents of the stylesheet, including any resolved @import commands.3
+ *
+ * @see drupal_load_stylesheet()
+ */
+function advagg_load_stylesheet($file, $optimize = NULL, $reset_basepath = TRUE) {
+  // These statics are not cache variables, so we don't use drupal_static().
+  static $_optimize, $basepath;
+  if ($reset_basepath) {
+    $basepath = '';
+  }
+  // Store the value of $optimize for preg_replace_callback with nested
+  // @import loops.
+  if (isset($optimize)) {
+    $_optimize = $optimize;
+  }
+
+  // Stylesheets are relative one to each other. Start by adding a base path
+  // prefix provided by the parent stylesheet (if necessary).
+  if ($basepath && !file_uri_scheme($file)) {
+    $file = $basepath . '/' . $file;
+  }
+  // Store the parent base path to restore it later.
+  $parent_base_path = $basepath;
+  // Set the current base path to process possible child imports.
+  $basepath = dirname($file);
+
+  // Load the CSS stylesheet. We suppress errors because themes may specify
+  // stylesheets in their .info file that don't exist in the theme's path,
+  // but are merely there to disable certain module CSS files.
+  $content = '';
+  if ($contents = @file_get_contents($file)) {
+    // Return the processed stylesheet.
+    $content = advagg_load_stylesheet_content($contents, $_optimize);
+  }
+
+  // Restore the parent base path as the file and its childen are processed.
+  $basepath = $parent_base_path;
+  return $content;
+}
+
+/**
+ * Processes the contents of a stylesheet for aggregation.
+ *
+ * @param $contents
+ *   The contents of the stylesheet.
+ * @param $optimize
+ *   (optional) Boolean whether CSS contents should be minified. Defaults to
+ *   FALSE.
+ *
+ * @return
+ *   Contents of the stylesheet including the imported stylesheets.
+ *
+ * @see drupal_load_stylesheet_content()
+ */
+function advagg_load_stylesheet_content($contents, $optimize = FALSE) {
+  // Remove multiple charset declarations for standards compliance (and fixing Safari problems).
+  $contents = preg_replace('/^@charset\s+[\'"](\S*?)\b[\'"];/i', '', $contents);
+
+  if ($optimize) {
+    // Perform some safe CSS optimizations.
+    // Regexp to match comment blocks.
+    $comment     = '/\*[^*]*\*+(?:[^/*][^*]*\*+)*/';
+    // Regexp to match double quoted strings.
+    $double_quot = '"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"';
+    // Regexp to match single quoted strings.
+    $single_quot = "'[^'\\\\]*(?:\\\\.[^'\\\\]*)*'";
+    // Strip all comment blocks, but keep double/single quoted strings.
+    $contents = preg_replace(
+      "<($double_quot|$single_quot)|$comment>Ss",
+      "$1",
+      $contents
+    );
+    // Remove certain whitespace.
+    // There are different conditions for removing leading and trailing
+    // whitespace.
+    // @see http://php.net/manual/regexp.reference.subpatterns.php
+    $contents = preg_replace('<
+      # Do not strip any space from within single or double quotes
+      ('.$double_quot.'|'.$single_quot.')
+      # Strip leading and trailing whitespace.
+      | \s*([@{};,])\s*
+      # Strip only leading whitespace from:
+      # - Closing parenthesis: Retain "@media (bar) and foo".
+      | \s+([\)])
+      # Strip only trailing whitespace from:
+      # - Opening parenthesis: Retain "@media (bar) and foo".
+      # - Colon: Retain :pseudo-selectors.
+      | ([\(:])\s+
+    >xS',
+      // Only one of the three capturing groups will match, so its reference
+      // will contain the wanted value and the references for the
+      // two non-matching groups will be replaced with empty strings.
+      '$1$2$3$4',
+      $contents
+    );
+    // End the file with a new line.
+    $contents = trim($contents);
+    $contents .= "\n";
+  }
+
+  // Replaces @import commands with the actual stylesheet content.
+  // This happens recursively but omits external files.
+  $contents = preg_replace_callback('%@import\s*+(?:url\(\s*+)?+[\'"]?+(?![a-z]++:|/)([^\'"()\s]++)[\'"]?+\s*+\)?+\s*+;%i', '_advagg_load_stylesheet', $contents);
+  return $contents;
+}
+
+/**
+ * Loads stylesheets recursively and returns contents with corrected paths.
+ *
+ * This function is used for recursive loading of stylesheets and
+ * returns the stylesheet content with all url() paths corrected.
+ *
+ * @see _drupal_load_stylesheet()
+ */
+function _advagg_load_stylesheet($matches) {
+  $filename = $matches[1];
+  // Load the imported stylesheet and replace @import commands in there as well.
+  $file = advagg_load_stylesheet($filename, NULL, FALSE);
+
+  // Determine the file's directory.
+  $directory = dirname($filename);
+  // If the file is in the current directory, make sure '.' doesn't appear in
+  // the url() path.
+  $directory = $directory == '.' ? '' : $directory .'/';
+
+  // Alter all internal url() paths. Leave external paths alone. We don't need
+  // to normalize absolute paths here (i.e. remove folder/... segments) because
+  // that will be done later.
+  return preg_replace('%url\(\s*+([\'"]?+)(?![a-z]++:|/)([^\'")]+)([\'"]?+)\s*\)%i', 'url(\1' . $directory . '\2\3)', $file);
 }
