@@ -27,6 +27,10 @@ default | Given I am an anonymous user
 default | Given I am not logged in
 ```
 
+To run the tests, type:
+
+`bin/behat`
+
 ## System Requirements
 
 ### Check PHP version
