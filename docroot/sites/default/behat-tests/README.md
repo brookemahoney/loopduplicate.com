@@ -61,6 +61,8 @@ It doesn’t necessarily matter what version, but it will be required for Seleni
 Download the latest version of Selenium Server It’s under the heading Selenium Server (formerly the
 Selenium RC Server). This is a single file which can be placed any where you like on your system and
 run with the following command:
-java -jar selenium-server-standalone-2.44.0.jar
-// replace with the name of the version you downloaded
+
+`java -jar selenium-server-standalone-2.44.0.jar`
+
+(replace with the name of the version you downloaded)
 
