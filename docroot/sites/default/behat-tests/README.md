@@ -2,24 +2,29 @@
 
 Verify System Requirements, which are specified at the bottom of this file.
 
-Set the BEHAT_PARAMS environment variables for devlocal.loopduplicate.com (See behat.local.sh)
+Set the BEHAT_PARAMS environment variables for your local site's name. See behat.local.sh for an example.
 
 Start the local Selenium server (See System Requirements)
 
 All the commands that follow are written to install from the root of your project folder.
 
 If you do not have composer installed globally, download a local copy by using:
-curl -s https://getcomposer.org/installer | php
+
+`curl -s https://getcomposer.org/installer | php`
 
 Install the Drupal Extension and its dependencies; this takes a while before you start to see output:
-php composer.phar install
+
+`php composer.phar install`
 
 To ensure everything is set up appropriately, type:
-bin/behat -dl
+
+`bin/behat -dl`
 
 You’ll see a list of steps like the following, but longer, if you’ve installed everything successfully:
+```
 default | Given I am an anonymous user
 default | Given I am not logged in
+```
 
 ## System Requirements
 
