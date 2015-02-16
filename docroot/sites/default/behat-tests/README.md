@@ -2,7 +2,8 @@
 
 Verify System Requirements, which are specified at the bottom of this file.
 
-Set the BEHAT_PARAMS environment variables for your local site's name. See behat.local.sh for an example.
+Set the BEHAT_PARAMS environment variables to match your local site's
+configuration. See behat.local.sh for an example.
 
 Start the local Selenium server (See System Requirements)
 
