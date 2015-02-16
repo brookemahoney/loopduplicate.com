@@ -7,7 +7,7 @@ configuration. See behat.local.sh for an example.
 
 Start the local Selenium server (See System Requirements)
 
-All the commands that follow are written to install from the root of your project folder.
+*All the commands that follow are written to install from the root of your project folder.*
 
 If you do not have composer installed globally, download a local copy by using:
 
