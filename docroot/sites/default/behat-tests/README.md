@@ -46,17 +46,17 @@ Check your current modules by running:
 
 `php -m`
 
-## Check for Java:
+### Check for Java:
 
 `java -version`
 
 It doesn’t necessarily matter what version, but it will be required for Selenium.
 
-## Check for cURL:
+### Check for cURL:
 
 `curl --version`
 
-## Selenium
+### Selenium
 
 Download the latest version of Selenium Server It’s under the heading Selenium Server (formerly the
 Selenium RC Server). This is a single file which can be placed any where you like on your system and
