@@ -7,7 +7,7 @@ configuration. See behat.local.sh for an example.
 
 Start the local Selenium server (See System Requirements)
 
-*All the commands that follow are written to install from the root of your project folder.*
+**All the commands that follow are written to install from the root of your project folder.**
 
 If you do not have composer installed globally, download a local copy by using:
 
@@ -29,25 +29,35 @@ default | Given I am not logged in
 
 ## System Requirements
 
-1. Check your PHP version:
-php --version
+### Check PHP version
+
+`php --version`
+
 It must be higher than 5.3.5! Note: This means you cannot use the same version of PHP for testing that you
 might use to run a Drupal 5 site.
-PHP will also need to have the following libraries installed:
-• curl
-• mbstring
-• xml
-Check your current modules by running:
-php -m
 
-2. Check for Java:
-java -version
+PHP will also need to have the following libraries installed:
+
+* curl
+* mbstring
+* xml
+
+Check your current modules by running:
+
+`php -m`
+
+## Check for Java:
+
+`java -version`
+
 It doesn’t necessarily matter what version, but it will be required for Selenium.
 
-3. Directions are written to use command-line cURL. You can make sure it’s installed with:
-curl --version
+## Check for cURL:
 
-4. Selenium
+`curl --version`
+
+## Selenium
+
 Download the latest version of Selenium Server It’s under the heading Selenium Server (formerly the
 Selenium RC Server). This is a single file which can be placed any where you like on your system and
 run with the following command:
