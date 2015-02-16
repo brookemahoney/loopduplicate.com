@@ -1,0 +1,22 @@
+default:
+  suites:
+    default:
+      contexts:
+        - FeatureContext
+        - Drupal\DrupalExtension\Context\DrupalContext
+        - Drupal\DrupalExtension\Context\MinkContext
+        - Drupal\DrupalExtension\Context\MarkupContext
+        - Drupal\DrupalExtension\Context\MessageContext
+        - Drupal\DrupalExtension\Context\DrushContext
+  extensions:
+    Behat\MinkExtension:
+      goutte: ~
+      selenium2: ~
+      # base_url: http://devlocal.loopduplicate.com
+    Drupal\DrupalExtension:
+      blackbox: ~
+      api_driver: drupal
+      drush:
+        # alias: ’devlocal.loopduplicate.com’
+      drupal:
+        # drupal_root: /Applications/MAMP/htdocs/loopduplicate/docroot
