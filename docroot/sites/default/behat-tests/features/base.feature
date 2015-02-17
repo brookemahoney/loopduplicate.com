@@ -1,4 +1,4 @@
-Feature: Home
+Feature: Base
   To make sure the site's basic functionality is working
   As any user
   I should be able to browse around and see particular text
