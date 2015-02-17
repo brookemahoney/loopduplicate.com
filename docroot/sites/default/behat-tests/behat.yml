@@ -18,5 +18,8 @@ default:
       api_driver: drupal
       drush:
         # alias: ’devlocal.loopduplicate.com’
+        # '--strict=0' is needed for Pantheon.
+        # See https://github.com/jhedstrom/drupalextension/issues/88
+        global_options: '--strict=0'
       drupal:
         # drupal_root: /Applications/MAMP/htdocs/loopduplicate/docroot
