@@ -1,5 +1,5 @@
 Feature: Status
-  To make sure the site's basic basic status is OK
+  To make sure the site's basic status is OK
   As an administrator
   I should be able to visit the status report and have no warnings.
 
