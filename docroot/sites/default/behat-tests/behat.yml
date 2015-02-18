@@ -2,8 +2,7 @@ default:
   suites:
     default:
       contexts:
-        - FeatureContext
-        - Drupal\DrupalExtension\Context\DrupalContext
+        - LoopDrupalContext
         - Drupal\DrupalExtension\Context\MinkContext
         - Drupal\DrupalExtension\Context\MarkupContext
         - Drupal\DrupalExtension\Context\MessageContext

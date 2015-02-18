@@ -36,7 +36,7 @@ dependencies[] = loopd_perms
 dependencies[] = loopd_search
 dependencies[] = loopd_taxonomy
 dependencies[] = loopd_user
-;dependencies[] = loopd_utils
+dependencies[] = loopd_utils
 dependencies[] = loopd_wysiwyg
 
 ;

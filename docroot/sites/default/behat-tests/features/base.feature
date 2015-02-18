@@ -6,14 +6,17 @@ Feature: Base
   Background:
     Given I am on the homepage
 
-  @javascript
   Scenario: Some common links and text should exist
     Then I should see the link "LoopDuplicate"
     And I should see the link "Fork Me"
-    And I should see text matching "Show/Hide Filters"
-    And I click "last »"
-    Then I should see the link "« first"
-    And I click "PHP Date and Time"
-    Then I should see text matching "PHP Date and Time"
-    And I click "General"
-    Then I should see the link "(-) "
+    Then I click "last »"
+    And I should see the link "« first"
+    Then I click "PHP Date and Time"
+    And I should see text matching "PHP Date and Time"
+    Then I click "General"
+    And I should see the link "(-) "
+
+  @javascript
+  Scenario: Javascript should add particular elements to the DOM
+    Then I should see text matching "Show/Hide Filters"
+
