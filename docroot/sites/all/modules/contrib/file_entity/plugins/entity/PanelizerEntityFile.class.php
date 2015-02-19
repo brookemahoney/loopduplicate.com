@@ -22,7 +22,7 @@ class PanelizerEntityFile extends PanelizerEntityDefault {
    * Implement the save function for the entity.
    */
   public function entity_save($entity) {
-    file_save($file);
+    file_save($entity);
   }
 
   /**
