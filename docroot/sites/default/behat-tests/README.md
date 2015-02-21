@@ -2,12 +2,9 @@
 
 ## To run the tests
 
-Start the local Selenium server (See System Requirements):
+Start Phantom.js (See System Requirements):
 
-```
-cd ~/Servers/selenium-server-standalone-2.44.0/
-java -jar selenium-server-standalone-2.44.0.jar
-```
+`phantomjs --webdriver=8643`
 
 Set local environment variables (or alternatively, modify behat.yml):
 
@@ -70,12 +67,14 @@ Check that Java and cURL are installed, versions don't necessarily matter.
 
 `curl --version`
 
-### Selenium
+### PhantomJS
 
-Download the latest version of Selenium Server,
-http://www.seleniumhq.org/download/. It’s under the heading Selenium Server
-(formerly the Selenium RC Server). This is a single file which can be placed in
-any directory and run with the following command (replace with the name of the
-version that was downloaded):
+#### Linux
+sudo apt-get update
+sudo apt-get install build-essential chrpath libssl-dev libxft-dev
+sudo apt-get install libfreetype6 libfreetype6-dev
+sudo apt-get install libfontconfig1 libfontconfig1-dev
+sudo apt-get install phantomjs
 
-`java -jar selenium-server-standalone-2.44.0.jar`
+#### Mac with brew
+brew update && brew install phantomjs

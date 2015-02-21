@@ -10,8 +10,9 @@ default:
   extensions:
     Behat\MinkExtension:
       goutte: ~
-      selenium2: ~
-      # base_url: http://devlocal.loopduplicate.com
+      selenium2:
+        wd_host: "http://localhost:8643/wd/hub"
+        # base_url: http://devlocal.loopduplicate.com
     Drupal\DrupalExtension:
       blackbox: ~
       api_driver: drupal
