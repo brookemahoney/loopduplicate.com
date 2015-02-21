@@ -32,26 +32,23 @@ bin/behat
 
 ## First time setup
 
-Verify the System Requirements specified at the bottom of this file.
+### PHP
 
-
-## System Requirements
-
-### Check that PHP's version is greater than 5.3.5:
+Check that PHP's version is greater than 5.3.5:
 
 ```shell
 php --version
 ```
 
-### Check that the curl, mbstring, and xml PHP libraries are installed:
+Check that the curl, mbstring, and xml PHP libraries are installed:
 
 ```shell
 php -m
 ```
 
-### Install PhantomJS
+### PhantomJS
 
-#### Linux
+Linux:
 
 ```shell
 sudo apt-get update
@@ -61,15 +58,15 @@ sudo apt-get install libfontconfig1 libfontconfig1-dev
 sudo apt-get install phantomjs
 ```
 
-#### Mac with brew
+Mac with brew:
 
 ```shell
 brew update && brew install phantomjs
 ```
 
-### Run set commands from the behat test folder.
+### Run  commands from the behat test folder.
 
-The rest of the steps must be run from the test folder:
+The rest of the setup steps must be run from the test folder:
  
 ```bash
 cd /Applications/MAMP/htdocs/loopduplicate/docroot/sites/default/behat-tests
