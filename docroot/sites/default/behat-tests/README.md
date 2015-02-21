@@ -64,10 +64,8 @@ Mac with brew:
 brew update && brew install phantomjs
 ```
 
-### Run  commands from the behat test folder.
+### The rest of the setup steps must be run from the test folder.
 
-The rest of the setup steps must be run from the test folder:
- 
 ```bash
 cd /Applications/MAMP/htdocs/loopduplicate/docroot/sites/default/behat-tests
 ```
