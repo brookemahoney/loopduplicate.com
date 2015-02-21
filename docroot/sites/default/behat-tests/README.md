@@ -93,7 +93,7 @@ php composer.phar install
 bin/behat -dl
 ```
 
-You should a list like this but longer:
+You should see a list like this but longer:
 
 ```behat
 default | Given I am an anonymous user
