@@ -1,26 +1,28 @@
 # Instructions for running Behat tests for loopduplicate.com.
 
-## To run the tests
-
-Start Phantom.js (See System Requirements):
-
-`phantomjs --webdriver=8643`
-
-Set local environment variables (or alternatively, modify behat.yml):
-
-`source behat.local.sh`
-
-Run tests:
-
-`bin/behat`
-
 ## Helpful bash aliases
 
 Paste into ~/.bash_profile:
 ```
+# Changes to the test directory and runs commands in behat.local.sh.
 alias loopduplicatebehatprepare='cd /Applications/MAMP/htdocs/loopduplicate/docroot/sites/default/behat-tests && source behat.local.sh'
+# Starts PhantomJS.
 alias phantomstart='phantomjs --webdriver=8643'
 ```
+
+## To run the tests
+
+Start Phantom:
+
+`phantomstart`
+
+Prepare Behat:
+
+`loopduplicatebehatprepare`
+
+Run tests:
+
+`bin/behat`
 
 ## First time setup
 
