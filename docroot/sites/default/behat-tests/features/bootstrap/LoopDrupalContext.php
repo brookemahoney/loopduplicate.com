@@ -38,4 +38,11 @@ class LoopDrupalContext extends DrupalContext implements SnippetAcceptingContext
     return is_null($element) ? FALSE : TRUE;
   }
 
+  /**
+   * @Given /^I set browser window size to "([^"]*)" x "([^"]*)"$/
+   */
+  public function iSetBrowserWindowSizeToX($width, $height) {
+    $this->getSession()->resizeWindow((int)$width, (int)$height, 'current');
+  }
+
 }
