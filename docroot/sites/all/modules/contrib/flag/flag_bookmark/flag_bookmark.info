@@ -4,9 +4,9 @@ core = 7.x
 dependencies[] = flag
 package = Flags
 
-; Information added by Drupal.org packaging script on 2014-12-22
-version = "7.x-3.5+13-dev"
+; Information added by Drupal.org packaging script on 2015-02-20
+version = "7.x-3.5+15-dev"
 core = "7.x"
 project = "flag"
-datestamp = "1419282156"
+datestamp = "1424470387"
 

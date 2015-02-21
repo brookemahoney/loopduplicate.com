@@ -85,7 +85,7 @@ function flag_views_data() {
 
   // Argument for content ID, used for "Who's flagged this" views.
   $data['flagging']['entity_id'] = array(
-    'title' => t('Content ID'),
+    'title' => t('Entity ID'),
     'help' => t('The unique ID of the object that has been flagged.'),
     'argument' => array(
       'handler' => 'flag_handler_argument_entity_id',
