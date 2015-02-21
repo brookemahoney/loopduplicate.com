@@ -14,19 +14,19 @@ alias phantomstart='phantomjs --webdriver=8643'
 
 Start PhantomJS:
 
-```bash
+```shell
 phantomstart
 ```
 
 Prepare Behat:
 
-```bash
+```shell
 loopduplicatebehatprepare
 ```
 
 Run tests:
 
-```bash
+```shell
 bin/behat
 ```
 
@@ -39,13 +39,13 @@ Verify the System Requirements specified at the bottom of this file.
 
 ### Check that PHP's version is greater than 5.3.5:
 
-```bash
+```shell
 php --version
 ```
 
 ### Check that the curl, mbstring, and xml PHP libraries are installed:
 
-```bash
+```shell
 php -m
 ```
 
@@ -53,7 +53,7 @@ php -m
 
 #### Linux
 
-```bash
+```shell
 sudo apt-get update
 sudo apt-get install build-essential chrpath libssl-dev libxft-dev
 sudo apt-get install libfreetype6 libfreetype6-dev
@@ -63,7 +63,7 @@ sudo apt-get install phantomjs
 
 #### Mac with brew
 
-```bash
+```shell
 brew update && brew install phantomjs
 ```
 
@@ -73,27 +73,27 @@ project folder.**
 Install Composer globally (https://getcomposer.org/doc/00-intro.md#globally),
 or download a local copy by using:
 
-```bash
+```shell
 curl -s https://getcomposer.org/installer | php
 ```
 
 Install the Drupal Extension and its dependencies; this takes a while before you
 start to see output:
 
-```bash
+```shell
 php composer.phar install
 ```
 
 To ensure everything is set up appropriately, type:
 
-```bash
+```shell
 bin/behat -dl
 ```
 
 You’ll see a list of steps like the following, but longer, if you’ve installed
 everything successfully:
 
-```bash
+```shell
 default | Given I am an anonymous user
 default | Given I am not logged in
 ```
