@@ -67,8 +67,15 @@ sudo apt-get install phantomjs
 brew update && brew install phantomjs
 ```
 
-**All the commands that follow are written to install from the root of your
-project folder.**
+### Run set commands from the behat test folder.
+
+The rest of the steps must be run from the test folder:
+ 
+```bash
+cd /Applications/MAMP/htdocs/loopduplicate/docroot/sites/default/behat-tests
+```
+
+### Composer
 
 Install Composer globally (https://getcomposer.org/doc/00-intro.md#globally),
 or download a local copy by using:
@@ -77,21 +84,21 @@ or download a local copy by using:
 curl -s https://getcomposer.org/installer | php
 ```
 
-Install the Drupal Extension and its dependencies; this takes a while before you
-start to see output:
+### Drupal Extension
+
+This takes a while before you start to see output:
 
 ```shell
 php composer.phar install
 ```
 
-To ensure everything is set up appropriately, type:
+### Verify
 
 ```shell
 bin/behat -dl
 ```
 
-You’ll see a list of steps like the following, but longer, if you’ve installed
-everything successfully:
+You should see something like this:
 
 ```behat
 default | Given I am an anonymous user
