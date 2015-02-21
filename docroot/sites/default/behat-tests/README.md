@@ -14,65 +14,46 @@ alias phantomstart='phantomjs --webdriver=8643'
 
 Start PhantomJS:
 
-`phantomstart`
+```bash
+phantomstart
+```
 
 Prepare Behat:
 
-`loopduplicatebehatprepare`
+```bash
+loopduplicatebehatprepare
+```
 
 Run tests:
 
-`bin/behat`
+```bash
+bin/behat
+```
 
 ## First time setup
 
 Verify the System Requirements specified at the bottom of this file.
 
-Set the BEHAT_PARAMS environment variables to match your local site's
-configuration. See behat.local.sh for an example. This can also be achieved by
-modifying behat.yml.
-
-**All the commands that follow are written to install from the root of your
-project folder.**
-
-Install Composer globally (https://getcomposer.org/doc/00-intro.md#globally),
-or download a local copy by using:
-
-`curl -s https://getcomposer.org/installer | php`
-
-Install the Drupal Extension and its dependencies; this takes a while before you
-start to see output:
-
-`php composer.phar install`
-
-To ensure everything is set up appropriately, type:
-
-`bin/behat -dl`
-
-You’ll see a list of steps like the following, but longer, if you’ve installed
-everything successfully:
-
-```
-default | Given I am an anonymous user
-default | Given I am not logged in
-```
 
 ## System Requirements
 
-### PHP
+### Check that PHP's version is greater than 5.3.5:
 
-Check that PHP's version is greater than 5.3.5:
+```bash
+php --version
+```
 
-`php --version`
+### Check that the curl, mbstring, and xml PHP libraries are installed:
 
-Check that the curl, mbstring, and xml PHP libraries are installed:
+```bash
+php -m
+```
 
-`php -m`
-
-### PhantomJS
+### Install PhantomJS
 
 #### Linux
-```
+
+```bash
 sudo apt-get update
 sudo apt-get install build-essential chrpath libssl-dev libxft-dev
 sudo apt-get install libfreetype6 libfreetype6-dev
@@ -81,4 +62,38 @@ sudo apt-get install phantomjs
 ```
 
 #### Mac with brew
-`brew update && brew install phantomjs`
+
+```bash
+brew update && brew install phantomjs
+```
+
+**All the commands that follow are written to install from the root of your
+project folder.**
+
+Install Composer globally (https://getcomposer.org/doc/00-intro.md#globally),
+or download a local copy by using:
+
+```bash
+curl -s https://getcomposer.org/installer | php
+```
+
+Install the Drupal Extension and its dependencies; this takes a while before you
+start to see output:
+
+```bash
+php composer.phar install
+```
+
+To ensure everything is set up appropriately, type:
+
+```bash
+bin/behat -dl
+```
+
+You’ll see a list of steps like the following, but longer, if you’ve installed
+everything successfully:
+
+```bash
+default | Given I am an anonymous user
+default | Given I am not logged in
+```
