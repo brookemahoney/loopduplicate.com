@@ -59,14 +59,6 @@ Check that the curl, mbstring, and xml PHP libraries are installed:
 
 `php -m`
 
-### Java and cURL:
-
-Check that Java and cURL are installed, versions don't necessarily matter.
-
-`java -version`
-
-`curl --version`
-
 ### PhantomJS
 
 #### Linux
