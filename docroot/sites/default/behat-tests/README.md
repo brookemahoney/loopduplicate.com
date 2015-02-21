@@ -12,7 +12,7 @@ alias phantomstart='phantomjs --webdriver=8643'
 
 ## To run the tests
 
-Start Phantom:
+Start PhantomJS:
 
 `phantomstart`
 
