@@ -1,4 +1,4 @@
-Feature: Base
+Feature: Basic Browsing
   To make sure the site's basic functionality is working
   As any user
   I should be able to browse around and see particular text
@@ -19,4 +19,3 @@ Feature: Base
   @javascript
   Scenario: Javascript should add particular elements to the DOM
     Then I should see text matching "Show/Hide Filters"
-
