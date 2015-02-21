@@ -14,6 +14,12 @@ Run tests:
 
 `bin/behat`
 
+## Helpful bash aliases
+
+Paste into ~/.bash_profile:
+`alias phantomstart='phantomjs --webdriver=8643'`
+`alias loopduplicatebehatprepare='cd /Applications/MAMP/htdocs/loopduplicate/docroot/sites/default/behat-tests; source behat.local.sh; echo "Behat environment variables set. Remember to start Phantom."'`
+
 ## First time setup
 
 Verify the System Requirements specified at the bottom of this file.
