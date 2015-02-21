@@ -93,7 +93,7 @@ bin/behat -dl
 You’ll see a list of steps like the following, but longer, if you’ve installed
 everything successfully:
 
-```shell
+```behat
 default | Given I am an anonymous user
 default | Given I am not logged in
 ```
