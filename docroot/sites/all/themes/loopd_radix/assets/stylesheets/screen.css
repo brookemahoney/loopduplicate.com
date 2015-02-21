@@ -58,9 +58,9 @@
   -moz-animation-name: fadeIn;
   -webkit-animation-name: fadeIn;
   animation-name: fadeIn;
-  -moz-animation-duration: 0.2s;
-  -webkit-animation-duration: 0.2s;
-  animation-duration: 0.2s;
+  -moz-animation-duration: 0.4s;
+  -webkit-animation-duration: 0.4s;
+  animation-duration: 0.4s;
   -moz-animation-timing-function: ease-in;
   -webkit-animation-timing-function: ease-in;
   animation-timing-function: ease-in;
