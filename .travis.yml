@@ -8,13 +8,6 @@ mysql:
   username: root
   encoding: utf8
 
-env:
-  # Adds composer's global bin directory to the path.
-  # See: https://github.com/drush-ops/drush#install---composer
-  - PATH=$PATH:$HOME/.composer/vendor/bin
-  # Sets Behat parameters.
-  - BEHAT_PARAMS='{"extensions":{"Behat\\MinkExtension":{"base_url":"http://127.0.0.1:8888"},"Drupal\\DrupalExtension":{"drupal":{"drupal_root":"/home/travis/build/loopduplicate.com/docroot"},"drush":{"alias":"self"},"subcontexts":{"paths":["/home/travis/build/loopduplicate.com/docroot/sites/all"]}}}}'
-
 #branches:
 #  only:
 #    - develop
@@ -26,6 +19,13 @@ before_install:
 install:
   # Installs php packages required for running a web server from drush on php 5.3.
   - sudo apt-get install -y --force-yes php5-cgi php5-mysql
+
+  # Adds composer's global bin directory to the path.
+  # See: https://github.com/drush-ops/drush#install---composer
+  - export PATH="$HOME/.composer/vendor/bin:$PATH"
+
+  # Sets Behat parameters.
+  - export BEHAT_PARAMS='{"extensions":{"Behat\\MinkExtension":{"base_url":"http://127.0.0.1:8888"},"Drupal\\DrupalExtension":{"drupal":{"drupal_root":"/home/travis/build/loopduplicate.com/docroot"},"drush":{"alias":"self"},"subcontexts":{"paths":["/home/travis/build/loopduplicate.com/docroot/sites/all"]}}}}'
 
   # Installs drush.
   - composer global require drush/drush:6.*
