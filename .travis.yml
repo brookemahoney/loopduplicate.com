@@ -1,0 +1,60 @@
+language: php
+
+php:
+  - 5.5
+
+mysql:
+  database: drupal
+  username: root
+  encoding: utf8
+
+env:
+  # Adds composer's global bin directory to the path.
+  # See: https://github.com/drush-ops/drush#install---composer
+  - PATH=$PATH:$HOME/.composer/vendor/bin
+  # Sets Behat parameters.
+  - BEHAT_PARAMS='{"extensions":{"Behat\\MinkExtension":{"base_url":"http://127.0.0.1:8888"},"Drupal\\DrupalExtension":{"drupal":{"drupal_root":"/home/travis/build/loopduplicate.com/docroot"},"drush":{"alias":"self"},"subcontexts":{"paths":["/home/travis/build/loopduplicate.com/docroot/sites/all"]}}}}'
+
+#branches:
+#  only:
+#    - develop
+
+before_install:
+  - sudo apt-get update > /dev/null
+  - composer self-update
+
+install:
+  # Installs php packages required for running a web server from drush on php 5.3.
+  - sudo apt-get install -y --force-yes php5-cgi php5-mysql
+
+  # Installs drush.
+  - composer global require drush/drush:6.*
+  - phpenv rehash
+
+before_script:
+  # Builds Behat dependencies.
+  - cd $TRAVIS_BUILD_DIR/docroot/sites/default/tests/behat
+  - composer install
+
+  # Starts a web server on port 8080, runs in the background; waits for
+  # initialization.
+  - drush runserver 127.0.0.1:8080 &
+  - until netstat -an 2>/dev/null | grep '8080.*LISTEN'; do true; done
+
+  # Sets sendmail so drush doesn't throw an error during site install.
+  - echo "sendmail_path='true'" >> `php --ini | grep "Loaded Configuration" | awk '{print $4}'`
+
+  # Installs site.
+  - cd $TRAVIS_BUILD_DIR/docroot
+  - drush si loopd_profile --db-url=mysql://travis:@127.0.0.1/drupal --site-name=LoopDuplicate --account-mail="noreply@loopduplicate.com" --account-name=loopduplicate --account-pass=loopduplicate --site-mail="noreply@loopduplicate.com" -y;
+
+script:
+  # Runs PhantomJs.
+  - phantomjs --webdriver=8643 > ~/phantomjs.log 2>&1 &
+
+  # Runs Tests.
+  - cd $TRAVIS_BUILD_DIR/docroot/sites/default/tests/behat
+  - ./bin/behat
+
+  # Prints logs.
+  - cat ~/phantomjs.log
