@@ -14,7 +14,7 @@ mysql:
 
 before_install:
   - sudo apt-get update > /dev/null
-  - composer self-update
+  - composer self-update 1.0.0-alpha9
 
 install:
   # Installs php packages required for running a web server from drush on php 5.3.
