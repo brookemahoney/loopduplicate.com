@@ -20,6 +20,9 @@ install:
   # Installs php packages required for running a web server from drush on php 5.3.
   - sudo apt-get install -y --force-yes php5-cgi php5-mysql
 
+  # Creates DB
+  - "mysql -e 'create database drupal;'"
+
   # Adds composer's global bin directory to the path.
   # See: https://github.com/drush-ops/drush#install---composer
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
