@@ -14,7 +14,7 @@ mysql:
 
 before_install:
   - sudo apt-get update > /dev/null
-  - composer self-update 1.0.0-alpha9
+  - composer self-update
 
 install:
   # Installs php packages required for running a web server from drush on php 5.3.
@@ -28,7 +28,7 @@ install:
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
 
   # Sets Behat parameters.
-  - export BEHAT_PARAMS='{"extensions":{"Behat\\MinkExtension":{"base_url":"http://127.0.0.1:8888"},"Drupal\\DrupalExtension":{"drupal":{"drupal_root":"/home/travis/build/jeffymahoney/loopduplicate.com/docroot"},"drush":{"alias":"self"},"subcontexts":{"paths":["/home/travis/build/jeffymahoney/loopduplicate.com/docroot/sites/all"]}}}}'
+  - export BEHAT_PARAMS='{"extensions":{"Behat\\MinkExtension":{"base_url":"http://127.0.0.1:8080"},"Drupal\\DrupalExtension":{"drupal":{"drupal_root":"/home/travis/jeffymahoney/loopduplicate.com/docroot"},"drush":{"alias":"self"},"subcontexts":{"paths":["/home/travis/jeffymahoney/loopduplicate.com/docroot/sites/all"]}}}}'
 
   # Installs drush.
   - composer global require drush/drush:6.*
@@ -38,15 +38,20 @@ install:
   - cp $TRAVIS_BUILD_DIR/docroot/sites/default/travis.settings.php $TRAVIS_BUILD_DIR/docroot/sites/default/settings.php
 
 before_script:
+
+  # Copy drush alias.
+  - cp $TRAVIS_BUILD_DIR/aliases.drushrc.php ~/.drush/
+
   # Builds Behat dependencies.
   - cd $TRAVIS_BUILD_DIR/docroot/sites/default/tests/behat
-  - composer install
+  - composer install --prefer-source
 
   # Sets sendmail so drush doesn't throw an error during site install.
   - echo "sendmail_path='true'" >> `php --ini | grep "Loaded Configuration" | awk '{print $4}'`
 
   # Installs site.
   - cd $TRAVIS_BUILD_DIR/docroot
+  - pwd
   - drush si loopd_profile --db-url=mysql://travis:@127.0.0.1/drupal --site-name=LoopDuplicate --account-mail="noreply@loopduplicate.com" --account-name=loopduplicate --account-pass=loopduplicate --site-mail="noreply@loopduplicate.com" -y;
 
   # Starts a web server on port 8080, runs in the background; waits for
