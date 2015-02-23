@@ -17,7 +17,7 @@ before_install:
   - composer self-update
 
 install:
-  # Installs php packages required for running a web server from drush on php 5.3.
+  # Installs some php packages.
   - sudo apt-get --quiet=2 install php5-cli php5-cgi php5-curl php5-gd php5-mysql > /dev/null
 
   # Creates DB
@@ -58,7 +58,6 @@ before_script:
   # initialization.
   - drush @self runserver 127.0.0.1:8080 &
   - until netstat -an 2>/dev/null | grep '8080.*LISTEN'; do true; done
-  - sleep 4
 
 script:
   # Runs PhantomJs.
