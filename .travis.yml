@@ -18,7 +18,7 @@ before_install:
 
 install:
   # Installs php packages required for running a web server from drush on php 5.3.
-  - sudo apt-get install -y --force-yes php5-cgi php5-mysql
+  - sudo apt-get --quiet=2 install php5-cli php5-cgi php5-curl php5-gd php5-mysql > /dev/null
 
   # Creates DB
   - "mysql -e 'create database drupal;'"

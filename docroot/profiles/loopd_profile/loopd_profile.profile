@@ -146,6 +146,9 @@ function loopd_profile_install_set_variables() {
   // Override the default field wrapper markup with Fences’ lean markup
   // (single div wrapper).
   variable_set('fences_default_markup', 1);
+  // Turns on CSS and JS aggregation by default.
+  variable_set('preprocess_css', 1);
+  variable_set('preprocess_js', 1);
 }
 
 /**
