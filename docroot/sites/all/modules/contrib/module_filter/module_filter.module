@@ -91,6 +91,8 @@ function module_filter_form_system_modules_alter(&$form, &$form_state, $form_id)
       $form['module_filter']['#attached']['js'][] = drupal_get_path('module', 'module_filter') .'/js/dynamic_position.js';
     }
 
+    $form['#attached']['css'][] = drupal_get_path('module', 'module_filter') . '/css/modules.css';
+
     $form['#theme'] = 'module_filter_system_modules_tabs';
   }
 

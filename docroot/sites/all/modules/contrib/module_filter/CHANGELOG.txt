@@ -1,4 +1,10 @@
-Module Filter 7.x-2.x, xxxx-xx-xx
+Module Filter 7.x-2.x, 2015-02-20
+---------------------------------
+Simplifying the table rows by hiding version and requirements until a
+  particular description is clicked.
+
+
+Module Filter 7.x-2.x, 2014-09-01
 ---------------------------------
 #2235553 by greenSkin: Fixed latest jquery_update breaks module filter.
 #2304687 by mpdonadio: Fixed Remove hardcoded operations.
