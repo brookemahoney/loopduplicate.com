@@ -1,9 +1,12 @@
-![TravisCI Status](https://api.travis-ci.org/jeffymahoney/loopduplicate.com.svg?branch=7.x-1.x)
+This is a Drupal 7 distribution which runs on
+<a href="http://loopduplicate.com">loopduplicate.com</a>, which contains things
+and stuff, mostly related to Drupal (the most badassest way to create a
+thingamabob on the internets.)
 
-This is a Drupal 7 distribution.
-It runs on <a href="http://loopduplicate.com">loopduplicate.com</a>, which
-contains things and stuff, mostly related to Drupal (the most badassest
-way to create a thingamabob on the internets.)
+![TravisCI Status](https://api.travis-ci.org/jeffymahoney/loopduplicate.com.svg?branch=7.x-1.x)
+It is integrated with TravisCI, https://travis-ci.org/jeffymahoney/loopduplicate.com.
+The testing suite extends Behat and the Drupal Extension. It makes use of
+PhantomJS for all tests which require javascript. 
 
 Don't use this distribution as a base distribution, please. Just hack it.
 Drupal's ability to override distributions sucks... If you don't think so, fine, jerk.
