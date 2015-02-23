@@ -52,7 +52,6 @@ before_script:
 
   # Installs site.
   - cd $TRAVIS_BUILD_DIR/docroot
-  - pwd
   - drush si loopd_profile --db-url=mysql://travis:@127.0.0.1/drupal --site-name=LoopDuplicate --account-mail="noreply@loopduplicate.com" --account-name=loopduplicate --account-pass=loopduplicate --site-mail="noreply@loopduplicate.com" -y;
 
   # Starts a web server on port 8080, runs in the background; waits for

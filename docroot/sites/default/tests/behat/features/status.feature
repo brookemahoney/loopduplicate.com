@@ -7,4 +7,5 @@ Feature: Status
   Scenario: The status report should contain no warnings
     Given I am logged in as a user with the "administrator" role
     And I am on "admin/reports/status"
+    And print last response
     Then I should not see an "tr.error" element
