@@ -40,6 +40,7 @@ install:
 before_script:
 
   # Copy drush alias.
+  - mkdir ~/.drush
   - cp $TRAVIS_BUILD_DIR/aliases.drushrc.php ~/.drush/
 
   # Builds Behat dependencies.
