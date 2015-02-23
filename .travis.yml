@@ -28,7 +28,7 @@ install:
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
 
   # Sets Behat parameters.
-  - export BEHAT_PARAMS='{"extensions":{"Behat\\MinkExtension":{"base_url":"http://127.0.0.1:8080"},"Drupal\\DrupalExtension":{"drupal":{"drupal_root":"/home/travis/jeffymahoney/loopduplicate.com/docroot"},"drush":{"alias":"self"},"subcontexts":{"paths":["/home/travis/jeffymahoney/loopduplicate.com/docroot/sites/all"]}}}}'
+  - export BEHAT_PARAMS='{"extensions":{"Behat\\MinkExtension":{"base_url":"http://127.0.0.1:8080"},"Drupal\\DrupalExtension":{"drupal":{"drupal_root":"/home/travis/build/jeffymahoney/loopduplicate.com/docroot"},"drush":{"alias":"self"},"subcontexts":{"paths":["/home/travis/build/jeffymahoney/loopduplicate.com/docroot/sites/all"]}}}}'
 
   # Installs drush.
   - composer global require drush/drush:6.*
