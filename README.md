@@ -1,3 +1,5 @@
+![TravisCI Status](https://api.travis-ci.org/jeffymahoney/loopduplicate.com.svg?branch=7.x-1.x)
+
 This is a Drupal 7 distribution.
 It runs on <a href="http://loopduplicate.com">loopduplicate.com</a>, which
 contains things and stuff, mostly related to Drupal (the most badassest
