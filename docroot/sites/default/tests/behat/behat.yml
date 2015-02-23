@@ -1,0 +1,27 @@
+default:
+  suites:
+    default:
+      contexts:
+        - LoopDrupalContext
+        - Drupal\DrupalExtension\Context\MinkContext
+        - Drupal\DrupalExtension\Context\MarkupContext
+        - Drupal\DrupalExtension\Context\MessageContext
+        - Drupal\DrupalExtension\Context\DrushContext
+  extensions:
+    Behat\MinkExtension:
+      default_session: goutte
+      javascript_session: selenium2
+      goutte: ~
+      selenium2:
+        wd_host: "http://127.0.0.1:8643/wd/hub"
+        # base_url: 'http://127.0.0.1:8080'
+    Drupal\DrupalExtension:
+      blackbox: ~
+      api_driver: drupal
+      drush:
+        # alias: ’devlocal.loopduplicate.com’
+        # '--strict=0' is needed for Pantheon.
+        # See https://github.com/jhedstrom/drupalextension/issues/88
+        global_options: '--strict=0'
+      drupal:
+        # drupal_root: /Applications/MAMP/htdocs/loopduplicate/docroot
