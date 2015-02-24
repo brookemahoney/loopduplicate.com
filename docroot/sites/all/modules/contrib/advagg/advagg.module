@@ -2918,7 +2918,9 @@ function advagg_drupal_sort_css_js_stable(&$items) {
   // across a site visit without being cut by a page using a less common file.
   $nested = array();
   foreach ($items as $key => $item) {
-    $nested[$item['group']][$item['every_page'] ? 1 : 0][$item['weight']][$key] = $item;
+    // Weight cast to string to preserve float.
+    $weight = (string) $item['weight'];
+    $nested[$item['group']][$item['every_page'] ? 1 : 0][$weight][$key] = $item;
   }
   // First order by group, so that, for example, all items in the CSS_SYSTEM
   // group appear before items in the CSS_DEFAULT group, which appear before
