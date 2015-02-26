@@ -4,9 +4,9 @@ package = Media
 core = 7.x
 dependencies[] = media
 
-; Information added by Drupal.org packaging script on 2015-02-11
-version = "7.x-2.0-alpha4+25-dev"
+; Information added by Drupal.org packaging script on 2015-02-25
+version = "7.x-2.0-alpha4+26-dev"
 core = "7.x"
 project = "media"
-datestamp = "1423680186"
+datestamp = "1424889185"
 

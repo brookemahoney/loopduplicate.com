@@ -86,7 +86,7 @@ class PanelizerEntityFile extends PanelizerEntityDefault {
     $handler->name = 'file_view_panelizer';
     $handler->task = 'file_view';
     $handler->subtask = '';
-    $handler->handler = 'panelizer_file';
+    $handler->handler = 'panelizer_node';
     $handler->weight = -100;
     $handler->conf = array(
       'title' => t('File panelizer'),
