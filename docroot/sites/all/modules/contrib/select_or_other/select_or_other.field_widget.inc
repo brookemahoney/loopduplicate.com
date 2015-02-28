@@ -374,11 +374,12 @@ function select_or_other_taxonomy_validate($element, &$form_state) {
   // them here and process them independently.
   $value = array();
 
-  // if we're using the "select" rather than the "other".
-  // $tags = $element['select']['#value'];
-  // if we're using the "other"
-  // $tags = $element['other']['#value'];
-  $tags = $element['#value'];
+  // Get the selected tags and unset the select_or_other option.
+  $tags = $element['select']['#value'];
+  unset($tags['select_or_other']);
+  // Get the other value and prepare it for processing.
+  $typed = $element['other']['#value'];
+  $tags += drupal_explode_tags($typed);
 
   if ($tags) {
     // Collect candidate vocabularies.
@@ -391,11 +392,10 @@ function select_or_other_taxonomy_validate($element, &$form_state) {
     }
 
     // Translate term names into actual terms.
-    $typed_terms = drupal_explode_tags($tags);
-    foreach ($typed_terms as $typed_term) {
+    foreach ($tags as $tag) {
       // See if the term exists in the chosen vocabulary and return the tid;
       // otherwise, create a new 'autocreate' term for insert/update.
-      if ($possibilities = taxonomy_term_load_multiple(array(), array('name' => trim($typed_term), 'vid' => array_keys($vocabularies)))) {
+      if ($possibilities = taxonomy_term_load_multiple(array(), array('name' => trim($tag), 'vid' => array_keys($vocabularies)))) {
         $term = array_pop($possibilities);
       }
       else {
@@ -403,7 +403,7 @@ function select_or_other_taxonomy_validate($element, &$form_state) {
         $term = array(
           'tid' => 'autocreate',
           'vid' => $vocabulary->vid,
-          'name' => $typed_term,
+          'name' => $tag,
           'vocabulary_machine_name' => $vocabulary->machine_name,
         );
       }
