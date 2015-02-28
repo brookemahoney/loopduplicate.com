@@ -13,7 +13,6 @@
  * caching and if this .inc file is loaded before the plugin is
  * requested, the $plugin = array() notation doesn't work.
  */
-
 function fieldable_panels_panes_fieldable_panels_pane_ctools_content_types() {
   return array(
     'title' => t('Fielded custom content'),
@@ -73,12 +72,30 @@ function fieldable_panels_panes_fieldable_panels_pane_content_type_render($subty
   $view_mode = isset($conf['view_mode']) ? $conf['view_mode'] : 'full';
   if ($entity && !empty($entity->fpid) && fieldable_panels_panes_access('view', $entity)) {
     $settings = field_bundle_settings('fieldable_panels_pane', $entity->bundle);
+    // Add pane config to the entity object before hook_view().
+    $entity->conf = $conf;
+
     $block = new stdClass();
     $block->title = '';
-    if (empty($settings['extra_fields']['display']) || !empty($settings['extra_fields']['display']['title']['default']['visible'])) {
-      $block->title = !empty($entity->title) ? filter_xss_admin($entity->title) : '';
-    }
     $block->content = fieldable_panels_panes_view($entity, $view_mode);
+
+    // Was there a title defined?
+    if (!empty($entity->title)) {
+      // Is this view mode configured?
+      $is_view_mode_set = isset($settings['extra_fields']['display']['title'][$view_mode]['visible']);
+
+      // Is the title configured for this view mode?
+      $show_view_mode_title = ($is_view_mode_set && $settings['extra_fields']['display']['title'][$view_mode]['visible']);
+
+      // Should the default view mode show the title?
+      $show_default_title = !empty($settings['extra_fields']['display']['title']['default']['visible']);
+
+      // Combine all of the above logic.
+      if (empty($settings['extra_fields']['display']) || (!$is_view_mode_set && $show_default_title) || $show_view_mode_title) {
+        $block->title = filter_xss_admin($entity->title);
+      }
+    }
+
     return $block;
   }
 }
@@ -187,19 +204,19 @@ function fieldable_panels_panes_fieldable_panels_pane_content_type_edit_form_sub
   }
 
   fieldable_panels_panes_entity_edit_form_submit($form, $form_state);
-  if (!empty($entity->is_new)) {
-    if (module_exists('uuid') && isset($entity->uuid)) {
-      $entity_id = 'uuid:' . $entity->uuid;
-    }
-    else {
-      $entity_id = 'fpid:' . $entity->fpid;
-    }
 
-    // @todo -- this won't work if $form_state does not contain
-    // 'pane' which could theoretically happen in a non-Panels
-    // use case. Not that anybody uses this outside of Panels.
-    $form_state['pane']->subtype = $entity_id;
+  // Sub type is not explicitly set, define it here.
+  if (module_exists('uuid') && isset($entity->uuid)) {
+    $entity_id = 'uuid:' . $entity->uuid;
   }
+  else {
+    $entity_id = 'fpid:' . $entity->fpid;
+  }
+
+  // @todo: This won't work if $form_state does not contain 'pane' which could
+  // theoretically happen in a non-Panels use case. Not that anybody uses this
+  // outside of Panels.
+  $form_state['pane']->subtype = $entity_id;
 }
 
 // --------------------------------------------------------------------------
