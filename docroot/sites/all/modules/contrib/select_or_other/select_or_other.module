@@ -103,9 +103,11 @@ function select_or_other_element_process($element, &$form_state) {
     '#weight' => 10,
   );
 
-  if (isset($element['#empty_value'])) {
-    $element['select']['#empty_value'] = $element['#empty_value'];
-  };
+  foreach(array('#empty_option', '#empty_value') as $key){
+    if (isset($element[$key])) {
+      $element['select'][$key] = $element[$key];
+    };
+  }
 
   // Remove the default value on the container level so it doesn't get rendered there.
   $element['#value'] = NULL;
@@ -201,7 +203,7 @@ function select_or_other_element_process($element, &$form_state) {
   }
 
   // Hide the title from the wrapper.
-  $element['#title_display'] = 'invisible';
+  $element['#title'] = NULL;
 
   return $element;
 }
