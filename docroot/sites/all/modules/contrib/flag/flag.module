@@ -219,7 +219,6 @@ function flag_menu() {
     'access arguments' => array('administer flags'),
     'description' => 'Configure flags for marking content with arbitrary information (such as <em>offensive</em> or <em>bookmarked</em>).',
     'file' => 'includes/flag.admin.inc',
-    'type' => MENU_NORMAL_ITEM,
   );
   $items[FLAG_ADMIN_PATH . '/list'] = array(
     'title' => 'List',
@@ -342,31 +341,6 @@ function flag_admin_menu_map() {
       ),
     ),
   );
-
-  if (module_exists('field_ui')) {
-    foreach (entity_get_info() as $obj_type => $info) {
-      if ($obj_type == 'flagging') {
-        foreach ($info['bundles'] as $bundle_name => $bundle_info) {
-          if (isset($bundle_info['admin'])) {
-            $fields = array();
-
-            foreach (field_info_instances($obj_type, $bundle_name) as $field) {
-              $fields[] = $field['field_name'];
-            }
-
-            $arguments = array(
-              '%flag' => array($bundle_name),
-              '%field_ui_menu' => $fields,
-            );
-
-            $path = $bundle_info['admin']['path'];
-            $map["$path/fields/%field_ui_menu"]['parent'] = "$path";
-            $map["$path/fields/%field_ui_menu"]['arguments'][] = $arguments;
-          }
-        }
-      }
-    }
-  }
 
   return $map;
 }
