@@ -1,5 +1,6 @@
 Search API Autocomplete 1.x, dev (xx/xx/xxxx):
 ----------------------------------------------
+- #2415057 by das-peter: Added a JS select event when auto-completing.
 - #2345683 by drunken monkey: Fixed error message in admin UI when there are no
   (recognized) searches.
 - #2368795 by theo_: Fixed Javascript error when overriding autocomplete.

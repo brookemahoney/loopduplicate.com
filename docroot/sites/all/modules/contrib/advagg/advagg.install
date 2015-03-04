@@ -1270,11 +1270,15 @@ function advagg_install_chk_urls(&$requirements, $urls, $options, $mod_url, $typ
  */
 function advagg_install_get_first_advagg_file($file_path) {
   module_load_include('inc', 'advagg', 'advagg.missing');
+  $counter = 0;
+  $filename = '';
 
   // Open the advagg directory.
   $handle = opendir($file_path);
-  $counter = 0;
-  $filename = '';
+  // Bailout here if the advagg directory can not be opened.
+  if (empty($handle)) {
+    return $filename;
+  }
   while (FALSE !== ($filename = readdir($handle))) {
     // Skip over . and ..
     if ($filename === '.' || $filename === '..') {

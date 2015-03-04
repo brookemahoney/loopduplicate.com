@@ -54,6 +54,7 @@ if (typeof Drupal.jsAC != 'undefined') {
 
   Drupal.jsAC.prototype.select = function(node) {
     this.input.value = $(node).data('autocompleteValue');
+    $(this.input).trigger('autocompleteSelect', [node]);
     if ($(this.input).hasClass('auto_submit')) {
       if (typeof Drupal.search_api_ajax != 'undefined') {
         // Use Search API Ajax to submit

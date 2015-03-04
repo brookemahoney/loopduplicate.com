@@ -208,9 +208,9 @@ function advagg_mod_admin_settings_form() {
   );
   // Taken from block_admin_configure().
   $access = user_access('use PHP for settings');
-  $visibility = variable_get('advagg_mod_inline_visibility', BLOCK_VISIBILITY_LISTED);
+  $visibility = variable_get('advagg_mod_inline_visibility', ADVAGG_VISIBILITY_LISTED);
   $pages = variable_get('advagg_mod_inline_pages', '');
-  if ($visibility == BLOCK_VISIBILITY_PHP && !$access) {
+  if ($visibility == ADVAGG_VISIBILITY_PHP && !$access) {
     $form['landing_page']['path']['visibility'] = array(
       '#type' => 'value',
       '#value' => $visibility,
@@ -222,8 +222,8 @@ function advagg_mod_admin_settings_form() {
   }
   else {
     $options = array(
-      // BLOCK_VISIBILITY_NOTLISTED => t('All pages except those listed'),
-      BLOCK_VISIBILITY_LISTED => t('Only the listed pages'),
+      // ADVAGG_VISIBILITY_NOTLISTED => t('All pages except those listed'),
+      ADVAGG_VISIBILITY_LISTED => t('Only the listed pages'),
     );
     $description = t("Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", array(
       '%blog' => 'blog',
@@ -232,7 +232,7 @@ function advagg_mod_admin_settings_form() {
     ));
 
     if (module_exists('php') && $access) {
-      $options += array(BLOCK_VISIBILITY_PHP => t('Pages on which this PHP code returns <code>TRUE</code> (experts only)'));
+      $options += array(ADVAGG_VISIBILITY_PHP => t('Pages on which this PHP code returns <code>TRUE</code> (experts only)'));
       $title = t('Pages or PHP code');
       $description .= ' ' . t('If the PHP option is chosen, enter PHP code between %php. Note that executing incorrect PHP code can break your Drupal site.', array('%php' => '<?php ?>'));
     }
@@ -357,7 +357,7 @@ function advagg_mod_admin_test_css_files() {
       continue;
     }
     // Load CSS file.
-    $file_contents = advagg_drupal_load_stylesheet_content(file_get_contents($filename), TRUE);
+    $file_contents = advagg_load_stylesheet_content(file_get_contents($filename), TRUE);
 
     // Code taken from drupal_load_stylesheet_content().
     // Regexp to match double quoted strings.

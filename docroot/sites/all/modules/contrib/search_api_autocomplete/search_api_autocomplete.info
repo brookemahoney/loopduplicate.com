@@ -6,9 +6,9 @@ package = Search
 
 files[] = search_api_autocomplete.entity.php
 
-; Information added by Drupal.org packaging script on 2014-11-13
-version = "7.x-1.1+7-dev"
+; Information added by Drupal.org packaging script on 2015-03-03
+version = "7.x-1.1+8-dev"
 core = "7.x"
 project = "search_api_autocomplete"
-datestamp = "1415885908"
+datestamp = "1425403689"
 
