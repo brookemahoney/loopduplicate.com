@@ -184,6 +184,21 @@ function hook_search_api_autocomplete_suggestions_alter(array &$suggestions, arr
 }
 
 /**
+ * Alter the list of detected fulltext fields for autocompletion in a view.
+ *
+ * @param string[] $fields
+ *   The machine names of the detected fulltext fields.
+ * @param SearchApiAutocompleteSearch $search
+ *   The related search autocomplete object.
+ * @param view $view
+ *   The view for which fulltext fields should be determined.
+ */
+function hook_search_api_autocomplete_views_fulltext_fields_alter(array &$fields, SearchApiAutocompleteSearch $search, view $view) {
+  // Add a new field.
+  $fields[] = 'extra_search_api_views_fulltext';
+}
+
+/**
  * @} End of "addtogroup hooks".
  */
 

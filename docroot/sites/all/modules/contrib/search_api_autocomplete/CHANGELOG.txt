@@ -1,5 +1,7 @@
 Search API Autocomplete 1.x, dev (xx/xx/xxxx):
 ----------------------------------------------
+- #2335701 by marvil07, drunken monkey: Added an alter hook for the detected
+  fulltext fields in views.
 - #2415057 by das-peter: Added a JS select event when auto-completing.
 - #2345683 by drunken monkey: Fixed error message in admin UI when there are no
   (recognized) searches.
