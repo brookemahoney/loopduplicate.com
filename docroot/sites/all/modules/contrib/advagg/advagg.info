@@ -6,9 +6,9 @@ files[] = tests/advagg.test
 
 configure = admin/config/development/performance/advagg
 
-; Information added by Drupal.org packaging script on 2015-03-04
-version = "7.x-2.7+78-dev"
+; Information added by Drupal.org packaging script on 2015-03-05
+version = "7.x-2.7+82-dev"
 core = "7.x"
 project = "advagg"
-datestamp = "1425432486"
+datestamp = "1425518612"
 

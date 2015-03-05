@@ -1372,6 +1372,17 @@ function advagg_install_url_mod(&$url, &$options, $mod_url = FALSE) {
 
   if ($mod_url) {
     $parts = @parse_url($url);
+
+    // Pass along user/pass in the URL.
+    if (module_exists('shield')) {
+      $parts['user'] = variable_get('shield_user', '');
+      $parsed['pass'] = variable_get('shield_pass', '');
+    }
+    elseif (isset($_SERVER['AUTH_TYPE']) && $_SERVER['AUTH_TYPE'] == 'Basic') {
+      $parts['user'] = $_SERVER['PHP_AUTH_USER'];
+      $parsed['pass'] = $_SERVER['PHP_AUTH_PW'];
+    }
+
     if (function_exists('httprl_build_url_self')) {
       // Remove the base_path from path.
       $path = substr($parts['path'], strlen($GLOBALS['base_path']));

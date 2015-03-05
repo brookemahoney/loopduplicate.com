@@ -1,0 +1,35 @@
+/* https://www.drupal.org/node/1514182#comment-9532431 */
+home {
+  background: url('geo-md-webfont.eot?#iefix');
+}
+home {
+  background: url( 'geo-md-webfont.eot?#iefix' );
+}
+home {
+  background: url("geo-md-webfont.eot?#iefix");
+}
+home {
+  background: url(geo-md-webfont.eot?#iefix);
+}
+home {
+  background: url( geo-md-webfont.eot?#iefix );
+}
+/* https://www.drupal.org/node/2362643*/
+home {
+  background: url(#SVGID_1_);
+}
+home {
+  background: url(#a);
+}
+home {
+  background: url('#a');
+}
+home {
+  background: url("#a");
+}
+home {
+  background: url( "#a" );
+}
+home {
+  background: url( #a );
+}

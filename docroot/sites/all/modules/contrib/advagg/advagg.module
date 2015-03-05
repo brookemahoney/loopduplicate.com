@@ -802,6 +802,16 @@ function advagg_preprocess_page() {
  * Add in rendering IE meta tag if "combine CSS" is enabled.
  */
 function advagg_preprocess_html() {
+  // http://www.phpied.com/conditional-comments-block-downloads/#update
+  // Prevent conditional comments from stalling css downloads.
+  $fix_blocking_css_ie = array(
+    '#weight' => '-999999',
+    '#type' => 'markup',
+    '#markup' => "<!--[if IE]><![endif]-->\n",
+  );
+  // Add markup for IE conditional comments to head.
+  drupal_add_html_head($fix_blocking_css_ie, 'fix_blocking_css_ie');
+
   // Do not force IE rendering mode if "combine CSS" is disabled.
   if (!variable_get('advagg_combine_css_media', ADVAGG_COMBINE_CSS_MEDIA)) {
     return;
@@ -820,7 +830,7 @@ function advagg_preprocess_html() {
     '#suffix' => '<![endif]-->',
   );
 
-  // Add header meta tag for IE to head.
+  // Add meta tag for IE to head.
   drupal_add_html_head($meta_ie_render_engine, 'meta_ie_render_engine');
 }
 
@@ -2658,7 +2668,7 @@ function advagg_pre_render_styles($elements) {
   // Loop through each group.
   foreach ($elements['#groups'] as $group) {
     switch ($group['type']) {
-      // For file items, there are three possibilites.
+      // For file items, there are three possibilities.
       // - The group has been aggregated: in this case, output a LINK tag for
       //   the aggregate file.
       // - The group can be aggregated but has not been (most likely because
@@ -3292,8 +3302,11 @@ function advagg_load_stylesheet($file, $optimize = NULL, $reset_basepath = TRUE)
     $content = advagg_load_stylesheet_content($contents, $_optimize);
   }
 
-  // Restore the parent base path as the file and its childen are processed.
+  // Restore the parent base path as the file and its children are processed.
   $basepath = $parent_base_path;
+  if ($_optimize) {
+    $content = trim($content);
+  }
   return $content;
 }
 

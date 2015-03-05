@@ -27,6 +27,8 @@ p, select {
   color: #494949;
 }
 
+@import url("http://example.com/style.css");
+@import url("//example.com/style.css");
 
 body {
   margin: 0;
