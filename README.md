@@ -3,7 +3,7 @@ This is a Drupal 7 distribution which runs on
 and stuff, mostly related to Drupal (the most badassest way to create a
 thingamabob on the internets.)
 
-![TravisCI Status](https://api.travis-ci.org/jeffymahoney/loopduplicate.com.svg?branch=7.x-1.x)
+[![TravisCI Build Status](https://travis-ci.org/jeffymahoney/loopduplicate.com.svg?branch=7.x-1.x)](https://travis-ci.org/jeffymahoney/loopduplicate.com)
 It is integrated with TravisCI, https://travis-ci.org/jeffymahoney/loopduplicate.com.
 The testing suite extends Behat and the Drupal Extension. It makes use of
 PhantomJS for all tests which require javascript. 
