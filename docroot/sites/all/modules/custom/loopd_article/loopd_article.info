@@ -44,5 +44,4 @@ features[variable][] = node_preview_article
 features[variable][] = node_submitted_article
 features[variable][] = save_draft_enabled_article
 features[variable][] = save_draft_skip_required_article
-mtime = 1419804920
 project path = sites/all/modules/custom
