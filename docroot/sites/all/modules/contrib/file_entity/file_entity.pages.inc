@@ -177,7 +177,7 @@ function file_entity_add_upload_step_scheme($form, &$form_state, array $options 
 
   // Remove any schemes not found in the instance settings.
   if (!empty($options['schemes'])) {
-    $schemes = array_intersect_key($schemes, $options['schemes']);
+    $schemes = array_intersect_key($schemes, array_flip($options['schemes']));
   }
 
   // Determine which scheme to use as the default value.
