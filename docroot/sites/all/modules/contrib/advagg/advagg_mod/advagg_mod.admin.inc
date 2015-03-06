@@ -19,60 +19,29 @@ function advagg_mod_admin_settings_form() {
     '#type' => 'fieldset',
     '#title' => t('JS'),
   );
-  $form['js']['advagg_mod_js_footer'] = array(
-    '#type' => 'radios',
-    '#title' => t('Move JS to the footer'),
-    '#default_value' => variable_get('advagg_mod_js_footer', ADVAGG_MOD_JS_FOOTER),
-    '#options' => array(
-      0 => t('Disabled'),
-      1 => t('All but JavaScript Libraries'),
-      2 => t('All'),
-    ),
-    '#description' => t("If you have JavaScript inline in the body of your document, such as if you are displaying ads, you may need to keep Drupal JS Libraries in the head instead of moving them to the footer. This will keep all JS added with the JS_LIBRARY group in the head while still moving all other JavaScript to the footer."),
-  );
-
-  $form['js']['advagg_mod_js_footer_inline_alter'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Put a wrapper around inline JS if it was added in the content section incorrectly'),
-    '#default_value' => variable_get('advagg_mod_js_footer_inline_alter', ADVAGG_MOD_JS_FOOTER_INLINE_ALTER),
-    '#description' => t('This will put a wrapper around any inline JavaScript that was added to the content part of the page incorrectly. The wrapper will check every 250ms until window.Drupal.settings and window.jQuery are defined; at that point the inlined code will then run.'),
-
-    '#states' => array(
-      'disabled' => array(
-        ':input[name="advagg_mod_js_footer"]' => array('value' => '0'),
-        ':input[name="advagg_mod_js_defer"]' => array('checked' => FALSE),
-        ':input[name="advagg_mod_js_async"]' => array('checked' => FALSE),
-      ),
-    ),
-  );
   $form['js']['advagg_mod_js_preprocess'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable preprocess on all JS'),
     '#default_value' => variable_get('advagg_mod_js_preprocess', ADVAGG_MOD_JS_PREPROCESS),
     '#description' => t('Force all JavaScript to have the preprocess attribute be set to TRUE. All JavaScript files will be aggregated if enabled.'),
   );
-  $form['js']['advagg_mod_js_async_shim'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Rewrite asynchronous script tags to inline, old-browser-compatible scripts.'),
-    '#default_value' => variable_get('advagg_mod_js_async_shim', ADVAGG_MOD_JS_ASYNC_SHIM),
-    '#description' => t('Rewrites all scripts in the page with an "async" attribute to an inline JavaScript loading the script asynchronously in an old browser compatible way. List of <a href="@link">supported browsers</a>. Once all commonly used browsers support the "async" attribute you can happily disable this checkbox.', array('@link' => 'http://caniuse.com/script-async')),
-  );
   $form['js']['advagg_mod_js_remove_unused'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Remove unused JavaScript tags if possible'),
+    '#title' => t('Remove unused JavaScript if possible'),
     '#default_value' => variable_get('advagg_mod_js_remove_unused', ADVAGG_MOD_JS_REMOVE_UNUSED),
-    '#description' => t('This will scan all included JS files for references to jquery and drupal. If none are found then the core JavaScript (jquery.js, drupal.js, & Drupal.settings) is removed and not loaded on that page. If you have a site that does not use a lot of Javascript this might be helpful as it could prevent unused JavaScript from being executed, thus speeding up your sites frontend performance.'),
+    '#description' => t('This will scan all included JS files for references to jquery and drupal. If none are found then the core JavaScript (jquery.js, drupal.js, & Drupal.settings) is removed and not loaded on that page. If you have a site that does not use a lot of Javascript this might be helpful as it could prevent unused JavaScript from being executed, thus speeding up your sites frontend performance. Enabling this usually has negative backend performance impact.'),
   );
-  $form['js']['advagg_mod_js_head_extract'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Move JavaScript added by drupal_add_html_head() into drupal_add_js()'),
-    '#default_value' => variable_get('advagg_mod_js_head_extract', ADVAGG_MOD_JS_HEAD_EXTRACT),
-    '#description' => t('This will move JavaScript added incorrectly to Drupal into the top of the drupal_add_js() queue.'),
-  );
+  // Optimize JavaScript Ordering.
   $form['js']['adjust_sort'] = array(
     '#type' => 'fieldset',
     '#title' => t('Optimize JavaScript Ordering'),
     '#description' => t('The settings in here might change the order in which the JavaScript is loaded. It will move the scripts around so that more optimal aggregates are built. In most cases enabling these checkboxes will cause no negative side effects.'),
+  );
+  $form['js']['adjust_sort']['advagg_mod_js_head_extract'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Move JavaScript added by drupal_add_html_head() into drupal_add_js()'),
+    '#default_value' => variable_get('advagg_mod_js_head_extract', ADVAGG_MOD_JS_HEAD_EXTRACT),
+    '#description' => t('This will move JavaScript added incorrectly to Drupal into the top of the drupal_add_js() queue.'),
   );
   $form['js']['adjust_sort']['advagg_mod_js_adjust_sort_external'] = array(
     '#type' => 'checkbox',
@@ -92,28 +61,74 @@ function advagg_mod_admin_settings_form() {
     '#default_value' => variable_get('advagg_mod_js_adjust_sort_browsers', ADVAGG_MOD_JS_ADJUST_SORT_BROWSERS),
     '#description' => t('This will group all browser conditional JavaScript to be in the lowest group of that conditional rule.'),
   );
-  $form['js']['expert'] = array(
+  // Adjust javascript location and execution.
+  $form['js']['placement'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Experimental Settings'),
-    '#collapsible' => TRUE,
-    '#collapsed' => (variable_get('advagg_mod_js_head_extract', ADVAGG_MOD_JS_HEAD_EXTRACT) || variable_get('advagg_mod_js_defer', ADVAGG_MOD_JS_DEFER) || variable_get('advagg_mod_js_async', ADVAGG_MOD_JS_ASYNC)) ? FALSE : TRUE,
+    '#title' => t('Adjust javascript location and execution'),
+    '#description' => t('Most of the time adjusting the settings are safe but in some rare cases adjusting these can cause serious JavaScript issues with your site.'),
   );
-  $form['js']['expert']['advagg_mod_js_defer'] = array(
+  $form['js']['placement']['advagg_mod_js_footer'] = array(
+    '#type' => 'radios',
+    '#title' => t('Move JS to the footer'),
+    '#default_value' => variable_get('advagg_mod_js_footer', ADVAGG_MOD_JS_FOOTER),
+    '#options' => array(
+      0 => t('Disabled'),
+      1 => t('All but JavaScript Libraries'),
+      2 => t('All'),
+    ),
+    '#description' => t("If you have JavaScript inline in the body of your document, such as if you are displaying ads, you may need to keep Drupal JS Libraries in the head instead of moving them to the footer. This will keep all JS added with the JS_LIBRARY group in the head while still moving all other JavaScript to the footer."),
+  );
+  $form['js']['placement']['advagg_mod_js_defer'] = array(
     '#type' => 'checkbox',
     '#title' => t('Deferred JavaScript Execution: Add The defer Tag To All Script Tags'),
     '#default_value' => variable_get('advagg_mod_js_defer', ADVAGG_MOD_JS_DEFER),
-    '#description' => t('This will delay the script execution until the HTML parser has finished. This will have a similar effect to moving all JavaScript to the footer. This might break javascript on different browsers; only use after extensive testing! <a href="@link">More Info</a>', array(
+    '#description' => t('This will delay the script execution until the HTML parser has finished. This will have a similar effect to moving all JavaScript to the footer. This might break javascript (especially inline); only use after extensive testing! <a href="@link">More Info</a>', array(
       '@link' => 'http://peter.sh/experiments/asynchronous-and-deferred-javascript-execution-explained/',
     )),
   );
-  $form['js']['expert']['advagg_mod_js_async'] = array(
+  $form['js']['placement']['advagg_mod_js_footer_inline_alter'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Put a wrapper around inline JS if it was added in the content section incorrectly'),
+    '#default_value' => variable_get('advagg_mod_js_footer_inline_alter', ADVAGG_MOD_JS_FOOTER_INLINE_ALTER),
+    '#description' => t('This will put a wrapper around any inline JavaScript that was added to the content part of the page incorrectly. The wrapper will check every 250ms until window.Drupal.settings and window.jQuery are defined; at that point the inlined code will then run.'),
+
+    '#states' => array(
+      'disabled' => array(
+        ':input[name="advagg_mod_js_footer"]' => array('value' => '0'),
+        ':input[name="advagg_mod_js_defer"]' => array('checked' => FALSE),
+        ':input[name="advagg_mod_js_async"]' => array('checked' => FALSE),
+      ),
+    ),
+  );
+  $form['js']['placement']['expert'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Experimental Settings'),
+    '#description' => t('Here there be dragons.'),
+    '#collapsible' => TRUE,
+    '#collapsed' => !variable_get('advagg_mod_js_async', ADVAGG_MOD_JS_ASYNC),
+  );
+  $form['js']['placement']['expert']['advagg_mod_js_async'] = array(
     '#type' => 'checkbox',
     '#title' => t('Asynchronous JavaScript Execution: Add The async Tag To All Script Tags'),
     '#default_value' => variable_get('advagg_mod_js_async', ADVAGG_MOD_JS_ASYNC),
-    '#description' => t('This will cause the script to be downloaded in the background and executed once it is ready. This will break most javascript; only use after extensive testing! <a href="@link">More Info</a>', array(
+    '#description' => t('This will cause the script to be downloaded in the background and executed out of order. This will break most javascript as most code is not async safe; only use after extensive testing! <a href="@link">More Info</a>', array(
       '@link' => 'http://peter.sh/experiments/asynchronous-and-deferred-javascript-execution-explained/',
     )),
   );
+  // Outdated settings.
+  $form['js']['old'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Outdated settings that should not be used'),
+    '#collapsible' => TRUE,
+    '#collapsed' => !variable_get('advagg_mod_js_async_shim', ADVAGG_MOD_JS_ASYNC_SHIM),
+  );
+  $form['js']['old']['advagg_mod_js_async_shim'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Rewrite asynchronous script tags to inline, old-browser-compatible scripts.'),
+    '#default_value' => variable_get('advagg_mod_js_async_shim', ADVAGG_MOD_JS_ASYNC_SHIM),
+    '#description' => t('Rewrites all scripts in the page with an "async" attribute to an inline JavaScript loading the script asynchronously in an old browser compatible way. List of <a href="@link">supported browsers</a>. Once all commonly used browsers support the "async" attribute you can happily disable this checkbox.', array('@link' => 'http://caniuse.com/script-async')),
+  );
+
 
   $config_path = advagg_admin_config_root_path();
   $form['css'] = array(
@@ -128,10 +143,9 @@ function advagg_mod_admin_settings_form() {
   );
   // @ignore security_fapi_title
   $form['css']['advagg_mod_css_preprocess']['#description'] .= module_exists('advagg_bundler') ? ' ' . t('You might want to increase the <a href="@link">CSS Bundles Per Page</a> if this is checked.', array('@link' => url($config_path . '/advagg/bundler'))) : '';
-  // @ignore sniffer_commenting_inlinecomment_spacingbefore:3
   // Only test the translate option if
-  //  the locale function is defined OR
-  //  the locale_custom_strings variable is not empty.
+  // the locale function is defined OR
+  // the locale_custom_strings variable is not empty.
   $locale_custom_strings = variable_get('locale_custom_strings_' . isset($GLOBALS['language']->language) ? $GLOBALS['language']->language : 'en', array());
   if (function_exists('locale') || !empty($locale_custom_strings)) {
     // Only show option if something comes back translated.
@@ -148,16 +162,17 @@ function advagg_mod_admin_settings_form() {
       );
     }
   }
-  $form['css']['advagg_mod_css_head_extract'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Move CSS added by drupal_add_html_head() into drupal_add_css()'),
-    '#default_value' => variable_get('advagg_mod_css_head_extract', ADVAGG_MOD_CSS_HEAD_EXTRACT),
-    '#description' => t('This will move CSS added incorrectly to Drupal into the top of the drupal_add_css() queue.'),
-  );
+  // Optimize CSS Ordering.
   $form['css']['adjust_sort'] = array(
     '#type' => 'fieldset',
     '#title' => t('Optimize CSS Ordering'),
     '#description' => t('The settings in here might change the order in which the CSS is loaded. It will move the CSS around so that more optimal aggregates are built. In most cases enabling these checkboxes will cause no negative side effects.'),
+  );
+  $form['css']['adjust_sort']['advagg_mod_css_head_extract'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Move CSS added by drupal_add_html_head() into drupal_add_css()'),
+    '#default_value' => variable_get('advagg_mod_css_head_extract', ADVAGG_MOD_CSS_HEAD_EXTRACT),
+    '#description' => t('This will move CSS added incorrectly to Drupal into the top of the drupal_add_css() queue.'),
   );
   $form['css']['adjust_sort']['advagg_mod_css_adjust_sort_external'] = array(
     '#type' => 'checkbox',
@@ -177,13 +192,18 @@ function advagg_mod_admin_settings_form() {
     '#default_value' => variable_get('advagg_mod_css_adjust_sort_browsers', ADVAGG_MOD_CSS_ADJUST_SORT_BROWSERS),
     '#description' => t('This will group all browser conditional CSS to be in the lowest group of that conditional rule.'),
   );
-  $form['css']['expert'] = array(
+  // Adjust CSS location and execution.
+  $form['css']['placement'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Adjust CSS location and execution'),
+  );
+  $form['css']['placement']['expert'] = array(
     '#type' => 'fieldset',
     '#title' => t('Experimental Settings'),
     '#collapsible' => TRUE,
-    '#collapsed' => (variable_get('advagg_mod_css_head_extract', ADVAGG_MOD_CSS_HEAD_EXTRACT) || variable_get('advagg_mod_css_defer', ADVAGG_MOD_CSS_DEFER)) ? FALSE : TRUE,
+    '#collapsed' => !variable_get('advagg_mod_css_defer', ADVAGG_MOD_CSS_DEFER),
   );
-  $form['css']['expert']['advagg_mod_css_defer'] = array(
+  $form['css']['placement']['expert']['advagg_mod_css_defer'] = array(
     '#type' => 'radios',
     '#title' => t('Deferred CSS Execution: Use JS to load CSS'),
     '#default_value' => variable_get('advagg_mod_css_defer', ADVAGG_MOD_CSS_DEFER),
@@ -194,9 +214,27 @@ function advagg_mod_admin_settings_form() {
       5 => t('All in footer except for JS loading code'),
       7 => t('All in footer'),
     ),
-    '#description' => t('This will try to optimize CSS delivery by using JavaScript to load the CSS. This might break CSS on different browsers; only use after extensive testing! <a href="@link">More Info</a>', array(
+    '#description' => t('This will try to optimize CSS delivery by using JavaScript to load the CSS. This might break CSS on different browsers and will cause a flash of unstyled content (FOUC). Only enable after extensive testing! <a href="@link">More Info</a>', array(
       '@link' => 'http://stackoverflow.com/questions/19374843/css-delivery-optimization-how-to-defer-css-loading',
     )),
+  );
+  $form['css']['placement']['expert']['advagg_mod_css_defer_js_code'] = array(
+    '#type' => 'radios',
+    '#title' => t('How to include the JS loading code'),
+    '#default_value' => variable_get('advagg_mod_css_defer_js_code', ADVAGG_MOD_CSS_DEFER_JS_CODE),
+    '#options' => array(
+      0 => t('Inline javascript loader library'),
+      2 => t('Local file included in aggregrate'),
+//       4 => t('Externally load the latest from github (SLOW! Not a CDN!!!)'),
+    ),
+    '#description' => t('The <a href="@link">loadCSS</a> library can be included in various ways.', array(
+      '@link' => 'https://github.com/filamentgroup/loadCSS',
+    )),
+    '#states' => array(
+      'disabled' => array(
+        ':input[name="advagg_mod_css_defer"]' => array('value' => '0'),
+      ),
+    ),
   );
 
   $form['landing_page'] = array(

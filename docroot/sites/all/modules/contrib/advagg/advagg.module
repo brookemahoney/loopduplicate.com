@@ -2937,14 +2937,17 @@ function advagg_drupal_sort_css_js_stable(&$items) {
   // all items in the CSS_THEME group. Modules may create additional groups by
   // defining their own constants.
   $sorted = array();
+  // Sort group; then iterate over it.
   ksort($nested);
-  foreach ($nested as $group => $group_items) {
+  foreach ($nested as $group => &$group_items) {
+    // Reverse sort every_page; then iterate over it.
     krsort($group_items);
-    foreach ($group_items as $ep => $ep_items) {
+    foreach ($group_items as $ep => &$ep_items) {
+      // Sort weight; then iterate over it.
       ksort($ep_items);
       // Finally, order by weight.
-      foreach ($ep_items as $weight => $weight_items) {
-        foreach ($weight_items as $key => $item) {
+      foreach ($ep_items as $weight => &$weight_items) {
+        foreach ($weight_items as $key => &$item) {
           $sorted[$key] = $item;
         }
       }

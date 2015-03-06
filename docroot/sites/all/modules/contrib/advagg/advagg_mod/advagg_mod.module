@@ -111,6 +111,11 @@ define('ADVAGG_VISIBILITY_LISTED', 1);
  */
 define('ADVAGG_VISIBILITY_PHP', 2);
 
+/**
+ * Default value of the inclusion method for the loadCSS code.
+ */
+define('ADVAGG_MOD_CSS_DEFER_JS_CODE', 0);
+
 // Core hook implementations.
 /**
  * Implements hook_init().
@@ -563,17 +568,29 @@ function advagg_mod_advagg_modify_css_pre_render_alter(&$children, &$elements) {
   if (empty($css_defer)) {
     return;
   }
+  $css_defer_js_code = variable_get('advagg_mod_css_defer_js_code', ADVAGG_MOD_CSS_DEFER_JS_CODE);
 
   // Make advagg_mod_loadStyleSheet() available.
+  $type = 'external';
+  $data = '//rawgit.com/filamentgroup/loadCSS/master/loadCSS.js';
+  if ($css_defer_js_code == 2) {
+    $type = 'file';
+    $data = drupal_get_path('module', 'advagg_mod') . '/loadCSS.js';
+  }
+  if ($css_defer_js_code == 0) {
+    $type = 'inline';
+    $data = file_get_contents(drupal_get_path('module', 'advagg_mod') . '/loadCSS.js');
+  }
   $options = array(
-    'type' => 'file',
+    'type' => $type,
     'scope' => $css_defer >= 7 ? 'footer' : 'header',
     'scope_lock' => TRUE,
     'every_page' => TRUE,
     'group' => $css_defer == 1 ? JS_LIBRARY - 1: JS_LIBRARY,
     'weight' => $css_defer == 1 ? -50000 : 0,
+    'movable' => $css_defer == 1 ? FALSE : TRUE,
   );
-  drupal_add_js(drupal_get_path('module', 'advagg_mod') . '/advagg_mod_css_defer.js', $options);
+  drupal_add_js($data, $options);
 
   // Wrap CSS in noscript tags.
   $options = array(
@@ -598,13 +615,14 @@ function advagg_mod_advagg_modify_css_pre_render_alter(&$children, &$elements) {
       if (isset($values['#browsers'])) {
         $options['browsers'] = $values['#browsers'];
       }
-      $inline = 'advagg_mod_loadStyleSheet("' . $values['#attributes']['href'] . '")';
-      // Make defer work if enabled.
-      if (   variable_get('advagg_mod_js_defer', ADVAGG_MOD_JS_DEFER)
-          || variable_get('advagg_mod_js_async', ADVAGG_MOD_JS_ASYNC)
-          ) {
+      $inline = 'loadCSS("' . $values['#attributes']['href'] . '")';
+      // Make defer/async work if enabled.
+      if ((variable_get('advagg_mod_js_defer', ADVAGG_MOD_JS_DEFER)
+        || variable_get('advagg_mod_js_async', ADVAGG_MOD_JS_ASYNC))
+        && $type !== 'inline'
+        ) {
         $matches[2] = $matches[0] = $inline;
-        $inline = advagg_mod_wrap_inline_js($matches);
+        $inline = advagg_mod_wrap_inline_js($matches, "typeof loadCSS === 'function'");
       }
       // Add in script tags to load css via js.
       drupal_add_js($inline, $options);
@@ -665,7 +683,10 @@ function advagg_mod_advagg_current_hooks_hash_array_alter(&$aggregate_settings) 
  * @return string
  *   Inline javascript code wrapped up in a loader to prevent errors.
  */
-function advagg_mod_wrap_inline_js($matches) {
+function advagg_mod_wrap_inline_js($matches, $check_string = NULL) {
+  if (empty($check_string)) {
+    $check_string = "typeof window.Drupal !== 'undefined' && typeof window.Drupal.settings !== 'undefined' && typeof window.jQuery !== 'undefined'";
+  }
   // Use a counter in order to create unique function names.
   static $counter;
   ++$counter;
@@ -695,7 +716,7 @@ function advagg_mod_drupal_settings_loaded$counter() {
   }
 }
 function advagg_mod_check_if_drupal_settings_loaded$counter() {
-    if (typeof window.Drupal !== 'undefined' && typeof window.Drupal.settings !== 'undefined' && typeof window.jQuery !== 'undefined') {
+    if ($check_string) {
         advagg_mod_drupal_settings_loaded$counter();
     }
     else {
