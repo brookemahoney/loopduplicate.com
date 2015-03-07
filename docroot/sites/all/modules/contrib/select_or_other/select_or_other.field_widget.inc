@@ -415,35 +415,59 @@ function select_or_other_taxonomy_validate($element, &$form_state) {
 }
 
 /**
+ * Helper function to retrieve the other value from an element.
+ */
+function _fetch_other_value($element, $return_array = TRUE){
+  $other_value = array();
+
+  if ($element['other']['#value']) {
+    // If the value in the other element was already a valid option, we want to
+    // store that value instead of the one in the other field.
+    foreach ($element['#options'] as $key => $option) {
+      if($element['other']['#value'] === $option){
+        $other_value[$key] = $option;
+        break;
+      }
+    }
+
+    if (!$other_value){
+      $other_value[$element['other']['#value']] = $element['other']['#value'];
+    }
+  }
+
+  if ($return_array){
+    return $other_value;
+  }
+  else{
+    $keys = array_keys($other_value);
+    return array_pop($keys);
+  }
+}
+
+/**
  * Element validate callback for a Select (or other) field widget.
  */
 function select_or_other_field_widget_validate($element, &$form_state) {
-  //$field_name = $element['#parents'][count($element['#parents']) - 2];
   $field_name = $element['#field_name'];
   $field_info = field_info_field($field_name);
 
-  $other_selected = FALSE;
-
-  if (is_array($element['select']['#value']) && isset($element['select']['#value']['select_or_other'])) {
-    // This is a multiselect. assoc arrays
-    $other_selected = TRUE;
-    $value = $element['select']['#value'];
+  $value = $element['select']['#value'];
+  if (is_array($value) && isset($value['select_or_other'])) {
+    // This is a multiselect which uses associated arrays.
     unset($value['select_or_other']);
-    $value[$element['other']['#value']] = $element['other']['#value'];
+    $value  += _fetch_other_value($element);
   }
-  elseif (is_string($element['select']['#value']) && $element['select']['#value'] == 'select_or_other') {
-    // This is a single select.
-    $other_selected = TRUE;
-    $value = $element['other']['#value'];
-  }
-  else {
-    $value = $element['select']['#value'];
-  }
-  if ($other_selected && !$element['other']['#value']) {
-    form_error($element['other'], t('!name: !title is required', array('!name' => t($element['select']['#title']), '!title' => $element['#other'])));
+  elseif ($value === 'select_or_other') {
+    // This is a single select which uses strings.
+    $other_value = _fetch_other_value($element, FALSE);
+    if (!$other_value) {
+      form_error($element['other'], t('!name: !title is required', array('!name' => t($element['select']['#title']), '!title' => $element['#other'])));
+    }
+    else{}
+      $value = $other_value;
   }
 
-  if (isset($value) && $value !== "") {
+  if ($value !== "") {
     if (in_array($element['#field_widget'], array('select_or_other', 'select_or_other_buttons'))) {
       // Filter out 'none' value (if present, will always be in key 0)
       if (isset($items[0]['value']) && $items[0]['value'] === '') {
@@ -476,7 +500,7 @@ function select_or_other_field_widget_validate($element, &$form_state) {
       $value = array('value' => $value);
     }
 
-    // Align with Drupal core select list, NULL (-None-) value.
+    // @todo Align with Drupal core select list, NULL (-None-) value.
     // http://drupal.org/node/1830090
     $value = _select_or_other_options_form_to_storage($value);
 
