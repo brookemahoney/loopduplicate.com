@@ -5,9 +5,9 @@ core = 7.x
 dependencies[] = file_entity
 hidden = TRUE
 
-; Information added by Drupal.org packaging script on 2015-03-04
-version = "7.x-2.0-beta1+22-dev"
+; Information added by Drupal.org packaging script on 2015-03-06
+version = "7.x-2.0-beta1+23-dev"
 core = "7.x"
 project = "file_entity"
-datestamp = "1425493460"
+datestamp = "1425663184"
 

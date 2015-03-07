@@ -79,6 +79,9 @@ function file_entity_hook_info_alter(&$info) {
     // Miscellaneous hooks
     'file_mimetype_mapping_alter',
     'file_url_alter',
+    // Stream wrappers
+    'stream_wrappers',
+    'stream_wrappers_alter',
   );
   $info += array_fill_keys($hooks, array('group' => 'file'));
 }
