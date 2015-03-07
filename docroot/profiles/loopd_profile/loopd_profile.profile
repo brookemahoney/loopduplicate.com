@@ -104,9 +104,9 @@ function loopd_profile_install_tasks($install_state) {
  * Sets Drupal variables.
  */
 function loopd_profile_install_set_variables() {
-  // Prevents message from being shown when the advanced help isn't installed.
+  // Prevents views warning message about advanced help module installation.
   variable_set('views_ui_show_advanced_help_warning', 0);
-  // Transliterates URLs prior to creating path aliases
+  // Transliterates URLs prior to creating path aliases.
   variable_set('pathauto_transliterate', 1);
   // Disables the secondary menu.
   variable_set('menu_secondary_links_source', '');
@@ -114,7 +114,7 @@ function loopd_profile_install_set_variables() {
   variable_set('admin_menu_position_fixed', 0);
   // Turns caching on for anonymous users.
   variable_set('cache', 1);
-  // Sets an anoymous maintenance mode message so that if the site's name is
+  // Sets an anonymous maintenance mode message so that if the site's name is
   // ever changed, the message won't contain the original name.
   $maintenance_message = t('We are currently under maintenance and should be'
       . ' back shortly. Thank you for your patience.');
@@ -130,9 +130,9 @@ function loopd_profile_install_set_variables() {
   variable_set('pathauto_ignore_words', '');
   // Sets default jQuery version to 1.10.
   variable_set('jquery_update_jquery_version', '1.10');
-  // Sets jQuery to 1.8 in admin pages. Otherwise, some JS doesn't work on the add new
-  // view page, admin/structure/views/add. For example, when clicking on the
-  // description checkbox, the description text field should be shown but it
+  // Sets jQuery to 1.8 in admin pages. Otherwise, some JS doesn't work on the
+  // add new view page, admin/structure/views/add. For example, when clicking on
+  // the description checkbox, the description text field should be shown but it
   // isn't if jquery is set to 1.9 or 1.10.
   variable_set('jquery_update_jquery_admin_version', '1.8');
   // Set the active search modules.
