@@ -116,6 +116,11 @@ define('ADVAGG_VISIBILITY_PHP', 2);
  */
 define('ADVAGG_MOD_CSS_DEFER_JS_CODE', 0);
 
+/**
+ * Default value to convert inline GA code into file.
+ */
+define('ADVAGG_MOD_GA_INLINE_TO_FILE', FALSE);
+
 // Core hook implementations.
 /**
  * Implements hook_init().
@@ -182,6 +187,11 @@ function advagg_mod_menu() {
 function advagg_mod_js_alter(&$js) {
   if (module_exists('advagg') && !advagg_enabled()) {
     return;
+  }
+
+  // Change google analytics inline loader to be inside of an aggregrated file.
+  if (variable_get('advagg_mod_ga_inline_to_file', ADVAGG_MOD_GA_INLINE_TO_FILE)) {
+    advagg_mod_ga_inline_to_file($js);
   }
 
   // Only add JS if it's actually needed.
@@ -573,13 +583,18 @@ function advagg_mod_advagg_modify_css_pre_render_alter(&$children, &$elements) {
   // Make advagg_mod_loadStyleSheet() available.
   $type = 'external';
   $data = '//rawgit.com/filamentgroup/loadCSS/master/loadCSS.js';
+  $min = '';
+  if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) >= 0) {
+    $min = '.min';
+  }
   if ($css_defer_js_code == 2) {
     $type = 'file';
-    $data = drupal_get_path('module', 'advagg_mod') . '/loadCSS.js';
+    $data = drupal_get_path('module', 'advagg_mod') . "/loadCSS$min.js";
   }
   if ($css_defer_js_code == 0) {
     $type = 'inline';
-    $data = file_get_contents(drupal_get_path('module', 'advagg_mod') . '/loadCSS.js');
+    $data = '// [c]2014 @scottjehl, Filament Group, Inc. Licensed MIT.
+function loadCSS(a,b,c,d){"use strict";function h(){for(var a,b=0;b<g.length;b++)g[b].href&&g[b].href.indexOf(e.href)>-1&&(a=!0);a?e.media=c||"all":setTimeout(h)}var e=window.document.createElement("link"),f=b||window.document.getElementsByTagName("script")[0],g=window.document.styleSheets;return e.rel="stylesheet",e.href=a,e.media="only x",d&&(e.onload=d),f.parentNode.insertBefore(e,f),h(),e}';
   }
   $options = array(
     'type' => $type,
@@ -590,6 +605,9 @@ function advagg_mod_advagg_modify_css_pre_render_alter(&$children, &$elements) {
     'weight' => $css_defer == 1 ? -50000 : 0,
     'movable' => $css_defer == 1 ? FALSE : TRUE,
   );
+  if ($type !== 'inline') {
+    $options['async'] = TRUE;
+  }
   drupal_add_js($data, $options);
 
   // Wrap CSS in noscript tags.
@@ -616,13 +634,10 @@ function advagg_mod_advagg_modify_css_pre_render_alter(&$children, &$elements) {
         $options['browsers'] = $values['#browsers'];
       }
       $inline = 'loadCSS("' . $values['#attributes']['href'] . '")';
-      // Make defer/async work if enabled.
-      if ((variable_get('advagg_mod_js_defer', ADVAGG_MOD_JS_DEFER)
-        || variable_get('advagg_mod_js_async', ADVAGG_MOD_JS_ASYNC))
-        && $type !== 'inline'
-        ) {
+      // Make async work if it's being used.
+      if ($type !== 'inline') {
         $matches[2] = $matches[0] = $inline;
-        $inline = advagg_mod_wrap_inline_js($matches, "typeof loadCSS === 'function'");
+        $inline = advagg_mod_wrap_inline_js($matches, "typeof loadCSS === 'function'", 40);
       }
       // Add in script tags to load css via js.
       drupal_add_js($inline, $options);
@@ -675,15 +690,19 @@ function advagg_mod_advagg_current_hooks_hash_array_alter(&$aggregate_settings) 
  * Callback for preg_replace_callback.
  *
  * Used to wrap inline JS in a function in order to prevent js errors when JS is
- * moved to the footer.
+ * moved to the footer, or when js is loaded async.
  *
  * @param array $matches
  *   $matches[0] is the full string; $matches[2] is just the JavaScript.
+ * @param string $check_string
+ *   JavaScript if statement; when true, run the inline code.
+ * @param int $ms_wait
+ *   Default amount of time to wait until the required code is available.
  *
  * @return string
  *   Inline javascript code wrapped up in a loader to prevent errors.
  */
-function advagg_mod_wrap_inline_js($matches, $check_string = NULL) {
+function advagg_mod_wrap_inline_js($matches, $check_string = NULL, $ms_wait = 250) {
   if (empty($check_string)) {
     $check_string = "typeof window.Drupal !== 'undefined' && typeof window.Drupal.settings !== 'undefined' && typeof window.jQuery !== 'undefined'";
   }
@@ -710,8 +729,8 @@ function advagg_mod_drupal_settings_loaded$counter() {
       throw e;
     }
     else {
-      // Try again in half a second.
-      window.setTimeout(advagg_mod_drupal_settings_loaded$counter, 500);
+      // Try again in a quarter second.
+      window.setTimeout(advagg_mod_drupal_settings_loaded$counter, $ms_wait);
     }
   }
 }
@@ -720,7 +739,7 @@ function advagg_mod_check_if_drupal_settings_loaded$counter() {
         advagg_mod_drupal_settings_loaded$counter();
     }
     else {
-        window.setTimeout(advagg_mod_check_if_drupal_settings_loaded$counter, 500);
+        window.setTimeout(advagg_mod_check_if_drupal_settings_loaded$counter, $ms_wait);
     }
 }
 advagg_mod_check_if_drupal_settings_loaded$counter();";
@@ -1147,6 +1166,50 @@ function advagg_mod_js_contains_jquery_drupal($filename, $type = '') {
     $results['contents']['jquery'] = FALSE;
   }
   return $results;
+}
+
+function advagg_mod_ga_inline_to_file(&$js) {
+  // Get inline GA js and put it inside of an aggregrate.
+  $ga_script = '';
+  $debug = variable_get('googleanalytics_debug', 0);
+  $library_tracker_url = '//www.google-analytics.com/' . ($debug ? 'analytics_debug.js' : 'analytics.js');
+  $library_cache_url = 'http:' . $library_tracker_url;
+  if (variable_get('googleanalytics_cache', 0) && $ga_script = _googleanalytics_cache($library_cache_url)) {
+    // A dummy query-string is added to filenames, to gain control over
+    // browser-caching. The string changes on every update or full cache
+    // flush, forcing browsers to load a new copy of the files, as the
+    // URL changed.
+    $ga_script_len = strlen('"' . $ga_script . '?' . variable_get('css_js_query_string', '0') . '"');
+
+    $mod_base_url = substr($GLOBALS['base_root'] . $GLOBALS['base_path'], strpos($GLOBALS['base_root'] . $GLOBALS['base_path'], '//') + 2);
+    $mod_base_url_len = strlen($mod_base_url);
+    $ga_script = substr($ga_script, stripos($ga_script, $mod_base_url) + $mod_base_url_len);
+  }
+
+  if (!empty($ga_script)) {
+    foreach ($js as $key => $value) {
+      // Skip if not inline.
+      if ($value['type'] !== 'inline') {
+        continue;
+      }
+      // Skip if it doesn't start with the GoogleAnalytics inline loader string.
+      if (strpos($value['data'], '(function(i,s,o,g,r,a,m){i["GoogleAnalyticsObject"]=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,"script",') !== 0) {
+        continue;
+      }
+      // Strip loader string.
+      $matches[2] = $matches[0] = substr($value['data'], 261 + $ga_script_len + 7);
+      $js[$key]['data'] = advagg_mod_wrap_inline_js($matches, "typeof ga === 'function'");
+
+      // Add GA analytics.js file to the $js array.
+      $js[$ga_script] = array(
+        'data' => $ga_script,
+        'type' => 'file',
+//         'async' => TRUE,
+      );
+      $js[$ga_script] += $value;
+      break;
+    }
+  }
 }
 
 /**

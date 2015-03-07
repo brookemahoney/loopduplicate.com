@@ -61,6 +61,18 @@ function advagg_mod_admin_settings_form() {
     '#default_value' => variable_get('advagg_mod_js_adjust_sort_browsers', ADVAGG_MOD_JS_ADJUST_SORT_BROWSERS),
     '#description' => t('This will group all browser conditional JavaScript to be in the lowest group of that conditional rule.'),
   );
+  $form['js']['adjust_sort']['expert'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Experimental Settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => !variable_get('advagg_mod_ga_inline_to_file', ADVAGG_MOD_GA_INLINE_TO_FILE),
+  );
+  $form['js']['adjust_sort']['expert']['advagg_mod_ga_inline_to_file'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Move Google Analytics analytics.js code from inline to be a file'),
+    '#default_value' => variable_get('advagg_mod_ga_inline_to_file', ADVAGG_MOD_GA_INLINE_TO_FILE),
+  );
+
   // Adjust javascript location and execution.
   $form['js']['placement'] = array(
     '#type' => 'fieldset',
@@ -211,7 +223,7 @@ function advagg_mod_admin_settings_form() {
       0 => t('Disabled'),
       1 => t('All in head, above js'),
       3 => t('All in head'),
-      5 => t('All in footer except for JS loading code'),
+      5 => t('All in footer except for JS loading code (If enabled this is recommended)'),
       7 => t('All in footer'),
     ),
     '#description' => t('This will try to optimize CSS delivery by using JavaScript to load the CSS. This might break CSS on different browsers and will cause a flash of unstyled content (FOUC). Only enable after extensive testing! <a href="@link">More Info</a>', array(
@@ -223,7 +235,7 @@ function advagg_mod_admin_settings_form() {
     '#title' => t('How to include the JS loading code'),
     '#default_value' => variable_get('advagg_mod_css_defer_js_code', ADVAGG_MOD_CSS_DEFER_JS_CODE),
     '#options' => array(
-      0 => t('Inline javascript loader library'),
+      0 => t('Inline javascript loader library (If enabled this is recommended)'),
       2 => t('Local file included in aggregrate'),
 //       4 => t('Externally load the latest from github (SLOW! Not a CDN!!!)'),
     ),

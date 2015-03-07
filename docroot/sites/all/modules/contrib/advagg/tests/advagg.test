@@ -18,6 +18,7 @@ class AdvAggCascadingStylesheetsUnitTest extends DrupalUnitTestCase {
     parent::setUp(array('advagg'));
     // Include the advagg.module file.
     drupal_load('module', 'advagg');
+    module_load_include('inc', 'advagg', 'advagg');
   }
 
  function testLoadCssBasic() {
@@ -77,6 +78,23 @@ class AdvAggCascadingStylesheetsUnitTest extends DrupalUnitTestCase {
     // File. Tests: charset*.css
     // - Any @charaset declaration at the beginning of a file should be
     //   removed without breaking subsequent CSS.
+    $testfiles = array(
+      'charset.css',
+      'charset_newline.css',
+      'charset_sameline.css',
+    );
+    foreach ($testfiles as $file) {
+      $file_path = $path . '/' . $file;
+      $file_url = $GLOBALS['base_url'] . '/' . $file_path;
+
+      $expected = file_get_contents($file_path . '.optimized.css');
+      $optimized_output = advagg_load_stylesheet($file_path, TRUE);
+      $this->assertEqual($optimized_output, $expected, format_string('Optimized CSS file has expected contents (@file)', array('@file' => $file)));
+
+      $expected = file_get_contents($file_path . '.optimized.css');
+      $optimized_output_url = advagg_load_stylesheet($file_url, TRUE);
+      $this->assertEqual($optimized_output_url, $expected, format_string('Optimized CSS file (loaded from an URL) has expected contents (@file)', array('@file' => $file)));
+    }
 
     // File. Tests: advagg*.css
     // - Various url() tests.
@@ -85,21 +103,28 @@ class AdvAggCascadingStylesheetsUnitTest extends DrupalUnitTestCase {
     //   https://www.drupal.org/node/2362643
     //   https://www.drupal.org/node/2112067
     $testfiles = array(
-      'charset.css',
-      'charset_newline.css',
-      'charset_sameline.css',
       'advagg.css',
     );
     foreach ($testfiles as $file) {
       $file_path = $path . '/' . $file;
       $file_url = $GLOBALS['base_url'] . '/' . $file_path;
+      $aggregate_settings = array(
+        'variables' => array(
+          'is_https' => FALSE,
+          'base_path' => '/',
+          'advagg_convert_absolute_to_relative_path' => TRUE,
+          'advagg_convert_absolute_to_protocol_relative_path' => TRUE,
+        ),
+      );
 
       $expected = file_get_contents($file_path . '.optimized.css');
-      $optimized_output = advagg_load_stylesheet($file_path, TRUE);
+      $optimized_output = advagg_load_css_stylesheet($file_path, TRUE, $aggregate_settings);
+      $optimized_output = str_replace('/' . drupal_get_path('module', 'advagg') . '/', '', $optimized_output);
       $this->assertEqual($optimized_output, $expected, format_string('Optimized CSS file has expected contents (@file)', array('@file' => $file)) . '<br>' . nl2br($optimized_output));
 
       $expected = file_get_contents($file_path . '.optimized.css');
-      $optimized_output_url = advagg_load_stylesheet($file_url, TRUE);
+      $optimized_output_url = advagg_load_css_stylesheet($file_url, TRUE, $aggregate_settings);
+      $optimized_output_url = str_replace('/' . drupal_get_path('module', 'advagg') . '/', '', $optimized_output_url);
       $this->assertEqual($optimized_output_url, $expected, format_string('Optimized CSS file (loaded from an URL) has expected contents (@file)', array('@file' => $file)));
     }
   }
