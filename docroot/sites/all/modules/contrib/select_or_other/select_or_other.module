@@ -226,7 +226,7 @@ function select_or_other_element_validate($element, &$form_state) {
   else {
     $value = $element['select']['#value'];
   }
-  if ($other_selected && !$element['other']['#value']) {
+  if ($other_selected && $element['other']['#value'] === '') {
     form_error($element['other'], t('!title field is required.', array('!title' => $element['select']['#title'])));
   }
   if (isset($value)) {

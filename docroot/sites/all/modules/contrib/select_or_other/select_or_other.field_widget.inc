@@ -299,19 +299,23 @@ function select_or_other_field_widget_settings_form($field, $instance) {
     '#description' => t('Label for the field in which the user will supply an <em>other</em> value.'),
     '#default_value' => isset($settings['other_title']) ? $settings['other_title'] : '',
   );
-  $form['other_unknown_defaults'] = array(
-    '#type' => 'select',
-    '#title' => t('<em>Other</em> value as default value'),
-    '#description' => t("If any incoming default values do not appear in <em>available options</em> (i.e. set as <em>other</em> values), what should happen?"),
-    '#options' => array(
-      'other' => t('Add the values to the other textfield'),
-      'append' => t('Append the values to the current list'),
-      'available' => t('Append the values to the available options'),
-      'ignore' => t('Ignore the values'),
-    ),
-    '#default_value' => isset($settings['other_unknown_defaults']) ? $settings['other_unknown_defaults'] : 'other',
-    '#required' => TRUE,
-  );
+
+  if ($field['type'] != 'taxonomy_term_reference') {
+    $form['other_unknown_defaults'] = array(
+      '#type' => 'select',
+      '#title' => t('<em>Other</em> value as default value'),
+      '#description' => t("If any incoming default values do not appear in <em>available options</em> (i.e. set as <em>other</em> values), what should happen?"),
+      '#options' => array(
+        'other' => t('Add the values to the other textfield'),
+        'append' => t('Append the values to the current list'),
+        'available' => t('Append the values to the available options'),
+        'ignore' => t('Ignore the values'),
+      ),
+      '#default_value' => isset($settings['other_unknown_defaults']) ? $settings['other_unknown_defaults'] : 'other',
+      '#required' => TRUE,
+    );
+  }
+
   $form['other_size'] = array(
     '#type' => 'textfield',
     '#title' => t('<em>Other</em> field size'),

@@ -4,9 +4,9 @@ core = 7.x
 package = Fields
 
 files[] = tests/select_or_other_text.test
-; Information added by Drupal.org packaging script on 2015-03-06
+; Information added by Drupal.org packaging script on 2015-03-07
 version = "7.x-3.x-dev"
 core = "7.x"
 project = "select_or_other"
-datestamp = "1425670087"
+datestamp = "1425760383"
 
