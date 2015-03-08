@@ -135,7 +135,11 @@ function loopd_profile_install_set_variables() {
   // the description checkbox, the description text field should be shown but it
   // isn't if jquery is set to 1.9 or 1.10.
   variable_set('jquery_update_jquery_admin_version', '1.8');
-  // Set the active search modules.
+  // Sets theme specific jQuery for the "seven" theme to 1.8 to appease
+  // bootstrap_library.module's status report check.
+  module_load_include('install', 'jquery_update', 'jquery_update');
+  _jquery_update_set_theme_version('seven', '1.8');
+  // Sets the active search modules.
   variable_set('search_active_modules', array(
     'node' => 'node',
     'file_entity' => '0',
