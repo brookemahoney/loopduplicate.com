@@ -5,7 +5,7 @@
 
 /**
  * Implements hook_form_FORM_ID_alter()
- * 
+ *
  * Alters the installation form.
  */
 function loopd_profile_form_install_configure_form_alter(&$form, $form_state) {
@@ -33,7 +33,7 @@ function loopd_profile_install_tasks_alter(&$tasks, $install_state) {
 
 /**
  * Improved dependency checking.
- * 
+ *
  * Code originally in Panopoly.
  * @see http://cgit.drupalcode.org/panopoly_core/tree/panopoly_core.profile.inc.
  */
@@ -117,7 +117,7 @@ function loopd_profile_install_set_variables() {
   // Sets an anonymous maintenance mode message so that if the site's name is
   // ever changed, the message won't contain the original name.
   $maintenance_message = t('We are currently under maintenance and should be'
-      . ' back shortly. Thank you for your patience.');
+    . ' back shortly. Thank you for your patience.');
   variable_set('maintenance_mode_message', $maintenance_message);
   // Sets maximum upload size.
   variable_set('file_entity_max_filesize', '50 MB');
@@ -149,6 +149,24 @@ function loopd_profile_install_set_variables() {
   // Turns on CSS and JS aggregation by default.
   variable_set('preprocess_css', 1);
   variable_set('preprocess_js', 1);
+  // Sets up the Bootstrap library module.
+  variable_set('bootstrap_library_settings', array(
+    'minimized' => array('options' => '1'),
+    'visibility' => array(
+        'visibility' => '0',
+        'pages' => '',
+      ),
+    'theme' => array(
+        'visibility' => '1',
+        'themes' => array('loopd_radix' => 'loopd_radix'),
+      ),
+    'files' => array(
+        'types' => array(
+            'css' => 'css',
+            'js' => 'js',
+          ),
+      ),
+  ));
 }
 
 /**
@@ -167,7 +185,7 @@ function loopd_profile_install_set_theme() {
   // Rebuilds theme caches.
   system_rebuild_theme_data();
   drupal_theme_rebuild();
-  
+
   // Removes page content type.
   $type = 'page';
   node_type_delete($type);

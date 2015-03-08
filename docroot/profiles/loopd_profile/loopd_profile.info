@@ -47,6 +47,7 @@ dependencies[] = admin_menu
 dependencies[] = admin_menu_toolbar
 dependencies[] = block_class
 dependencies[] = blockify
+dependencies[] = bootstrap_library
 dependencies[] = clean_markup
 dependencies[] = clean_markup_blocks
 dependencies[] = clean_markup_panels
