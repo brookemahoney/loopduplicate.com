@@ -901,10 +901,13 @@ function advagg_modify_css_pre_render($elements) {
 
   // Cache attached JS if Aggressive caching is being used.
   if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) >= 3 && isset($elements['#attached']['js'])) {
-    $hooks_hash = advagg_get_current_hooks_hash();
+    // Key sort for better cache hit ratios.
     $css = drupal_add_css();
+    ksort($css);
     $css_hash = drupal_hash_base64(serialize($css));
-    $css_cache_id = 'advagg:css:attached-js:' . $hooks_hash . ':' . $css_hash;
+
+    $hooks_hash = advagg_get_current_hooks_hash();
+    $css_cache_id = 'advagg:css:ajaxPageState:' . $hooks_hash . ':' . $css_hash;
     cache_set($css_cache_id, $elements['#attached']['js'], 'cache_advagg_aggregates', CACHE_TEMPORARY);
   }
   return $elements;
@@ -1144,9 +1147,13 @@ function _advagg_process_html(&$variables) {
     $cids = array();
     // Try the CSS cache; only if not debugging.
     if (advagg_file_aggregation_enabled('css')) {
-      $css_hash = drupal_hash_base64(serialize($variables['css']));
+      // Key sort for better cache hit ratios.
+      $css_copy = $variables['css'];
+      ksort($css_copy);
+      $css_hash = drupal_hash_base64(serialize($css_copy));
+
       $cids[] = $css_cache_id_full = 'advagg:css:full:' . $hooks_hash . ':' . $css_hash;
-      $cids[] = $css_cache_id_attached_js = 'advagg:css:attached-js:' . $hooks_hash . ':' . $css_hash;
+      $cids[] = $css_ajax_page_sate_id = 'advagg:css:ajaxPageState:' . $hooks_hash . ':' . $css_hash;
     }
 
     // Try the JS cache; only if not debugging.
@@ -1156,7 +1163,11 @@ function _advagg_process_html(&$variables) {
       // Exclude JS Settings from the hash.
       $js_settings = $javascript['settings']['data'];
       unset($javascript['settings']['data']);
-      $js_hash = drupal_hash_base64(serialize($javascript));
+
+      // Key sort for better cache hit ratios.
+      $js_copy = $javascript;
+      ksort($js_copy);
+      $js_hash = drupal_hash_base64(serialize($js_copy));
 
       $cids[] = $js_cache_id_full = 'advagg:js:full:' . $hooks_hash . ':' . $js_hash;
     }
@@ -1167,30 +1178,42 @@ function _advagg_process_html(&$variables) {
       if (isset($cached_data[$css_cache_id_full])) {
         $css_cache = $cached_data[$css_cache_id_full];
       }
-      if (isset($cached_data[$css_cache_id_attached_js])) {
-        $css_cache_attached_js = $cached_data[$css_cache_id_attached_js];
+      if (isset($cached_data[$css_ajax_page_sate_id])) {
+        $css_ajax_page_sate = $cached_data[$css_ajax_page_sate_id];
+      }
+      elseif (isset($css_cache)) {
+        // If the $css_cache is set but the ajaxPageState cache is not, do not
+        // use the agressive cache for the $css_cache.
+        unset($css_cache);
       }
       if (isset($cached_data[$js_cache_id_full])) {
         $js_cache = $cached_data[$js_cache_id_full];
       }
+    }
+    if ( module_exists('advagg_mod')
+      && variable_get('advagg_mod_css_defer', ADVAGG_MOD_CSS_DEFER)
+      && !empty($css_cache)
+      && empty($js_cache)
+      ) {
+      // If CSS is being loaded via JavaScript and the css cache is set but the
+      // js cache is not set; then unset the css cache as well.
+      unset($css_cache, $css_ajax_page_sate);
     }
   }
 
   // CSS has nice hooks so we don't need to work around it.
   if (!empty($css_cache->data) && !variable_get('advagg_debug', ADVAGG_DEBUG)) {
     $variables['styles'] = $css_cache->data;
-    $js_settings[]['ajaxPageState']['css'] = (object) array_fill_keys(array_keys($variables['css']), 1);
-
     // Load in the attached js from the cache.
-    if (!empty($css_cache_attached_js->data)) {
+    if (!empty($css_ajax_page_sate->data)) {
       // Code from drupal_process_attached().
-      foreach ($css_cache_attached_js->data as $data => $options) {
+      foreach ($css_ajax_page_sate->data as $data => $options) {
         // If the value is not an array, it's a filename and passed as first
-        // (and only) argument.
+        // (and only) argument. We want settings so we'll skip this entry.
         if (!is_array($options)) {
-          $data = $options;
-          $options = NULL;
+          continue;
         }
+
         // In some cases, the first parameter ($data) is an array. Arrays can't
         // be passed as keys in PHP, so we have to get $data from the value
         // array.
@@ -1198,11 +1221,15 @@ function _advagg_process_html(&$variables) {
           $data = $options['data'];
           unset($options['data']);
         }
+
         if (!empty($js_cache->data)) {
+          // If the $js_cache is not empty, add this cached data to the
+          // $js_settings array.
           $js_settings[] = $data;
         }
         else {
-          call_user_func('drupal_add_js', $data, $options);
+          // Otherwise add the cached data to the core js data.
+          drupal_add_js($data, $options);
         }
       }
       $javascript['settings']['data'] = $js_settings;
@@ -1210,11 +1237,17 @@ function _advagg_process_html(&$variables) {
     }
   }
   else {
+    // Get the CSS.
     $variables['styles'] = advagg_get_css();
     if (!empty($css_cache_id_full)) {
+      // Save to the cache.
       cache_set($css_cache_id_full, $variables['styles'], 'cache_advagg_aggregates', CACHE_TEMPORARY);
     }
+
     if (!empty($js_cache->data)) {
+      // Add current css ajaxPageState to the $js_settings array.
+      $js_settings[]['ajaxPageState']['css'] = (object) array_fill_keys(array_keys($variables['css']), 1);
+
       $javascript['settings']['data'] = $js_settings;
       $js_settings = drupal_array_merge_deep_array($js_settings);
     }
@@ -1234,7 +1267,9 @@ function _advagg_process_html(&$variables) {
   if (!isset($variables['page_bottom']) || !is_string($variables['page_bottom'])) {
     $variables['page_bottom'] = '';
   }
+  $use_cache = FALSE;
   if (!empty($js_cache->data) && !variable_get('advagg_debug', ADVAGG_DEBUG)) {
+    $use_cache = TRUE;
     // Replace cached settings with current ones.
     foreach ($js_cache->data as $key => $value) {
       // Search $value for Drupal.settings.
@@ -1244,6 +1279,18 @@ function _advagg_process_html(&$variables) {
         // Get raw json from the cache and decode it.
         $json = trim(substr($value, $start + 30, $end - $start - 30 + 1));
         $out = json_decode($json, TRUE);
+
+        // If PHP's built in json_decode fails try the PECL decoder.
+        // It handles bad json a lot better.
+        if (is_null($out)) {
+          module_load_include('json.inc', 'advagg');
+          $json_decode = new Services_JSON(SERVICES_JSON_LOOSE_TYPE);
+          $out = $json_decode->decode($json);
+          if (empty($out)) {
+            $use_cache = FALSE;
+            break;
+          }
+        }
 
         // Use ['ajaxPageState']['js'] from the cached data.
         $js_settings['ajaxPageState']['js'] = $out['ajaxPageState']['js'];
@@ -1262,7 +1309,7 @@ function _advagg_process_html(&$variables) {
       $variables[$key] .= $value;
     }
   }
-  else {
+  if (!$use_cache) {
     $js_cache = array();
     $js_cache['scripts'] = '';
     $javascript = advagg_get_full_js($javascript);
