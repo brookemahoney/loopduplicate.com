@@ -669,28 +669,6 @@ function advagg_requirements($phase) {
       );
     }
   }
-  if (module_exists('cdn')) {
-    $file_path = drupal_get_path('module', 'cdn');
-    if (!file_exists($file_path . '/cdn.advagg.inc')) {
-      $requirements['advagg_module_cdn_patch'] = array(
-        'title' => $t('Adv CSS/JS Agg - CDN module'),
-        'severity' => REQUIREMENT_WARNING,
-        'value' => $t('The CDN module needs a patch to be fully compatible with AdvAgg.'),
-        'description' => $t('You should install the latest patch in <a href="@link">this issue</a>.', array('@link' => 'http://drupal.org/node/1942230')),
-      );
-    }
-    else {
-      module_load_include('inc', 'cdn', 'cdn.advagg');
-      if (!function_exists('cdn_advagg_context_alter')) {
-        $requirements['advagg_module_cdn_patch'] = array(
-          'title' => $t('Adv CSS/JS Agg - CDN module'),
-          'severity' => REQUIREMENT_ERROR,
-          'value' => $t('The CDN module needs to use the latest patch to be compatible with AdvAgg.'),
-          'description' => $t('You need to install the latest patch in <a href="@link">this issue</a>.', array('@link' => 'http://drupal.org/node/1942230')),
-        );
-      }
-    }
-  }
   if (module_exists('labjs')) {
     if (!function_exists('labjs_advagg_modify_js_pre_render_alter')) {
       $requirements['advagg_module_labjs_patch'] = array(
@@ -1088,9 +1066,11 @@ function advagg_install_chk_urls(&$requirements, $urls, $options, $mod_url, $typ
             'title' => $t('Adv CSS/JS Agg - gzip'),
             'severity' => REQUIREMENT_WARNING,
             'value' => $t('Gzip is failing for %type files.', array('%type' => $type)),
-            'description' => $t('The web servers configuration will need to be adjusted. In most cases make sure that the webroots .htaccess file still contains this section "Rules to correctly serve gzip compressed CSS and JS files". Certain default web server configurations (<a href="!nginx">nginx</a>) do not gzip HTTP/1.0 requests. Raw request info: <pre>@request</pre>', array(
+            'description' => $t('The web servers configuration will need to be adjusted. In most cases make sure that the webroots .htaccess file still contains this section "Rules to correctly serve gzip compressed CSS and JS files". Certain default web server configurations (<a href="!nginx">nginx</a>) do not gzip HTTP/1.0 requests. If you are using cloudfront you will have to <a href="!cloudfront">add metadata</a> to the .gz files. There are some other options if using <a href="!so">cloudfront</a>. Raw request info: <pre>@request</pre>', array(
               '!nginx' => 'http://www.cdnplanet.com/blog/gzip-nginx-cloudfront/',
               '@request' => print_r($request, TRUE),
+              '!cloudfront' => 'http://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/ServingCompressedFiles.html#CompressedS3',
+              '!so' => 'http://stackoverflow.com/questions/5442011/serving-gzipped-css-and-javascript-from-amazon-cloudfront-via-s3',
             )),
           );
         }

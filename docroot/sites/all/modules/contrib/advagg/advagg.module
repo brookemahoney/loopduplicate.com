@@ -2043,8 +2043,22 @@ function advagg_current_hooks_hash_array() {
     $aggregate_settings['variables']['language'] = isset($GLOBALS['language']->language) ? $GLOBALS['language']->language : '';
   }
 
+  // Add the base url if so desired to.
   if (variable_get('advagg_include_base_url', ADVAGG_INCLUDE_BASE_URL)) {
     $aggregate_settings['variables']['base_url'] = $GLOBALS['base_url'];
+  }
+
+  // CDN module settings.
+  // Patch in https://www.drupal.org/node/1942230#comment-7927171 is fine
+  // on a technical level but I got fustrated with all the reports about it not
+  // working with no good reason as to why it doesn't work.
+  if (!function_exists('cdn_advagg_current_hooks_hash_array_alter') && module_exists('cdn')) {
+    $aggregate_settings['variables'][CDN_MODE_VARIABLE] = variable_get(CDN_MODE_VARIABLE, CDN_MODE_BASIC);
+    $aggregate_settings['variables'][CDN_BASIC_FARFUTURE_VARIABLE] = variable_get(CDN_BASIC_FARFUTURE_VARIABLE, CDN_BASIC_FARFUTURE_DEFAULT);
+    $aggregate_settings['variables'][CDN_HTTPS_SUPPORT_VARIABLE] = variable_get(CDN_HTTPS_SUPPORT_VARIABLE, FALSE);
+    $aggregate_settings['variables'][CDN_STATUS_VARIABLE] = variable_get(CDN_STATUS_VARIABLE, CDN_DISABLED);
+    $aggregate_settings['variables']['cdn_request_is_https'] = cdn_request_is_https();
+    $aggregate_settings['variables']['cdn_check_drupal_path'] = cdn_check_drupal_path($_GET['q']);
   }
 
   // Allow other modules to add in their own settings and hooks.

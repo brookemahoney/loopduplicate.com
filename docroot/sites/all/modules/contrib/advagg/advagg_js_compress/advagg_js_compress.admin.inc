@@ -25,12 +25,15 @@ function advagg_js_compress_admin_settings_form($form, $form_state) {
   $description = '';
   $options = array(
     0 => t('Disabled'),
-    1 => t('JSMin+'),
-    // 2 => t('Packer'),
+    1 => t('JSMin+ ~1300ms'),
+    // 2 => t('Packer ~500ms'),
+    // 3 is JSMin c extension.
+    // 4 is JShrink.
+    // 5 is JSqueeze.
   );
   if (function_exists('jsmin')) {
-    $options[3] = t('JSMin');
-    $description .= t('JSMin is the C complied version and is about 25 times faster. Recommend using it.');
+    $options[3] = t('JSMin ~2ms');
+    $description .= t('JSMin is the very fast C complied version. Recommend using it.');
   }
   else {
     if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 50310) {
@@ -39,8 +42,16 @@ function advagg_js_compress_admin_settings_form($form, $form_state) {
     else {
       $link = 'https://github.com/sqmk/pecl-jsmin/';
     }
-    $description .= t('You can use the much faster C version of JSMin by installing the <a href="@php_jsmin">JSMin PHP Extension</a> on this server.', array('@php_jsmin' => $link));
+    $description .= t('You can use the much faster C version of JSMin (~2ms) by installing the <a href="@php_jsmin">JSMin PHP Extension</a> on this server.', array('@php_jsmin' => $link));
   }
+  // Add in JShrink & JSqueeze if using php 5.3 or higher.
+  if (defined('PHP_VERSION_ID') & PHP_VERSION_ID >= 50300) {
+    $options += array(
+      4 => t('JShrink ~1000ms'),
+      5 => t('JSqueeze ~600ms'),
+    );
+  }
+
   $form['advagg_js_compressor'] = array(
     '#type' => 'radios',
     '#title' => t('File Compression: Select a Compressor'),

@@ -221,6 +221,12 @@ function advagg_js_compress_get_enabled_compressors($aggregate_settings = array(
   if ($compressor == -1) {
     return $compressors;
   }
+  if (defined('PHP_VERSION_ID') & PHP_VERSION_ID >= 50300) {
+    $compressors += array(
+      4 => 'jshrink',
+      5 => 'jsqueeze',
+    );
+  }
 
   $return_compressors = array();
   if (!empty($compressor)) {
@@ -248,12 +254,24 @@ function advagg_js_compress_get_enabled_compressors($aggregate_settings = array(
       $return_compressors[2] = $compressors[2];
     }
     if ($file == 3) {
+      // jsmin check.
       if (isset($compressors[3])) {
         $return_compressors[3] = $compressors[3];
       }
+      // fallback to jsqueeze.
+      elseif (isset($compressors[5])) {
+        $return_compressors[5] = $compressors[5];
+      }
+      // fallback to jsmin+.
       else {
         $return_compressors[1] = $compressors[1];
       }
+    }
+    if ($file == 4) {
+      $return_compressors[4] = $compressors[4];
+    }
+    if ($file == 5) {
+      $return_compressors[5] = $compressors[5];
     }
   }
 
@@ -295,8 +313,14 @@ function advagg_js_compress_prep(&$contents, $filename, $aggregate_settings, $ad
 
   // Do not use jsmin() if the function can not be called.
   if ($compressor == 3 && !function_exists('jsmin')) {
-    $compressor = 1;
-    watchdog('advagg_js_compress', 'The jsmin function does not exist. Using jsmin+.');
+    if (defined('PHP_VERSION_ID') & PHP_VERSION_ID >= 50300) {
+      $compressor = 5;
+      watchdog('advagg_js_compress', 'The jsmin function does not exist. Using JSqueeze.');
+    }
+    else {
+      $compressor = 1;
+      watchdog('advagg_js_compress', 'The jsmin function does not exist. Using JSmin+.');
+    }
   }
 
   // Try cache.
@@ -320,6 +344,12 @@ function advagg_js_compress_prep(&$contents, $filename, $aggregate_settings, $ad
     }
     elseif ($compressor == 3) {
       $contents = jsmin($contents);
+    }
+    elseif ($compressor == 4) {
+      $contents = advagg_js_compress_jshrink($contents);
+    }
+    elseif ($compressor == 5) {
+      $contents = advagg_js_compress_jsqueeze($contents);
     }
 
     // Ensure that $contents ends with ; or }.
@@ -383,6 +413,92 @@ function advagg_js_compress_jsminplus(&$contents, $log_errors = TRUE) {
   }
   catch (Exception $e) {
     // Log the exception thrown by JSMin+ and roll back to uncompressed content.
+    if ($log_errors) {
+      watchdog('advagg_js_compress', $e->getMessage() . '<pre>' . $contents_before . '</pre>', NULL, WATCHDOG_WARNING);
+    }
+    $contents = $contents_before;
+  }
+  ob_end_clean();
+}
+
+/**
+ * Compress a JS string using jshrink.
+ *
+ * @param string $contents
+ *   Javascript string.
+ * @param bool $log_errors
+ *   FALSE to disable logging to watchdog on failure.
+ */
+function advagg_js_compress_jshrink(&$contents, $log_errors = TRUE) {
+  $contents_before = $contents;
+
+  // Only include jshrink.inc if the \JShrink\Minifier class doesn't exist.
+  if (!class_exists('\JShrink\Minifier')) {
+    include drupal_get_path('module', 'advagg_js_compress') . '/jshrink.inc';
+    $nesting_level = ini_get('xdebug.max_nesting_level');
+    if (!empty($nesting_level) && $nesting_level < 200) {
+      ini_set('xdebug.max_nesting_level', 200);
+    }
+  }
+  ob_start();
+  try {
+    // JShrink the contents of the aggregated file.
+    $contents = \JShrink\Minifier::minify($contents, array('flaggedComments' => FALSE));
+
+    // Capture any output from JShrink.
+    $error = trim(ob_get_contents());
+    if (!empty($error)) {
+      throw new Exception($error);
+    }
+  }
+  catch (Exception $e) {
+    // Log the exception thrown by JShrink and roll back to uncompressed content.
+    if ($log_errors) {
+      watchdog('advagg_js_compress', $e->getMessage() . '<pre>' . $contents_before . '</pre>', NULL, WATCHDOG_WARNING);
+    }
+    $contents = $contents_before;
+  }
+  ob_end_clean();
+}
+
+/**
+ * Compress a JS string using jsqueeze.
+ *
+ * @param string $contents
+ *   Javascript string.
+ * @param bool $log_errors
+ *   FALSE to disable logging to watchdog on failure.
+ */
+function advagg_js_compress_jsqueeze(&$contents, $log_errors = TRUE) {
+  $contents_before = $contents;
+
+  // Only include jshrink.inc if the \Patchwork\JSqueeze class doesn't exist.
+  if (!class_exists('\Patchwork\JSqueeze')) {
+    include drupal_get_path('module', 'advagg_js_compress') . '/jsqueeze.inc';
+    $nesting_level = ini_get('xdebug.max_nesting_level');
+    if (!empty($nesting_level) && $nesting_level < 200) {
+      ini_set('xdebug.max_nesting_level', 200);
+    }
+  }
+  ob_start();
+  try {
+    // Minify the contents of the aggregated file.
+    $jz = new \Patchwork\JSqueeze();
+    $contents = $jz->squeeze(
+      $contents,
+      TRUE,  // $singleLine
+      !variable_get('advagg_js_compress_add_license', ADVAGG_JS_COMPRESS_ADD_LICENSE),  // $keepImportantComments
+      FALSE   // $specialVarRx
+    );
+
+    // Capture any output from JSqueeze.
+    $error = trim(ob_get_contents());
+    if (!empty($error)) {
+      throw new Exception($error);
+    }
+  }
+  catch (Exception $e) {
+    // Log the exception thrown by JSqueeze and roll back to uncompressed content.
     if ($log_errors) {
       watchdog('advagg_js_compress', $e->getMessage() . '<pre>' . $contents_before . '</pre>', NULL, WATCHDOG_WARNING);
     }
