@@ -470,7 +470,7 @@ function advagg_get_css_aggregate_contents($files, $aggregate_settings) {
   if (!empty($files)) {
     $media_changes = FALSE;
     $last_media = NULL;
-    foreach ($files as $file => $settings) {
+    foreach ($files as $settings) {
       if (!isset($settings['media'])) {
         continue;
       }

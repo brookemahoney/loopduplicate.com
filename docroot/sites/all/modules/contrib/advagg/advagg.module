@@ -553,10 +553,18 @@ function advagg_element_info_alter(&$type) {
   // Swap in our own aggregation callback.
   if (isset($type['styles']['#aggregate_callback'])) {
     $type['styles']['#aggregate_callback'] = '_advagg_aggregate_css';
-    $type['styles']['#pre_render'] = array(
-      'advagg_pre_render_styles',
-      'advagg_modify_css_pre_render',
-    );
+
+    // Replace drupal_pre_render_styles with advagg_pre_render_styles.
+    $key = array_search('drupal_pre_render_styles', $type['styles']['#pre_render']);
+    if ($key !== FALSE) {
+      $type['styles']['#pre_render'][$key] = 'advagg_pre_render_styles';
+    }
+    else {
+      $type['styles']['#pre_render'][] = 'advagg_pre_render_styles';
+    }
+
+    // Allow for other code to easily change the render with alter hooks.
+    $type['styles']['#pre_render'][] = 'advagg_modify_css_pre_render';
   }
 
   // Swap in our own aggregation callback.
@@ -572,6 +580,8 @@ function advagg_element_info_alter(&$type) {
       '#type' => 'scripts',
     );
   }
+
+  // Allow for other code to easily change the render with alter hooks.
   $type['scripts']['#pre_render'][] = 'advagg_modify_js_pre_render';
 }
 

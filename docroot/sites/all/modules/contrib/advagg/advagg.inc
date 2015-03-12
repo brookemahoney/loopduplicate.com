@@ -448,6 +448,20 @@ function advagg_get_info_on_files($files, $bypass_cache = FALSE, $run_alter = TR
     $file_contents = file_get_contents($file);
 
     $ext = pathinfo($file, PATHINFO_EXTENSION);
+    if ($ext !== 'css' && $ext !== 'js') {
+      // Get the $ext from the database,
+      $row = db_select('advagg_files', 'af')
+        ->fields('af')
+        ->condition('filename', $file)
+        ->execute()->fetchAssoc();
+      if (!empty($row['filetype'])) {
+        $ext = $row['filetype'];
+      }
+      if ($ext === 'less') {
+        $ext = 'css';
+      }
+    }
+
     if ($ext === 'css') {
       // Get the number of selectors.
       // @ignore sniffer_files_linelength_toolong
@@ -620,12 +634,27 @@ function advagg_generate_groups($files_to_aggregate) {
 
       // Group into the biggest buckets possible.
       $onload = array();
+      $last_ext = '';
       foreach ($values['items'] as $file_info) {
         $parts = array();
         // Check to see if media, browsers, defer, async, cache, or scope has
         // changed from the previous run of this loop.
         $changed = FALSE;
         $ext = isset($file_info['fileext']) ? $file_info['fileext'] : pathinfo($file_info['data'], PATHINFO_EXTENSION);
+        if ($ext !== 'css' && $ext !== 'js') {
+          if (empty($last_ext)) {
+            // Get the $ext from the database,
+            $row = db_select('advagg_files', 'af')
+              ->fields('af')
+              ->condition('filename', $file_info['data'])
+              ->execute()->fetchAssoc();
+            $ext = $row['filetype'];
+          }
+          else {
+            $ext = $last_ext;
+          }
+        }
+        $last_ext = $ext;
         if ($ext === 'css') {
           if (isset($file_info['media'])) {
             if (variable_get('advagg_combine_css_media', ADVAGG_COMBINE_CSS_MEDIA)) {
@@ -708,7 +737,7 @@ function advagg_generate_groups($files_to_aggregate) {
               $changed = TRUE;
               $selector_count = $file_info['linecount'];
 
-              // Break large file into multiple small files.
+              // Break large file into multiple smaller files.
               if ($file_info['linecount'] > $limit_value) {
                 $parts = advagg_split_css_file($file_info);
               }
@@ -998,7 +1027,7 @@ function advagg_create_subfile($css, $overall_split, $file_info) {
   // Write the current chunk of the CSS into a file.
   $new_filename = str_ireplace('.css', '.' . $overall_split . '.css', $uri_path);
 
-  // Fix for things like LESS which write dynamically to the public file system.
+  // Fix for things that write dynamically to the public file system.
   $scheme = file_uri_scheme($new_filename);
   if ($scheme) {
     $wrapper = file_stream_wrapper_get_instance_by_scheme($scheme);

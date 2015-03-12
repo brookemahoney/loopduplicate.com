@@ -593,8 +593,8 @@ function advagg_mod_advagg_modify_css_pre_render_alter(&$children, &$elements) {
   }
   if ($css_defer_js_code == 0) {
     $type = 'inline';
-    $data = '// [c]2014 @scottjehl, Filament Group, Inc. Licensed MIT.
-function loadCSS(a,b,c,d){"use strict";function h(){for(var a,b=0;b<g.length;b++)g[b].href&&g[b].href.indexOf(e.href)>-1&&(a=!0);a?e.media=c||"all":setTimeout(h)}var e=window.document.createElement("link"),f=b||window.document.getElementsByTagName("script")[0],g=window.document.styleSheets;return e.rel="stylesheet",e.href=a,e.media="only x",d&&(e.onload=d),f.parentNode.insertBefore(e,f),h(),e}';
+    $data = '//[c]2014 @scottjehl, Filament Group, Inc. Licensed MIT.
+function loadCSS(a,b,c,d){"use strict";var e=window.document.createElement("link"),f=b||window.document.getElementsByTagName("script")[0],g=window.document.styleSheets;return e.rel="stylesheet",e.href=a,e.media="only x",d&&(e.onload=d),f.parentNode.insertBefore(e,f),e.onloadcssdefined=function(b){for(var c,d=0;d<g.length;d++)g[d].href&&g[d].href.indexOf(a)>-1&&(c=!0);c?b():setTimeout(function(){e.onloadcssdefined(b)})},e.onloadcssdefined(function(){e.media=c||"all"}),e}';
   }
   $options = array(
     'type' => $type,
