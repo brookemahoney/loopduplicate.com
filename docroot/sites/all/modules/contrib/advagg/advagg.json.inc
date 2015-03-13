@@ -1,4 +1,21 @@
 <?php
+// @ignore comment_docblock_file:file
+// @ignore style_curly_braces:file
+// @ignore style_string_spacing:file
+// @ignore style_else_spacing:file
+// @ignore comment_comment_docblock_missing:file
+// @ignore comment_comment_eg:file
+// @ignore production_code:file
+// @ignore druplart_unary:file
+// @ignore style_uppercase_constants:file
+// @ignore comment_comment_space:file
+// @ignore druplart_conditional_assignment:file
+// @ignore style_paren_spacing:file
+// @ignore style_no_tabs:file
+// @ignore style_class_names:file
+// @ignore style_control_spacing:file
+// @ignore style_indent_spaces:file
+// @ignore :file
 
 /**
  * Converts to and from JSON format.
@@ -50,7 +67,7 @@
  * @author      Matt Knapp <mdknapp[at]gmail[dot]com>
  * @author      Brett Stimmerman <brettstimmerman[at]gmail[dot]com>
  * @copyright   2005 Michal Migurski
- * @version     CVS: $Id: JSON.php,v 1.31 2006/06/28 05:54:17 migurski Exp $
+ * @version     JSON.php,v 1.31 2006/06/28 05:54:17 migurski Exp $
  * @license     http://www.opensource.org/licenses/bsd-license.php
  * @link        http://pear.php.net/pepr/pepr-proposal-show.php?id=198
  */

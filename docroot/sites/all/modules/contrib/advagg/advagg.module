@@ -151,7 +151,7 @@ define('ADVAGG_INCLUDE_BASE_URL', FALSE);
 /**
  * Convert absolute path CSS/JS src/url() to be relative if self referencing.
  */
-define('ADVAGG_CONVERT_ABSOLUTE_TO_RELATIVE_PATH', TRUE);
+define('ADVAGG_CONVERT_ABSOLUTE_TO_RELATIVE_PATH', FALSE);
 
 /**
  * Convert absolute path CSS/JS src/url() to be protocol relative.
@@ -394,7 +394,7 @@ function advagg_file_url_alter(&$original_uri) {
   // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace:11
   // @ignore sniffer_whitespace_closebracketspacing_closingwhitespace:19
   // @ignore sniffer_commenting_inlinecomment_spacingafter
-
+  //
   // CDN fix.
   // Do nothing if
   //  in maintenance_mode
@@ -618,7 +618,7 @@ function advagg_ajax_render_alter(&$commands) {
   }
 
   // Get Core JS.
-  list($styles, $core_scripts_header, $core_scripts_footer, $items, $settings) = advagg_build_ajax_js_css();
+  list( , $core_scripts_header, $core_scripts_footer, $items, $settings) = advagg_build_ajax_js_css();
 
   // Get AdvAgg JS.
   $scripts_footer = advagg_get_js('footer', $items['js'], TRUE, TRUE);
@@ -635,29 +635,28 @@ function advagg_ajax_render_alter(&$commands) {
     // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace:22
     // @ignore sniffer_whitespace_closebracketspacing_closingwhitespace:25
     // @ignore sniffer_commenting_inlinecomment_spacingafter
-
-    if (   $values['command'] === 'settings'
-        && is_array($values['settings'])
-        && !empty($values['merge'])
-        ) {
+    if ( $values['command'] === 'settings'
+      && is_array($values['settings'])
+      && !empty($values['merge'])
+    ) {
       // Remove JS settings.
       unset($commands[$key]);
       continue;
     }
-    if (   $values['command'] === 'insert'
-        && is_null($values['settings'])
-        && $values['method'] === 'prepend'
-        && $values['data'] == $core_scripts_header
-        ) {
+    if ( $values['command'] === 'insert'
+      && is_null($values['settings'])
+      && $values['method'] === 'prepend'
+      && $values['data'] == $core_scripts_header
+    ) {
       // Remove JS header.
       unset($commands[$key]);
       continue;
     }
-    if (   $values['command'] === 'insert'
-        && is_null($values['settings'])
-        && $values['method'] === 'append'
-        && $values['data'] == $core_scripts_footer
-        ) {
+    if ( $values['command'] === 'insert'
+      && is_null($values['settings'])
+      && $values['method'] === 'append'
+      && $values['data'] == $core_scripts_footer
+    ) {
       // Remove JS footer.
       unset($commands[$key]);
       continue;
@@ -693,7 +692,7 @@ function advagg_js_alter(&$js) {
   $mod_base_url_len = strlen($mod_base_url);
 
   // Fix type if it was incorrectly set.
-  foreach ($js as $key => &$value) {
+  foreach ($js as &$value) {
     if (empty($value['data']) || !is_string($value['data'])) {
       continue;
     }
@@ -744,7 +743,7 @@ function advagg_css_alter(&$css) {
   }
 
   // Fix type if it was incorrectly set.
-  foreach ($css as $key => &$value) {
+  foreach ($css as &$value) {
     if (empty($value['data']) || !is_string($value['data'])) {
       continue;
     }
@@ -1163,7 +1162,7 @@ function _advagg_process_html(&$variables) {
       $css_hash = drupal_hash_base64(serialize($css_copy));
 
       $cids[] = $css_cache_id_full = 'advagg:css:full:' . $hooks_hash . ':' . $css_hash;
-      $cids[] = $css_ajax_page_sate_id = 'advagg:css:ajaxPageState:' . $hooks_hash . ':' . $css_hash;
+      $cids[] = $css_ajax_page_state_id = 'advagg:css:ajaxPageState:' . $hooks_hash . ':' . $css_hash;
     }
 
     // Try the JS cache; only if not debugging.
@@ -1188,8 +1187,8 @@ function _advagg_process_html(&$variables) {
       if (isset($cached_data[$css_cache_id_full])) {
         $css_cache = $cached_data[$css_cache_id_full];
       }
-      if (isset($cached_data[$css_ajax_page_sate_id])) {
-        $css_ajax_page_sate = $cached_data[$css_ajax_page_sate_id];
+      if (isset($cached_data[$css_ajax_page_state_id])) {
+        $css_ajax_page_sate = $cached_data[$css_ajax_page_state_id];
       }
       elseif (isset($css_cache)) {
         // If the $css_cache is set but the ajaxPageState cache is not, do not
@@ -1200,8 +1199,8 @@ function _advagg_process_html(&$variables) {
         $js_cache = $cached_data[$js_cache_id_full];
       }
     }
-    if ( module_exists('advagg_mod')
-      && variable_get('advagg_mod_css_defer', ADVAGG_MOD_CSS_DEFER)
+    if (((module_exists('advagg_mod') && variable_get('advagg_mod_css_defer', ADVAGG_MOD_CSS_DEFER))
+      || (module_exists('css_delivery') && css_delivery_enabled()))
       && !empty($css_cache)
       && empty($js_cache)
       ) {
@@ -1762,7 +1761,7 @@ function advagg_get_js_scopes($javascript) {
 
   // Filter out elements of the given scope.
   $scopes = array();
-  foreach ($javascript as $key => $item) {
+  foreach ($javascript as $item) {
     // Skip if the scope is not set.
     if (!is_array($item) || empty($item['scope'])) {
       continue;
@@ -3010,14 +3009,14 @@ function advagg_drupal_sort_css_js_stable(&$items) {
   $sorted = array();
   // Sort group; then iterate over it.
   ksort($nested);
-  foreach ($nested as $group => &$group_items) {
+  foreach ($nested as &$group_items) {
     // Reverse sort every_page; then iterate over it.
     krsort($group_items);
-    foreach ($group_items as $ep => &$ep_items) {
+    foreach ($group_items as &$ep_items) {
       // Sort weight; then iterate over it.
       ksort($ep_items);
       // Finally, order by weight.
-      foreach ($ep_items as $weight => &$weight_items) {
+      foreach ($ep_items as &$weight_items) {
         foreach ($weight_items as $key => &$item) {
           $sorted[$key] = $item;
         }

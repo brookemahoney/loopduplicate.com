@@ -26,7 +26,7 @@ function advagg_js_compress_requirements($phase) {
     // Check all files.
     $file_settings = variable_get('advagg_js_compressor_file_settings', array());
     $compression_used = FALSE;
-    foreach ($file_settings as $form_api_filename => $setting) {
+    foreach ($file_settings as $setting) {
       if (!empty($setting)) {
         $compression_used = TRUE;
         break;

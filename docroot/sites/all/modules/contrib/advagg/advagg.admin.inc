@@ -219,13 +219,15 @@ function advagg_admin_settings_form($form, $form_state) {
     '#type' => 'checkbox',
     '#title' => t('Convert absolute paths to be self references.'),
     '#default_value' => variable_get('advagg_convert_absolute_to_relative_path', ADVAGG_CONVERT_ABSOLUTE_TO_RELATIVE_PATH),
-    '#description' => t('If the src to a CSS/JS file points to this domain, convert the absolute path to a relative path. Will also convert url() references inside of css files.'),
+    '#description' => t('If the src to a CSS/JS file points to this domain, convert the absolute path to a relative path. Will also convert url() references inside of css files. This is generally safe unless the drupal page will be embedded, like it is when used as an iframe.'),
   );
   $form['global']['obscure']['advagg_convert_absolute_to_protocol_relative_path'] = array(
     '#type' => 'checkbox',
     '#title' => t('Convert absolute paths to be protocol relative paths.'),
     '#default_value' => variable_get('advagg_convert_absolute_to_protocol_relative_path', ADVAGG_CONVERT_ABSOLUTE_TO_PROTOCOL_RELATIVE_PATH),
-    '#description' => t('If the src to a CSS/JS file points starts with http:// or https://, convert it to use a protocol relative path //. Will also convert url() references inside of css files. This is incompatible with IE6 and might cause extra bandwith usage in IE7 & IE8 in regards to url() calls in css files.'),
+    '#description' => t('If the src to a CSS/JS file points starts with http:// or https://, convert it to use a protocol relative path //. Will also convert url() references inside of css files. This is incompatible with IE6 and might cause extra bandwith usage in IE7 & IE8 in regards to url() statements inside css files. According to <a href="@url">current web browser market share</a> IE 6 is less than 0.2% of the total number of browsers in use & IE 7+8 make up under 5% of browsers in use.', array(
+      '@url' => 'http://www.w3counter.com/trends',
+    )),
     '#states' => array(
       'enabled' => array(
         '#edit-advagg-force-https-path' => array('checked' => FALSE),
@@ -492,7 +494,7 @@ function advagg_admin_info_form($form, $form_state) {
   drupal_theme_initialize();
   $core_hooks = theme_get_registry();
   $advagg_hooks = advagg_hooks_implemented();
-  list($css_path, $js_path) = advagg_get_root_files_dir();
+  list( , $js_path) = advagg_get_root_files_dir();
 
   // Output html process functions hooks.
   $form['info'] = array(
@@ -708,7 +710,7 @@ function advagg_admin_get_file_info_callback($form, &$form_state) {
   }
   $info = advagg_admin_get_file_info($form_state['values']['filename']);
   if (empty($info)) {
-    form_set_error('filename', 'Please input a valid aggregate filename.');
+    form_set_error('filename', t('Please input a valid aggregate filename.'));
     return '<div id="advagg-file-info-ajax"></div>';
   }
   else {
@@ -727,7 +729,7 @@ function advagg_admin_get_file_info_callback($form, &$form_state) {
  */
 function advagg_admin_get_file_info_validate($form, &$form_state) {
   if (empty($form_state['values']['filename'])) {
-    form_set_error('filename', 'Please input an aggregate filename.');
+    form_set_error('filename', t('Please input an aggregate filename.'));
     $form_state['values']['error'] = TRUE;
   }
 }
@@ -751,7 +753,7 @@ function advagg_admin_get_file_info($filename) {
   $data = advagg_get_hashes_from_filename(basename($filename));
   $output = array();
   if (is_array($data)) {
-    list($type, $aggregate_filenames_hash, $aggregate_contents_hash, $aggregate_settings) = $data;
+    list($type, $aggregate_filenames_hash, $aggregate_contents_hash) = $data;
 
     // Get a list of files.
     $files = advagg_get_files_from_hashes($type, $aggregate_filenames_hash, $aggregate_contents_hash);

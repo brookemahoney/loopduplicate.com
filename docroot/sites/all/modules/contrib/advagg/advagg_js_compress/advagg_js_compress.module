@@ -100,7 +100,7 @@ function advagg_js_compress_advagg_modify_js_pre_render_alter(&$children, &$elem
 
   // Compress any inline JS.
   module_load_include('inc', 'advagg_js_compress', 'advagg_js_compress.advagg');
-  foreach ($children as $key => &$values) {
+  foreach ($children as &$values) {
     if (!empty($values['#value'])) {
       $contents = $values['#value'];
       $filename = drupal_hash_base64($contents);

@@ -78,7 +78,6 @@ function advagg_validator_test_css_files($files, $options = array()) {
     $lines = file($filename);
     $filename_hash = drupal_hash_base64($filename);
     $content_hash = drupal_hash_base64($file_contents);
-    $update = FALSE;
 
     // See if this file needs to be scanned.
     $file_ok = db_select('advagg_validator', 'av')
@@ -94,7 +93,6 @@ function advagg_validator_test_css_files($files, $options = array()) {
           continue 2;
         }
       }
-      $update = TRUE;
     }
 
     // Run jigsaw.w3.org validator.
@@ -102,7 +100,7 @@ function advagg_validator_test_css_files($files, $options = array()) {
 
     // Get extra context for errors.
     if (!empty($output[$filename]['jigsaw.w3.org']['errors'])) {
-      foreach ($output[$filename]['jigsaw.w3.org']['errors'] as $key => &$value) {
+      foreach ($output[$filename]['jigsaw.w3.org']['errors'] as &$value) {
         if (isset($value['line'])) {
           $value['linedata'] = $lines[($value['line'] - 1)];
           if (strlen($value['linedata']) > 512) {
@@ -112,7 +110,7 @@ function advagg_validator_test_css_files($files, $options = array()) {
       }
     }
     if (!empty($output[$filename]['jigsaw.w3.org']['warnings'])) {
-      foreach ($output[$filename]['jigsaw.w3.org']['warnings'] as $key => &$value) {
+      foreach ($output[$filename]['jigsaw.w3.org']['warnings'] as &$value) {
         if (isset($value['line'])) {
           $value['linedata'] = $lines[$value['line'] - 1];
           if (strlen($value['linedata']) > 512) {

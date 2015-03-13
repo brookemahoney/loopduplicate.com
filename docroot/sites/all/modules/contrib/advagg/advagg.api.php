@@ -270,7 +270,7 @@ function hook_advagg_get_css_file_contents_alter(&$contents, $file, $aggregate_s
  * @see advagg_get_css_aggregate_contents()
  * @see advagg_css_compress_advagg_get_css_aggregate_contents_alter()
  */
-function hook_advagg_get_js_file_contents_alter(&$contents, $file, $aggregate_settings) {
+function hook_advagg_get_js_file_contents_alter(&$contents, $filename, $aggregate_settings) {
   // Do nothing if js file compression is disabled.
   if (empty($aggregate_settings['variables']['advagg_js_compressor'])) {
     return;

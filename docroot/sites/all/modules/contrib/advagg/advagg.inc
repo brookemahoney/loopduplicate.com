@@ -28,7 +28,7 @@ function advagg_insert_update_db($files, $type, $root) {
   $write_done = FALSE;
 
   // Loop through all files.
-  foreach ($files as $aggregate_file_name => $values) {
+  foreach ($files as $values) {
     // Insert files into the advagg_files table if it doesn't exist.
     // Update if needed.
     if (advagg_insert_update_files($values['files'], $type)) {
@@ -243,7 +243,7 @@ function advagg_insert_update_files($files, $type) {
  */
 function advagg_generate_filenames($groups, $type) {
   $files = array();
-  foreach ($groups as $key => $data) {
+  foreach ($groups as $data) {
     foreach ($data as $files_with_meta_data) {
 
       // Get the aggregate filename & info about each file.
@@ -1008,7 +1008,7 @@ function advagg_create_subfile($css, $overall_split, $file_info) {
   static $parts_uri;
   static $parts_path;
   if (!isset($parts_uri)) {
-    list($css_path, $js_path) = advagg_get_root_files_dir();
+    list($css_path) = advagg_get_root_files_dir();
     $parts_uri = $css_path[0] . '/parts';
     $parts_path = $css_path[1] . '/parts';
 
@@ -1151,7 +1151,7 @@ function advagg_build_aggregate_plans($files_to_aggregate, $type) {
 
   // Create the aggregate files.
   if (variable_get('advagg_pregenerate_aggregate_files', ADVAGG_PREGENERATE_AGGREGATE_FILES)) {
-    $output = advagg_create_aggregate_files($plans, $type);
+    advagg_create_aggregate_files($plans, $type);
   }
 
   return $plans;

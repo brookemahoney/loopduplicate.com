@@ -186,8 +186,7 @@ function advagg_missing_send_saved_file($files_to_save, $uri, $created, $type, $
  */
 function advagg_missing_set_farfuture_headers() {
   // Hat tip to the CDN module for the far future headers.
-  // @ignore sniffer_commenting_inlinecomment_spacingafter
-
+  //
   // Browsers that implement the W3C Access Control specification might refuse
   // to use certain resources such as fonts if those resources violate the
   // same-origin policy. Send a header to explicitly allow cross-domain use of
@@ -427,7 +426,7 @@ function advagg_get_files_from_hashes($type, $aggregate_filenames_hash, $aggrega
     aav.aggregate_filenames_hash AND aa.aggregate_filenames_hash = :aggregate_filenames_hash',
     array(':aggregate_filenames_hash' => $aggregate_filenames_hash));
   // Create join query for the advagg_files table.
-  $subquery_files = $query->join('advagg_files', 'af', 'af.filename_hash = aa.filename_hash AND
+  $query->join('advagg_files', 'af', 'af.filename_hash = aa.filename_hash AND
     af.filetype = :type', array(':type' => $type));
   // Select fields and ordering of the query; add in query comment as well.
   $query = $query->fields('af', array('filename'))
@@ -758,8 +757,7 @@ function advagg_save_data($uri, $data, $overwrite = FALSE) {
   // the same directory and then rename it to the destination. A temporary file
   // is needed if the directory is mounted on a separate machine; thus ensuring
   // the rename command stays local.
-  // @ignore sniffer_commenting_inlinecomment_spacingafter
-
+  //
   // Get a temporary filename in the destination directory.
   $dir = drupal_dirname($uri) . '/';
   $temporary_file = drupal_tempnam($dir, 'file_advagg_');
@@ -784,16 +782,18 @@ function advagg_save_data($uri, $data, $overwrite = FALSE) {
   // Save to temporary filename in the destination directory.
   $filepath = file_unmanaged_save_data($data, $temporary_file, FILE_EXISTS_REPLACE);
 
-  // Perform the rename operation.
-  $result = @rename($temporary_file, $uri);
-  if (!$result) {
-    // Unlink and try again for windows. Rename on windows does not replace
-    // the file if it already exists.
-    @unlink($uri);
-    $result = @rename($temporary_file, $uri);
-    // Remove temporary_file if rename failed.
+  if ($filepath) {
+    // Perform the rename operation.
+    $result = @rename($filepath, $uri);
     if (!$result) {
-      @unlink($temporary_file);
+      // Unlink and try again for windows. Rename on windows does not replace
+      // the file if it already exists.
+      @unlink($uri);
+      $result = @rename($filepath, $uri);
+      // Remove temporary_file if rename failed.
+      if (!$result) {
+        @unlink($filepath);
+      }
     }
   }
 }

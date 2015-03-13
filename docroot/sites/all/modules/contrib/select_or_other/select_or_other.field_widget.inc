@@ -379,11 +379,12 @@ function select_or_other_taxonomy_validate($element, &$form_state) {
   $value = array();
 
   // Get the selected tags and unset the select_or_other option.
-  $tags = $element['select']['#value'];
-  unset($tags['select_or_other']);
+  $tags = drupal_map_assoc((array) $element['select']['#value']);
   // Get the other value and prepare it for processing.
-  $typed = $element['other']['#value'];
-  $tags += drupal_explode_tags($typed);
+  if(isset($tags['select_or_other'])){
+    unset($tags['select_or_other']);
+    $tags += drupal_explode_tags($element['other']['#value']);
+  }
 
   if ($tags) {
     // Collect candidate vocabularies.
@@ -400,7 +401,7 @@ function select_or_other_taxonomy_validate($element, &$form_state) {
       // See if the term exists in the chosen vocabulary and return the tid;
       // otherwise, create a new 'autocreate' term for insert/update.
       if ($possibilities = taxonomy_term_load_multiple(array(), array('name' => trim($tag), 'vid' => array_keys($vocabularies)))) {
-        $term = array_pop($possibilities);
+        $term = (array) array_pop($possibilities);
       }
       else {
         $vocabulary = reset($vocabularies);
@@ -411,7 +412,12 @@ function select_or_other_taxonomy_validate($element, &$form_state) {
           'vocabulary_machine_name' => $vocabulary->machine_name,
         );
       }
-      $value[] = (array)$term;
+      if ($term['tid'] !== 'autocreate'){
+        $value[$term['tid']] = $term;
+      }
+      else {
+        $value[] = $term;
+      }
     }
   }
 

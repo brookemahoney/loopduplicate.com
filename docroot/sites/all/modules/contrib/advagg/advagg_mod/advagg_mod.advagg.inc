@@ -11,7 +11,7 @@
  * Used to make sure the info is up to date in the cache.
  */
 function advagg_mod_advagg_get_info_on_files_alter(&$return, $cached_data, $bypass_cache) {
-  foreach ($return as $filename => &$info) {
+  foreach ($return as &$info) {
     if (empty($info['fileext']) || $info['fileext'] !== 'js') {
       continue;
     }

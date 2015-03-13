@@ -82,6 +82,18 @@ function module_filter_settings() {
     '#description' => t('When enabled, the active tab will be remembered.'),
     '#default_value' => variable_get('module_filter_remember_active_tab', 1),
   );
+  $form['tabs']['module_filter_version_column'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Place version in own column'),
+    '#description' => t("Moves the version out of the description and into it's own column"),
+    '#default_value' => variable_get('module_filter_version_column', 0),
+  );
+  $form['tabs']['module_filter_expanded_description'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Expand description by default'),
+    '#description' => t('When enabled, the description will be expanded by default.'),
+    '#default_value' => variable_get('module_filter_expanded_description', 0),
+  );
 
   $form['update'] = array(
     '#type' => 'fieldset',

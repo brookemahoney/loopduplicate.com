@@ -346,7 +346,7 @@ function advagg_mod_css_alter(&$css) {
 
   // Force all CSS to be preprocessed.
   if (variable_get('advagg_mod_css_preprocess', ADVAGG_MOD_CSS_PREPROCESS)) {
-    foreach ($css as $name => &$values) {
+    foreach ($css as &$values) {
       $values['preprocess'] = TRUE;
     }
   }
@@ -1019,7 +1019,7 @@ function advagg_mod_inline_page() {
 function advagg_mod_inline_js(&$js) {
   $aggregate_settings = advagg_current_hooks_hash_array();
 
-  foreach ($js as $name => &$values) {
+  foreach ($js as &$values) {
     // Only process files.
     if ($values['type'] !== 'file') {
       continue;
@@ -1051,7 +1051,7 @@ function advagg_mod_inline_css(&$css) {
   $optimize = TRUE;
   module_load_include('inc', 'advagg', 'advagg');
 
-  foreach ($css as $name => &$values) {
+  foreach ($css as &$values) {
     // Only process files.
     if ($values['type'] !== 'file') {
       continue;
@@ -1268,7 +1268,7 @@ function advagg_remove_js_if_not_used(&$js) {
 
   // Look at each JavaScript entry & get the info on it.
   $files_info_filenames = array();
-  foreach ($js as $name => &$values) {
+  foreach ($js as &$values) {
     if ($values['type'] === 'file' || $values['type'] === 'external') {
       foreach ($files_skiplist as $skip_name) {
         if (substr_compare($values['data'], $skip_name, -strlen($skip_name), strlen($skip_name)) === 0) {

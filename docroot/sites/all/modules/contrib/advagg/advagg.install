@@ -282,11 +282,9 @@ function advagg_update_7200(&$sandbox) {
   // Check and see if new tables exist.
   $table_names = array_keys(advagg_schema());
   $all_tables_exist = TRUE;
-  $missing_tables = array();
   foreach ($table_names as $table_name) {
     if (!db_table_exists($table_name)) {
       $all_tables_exist = FALSE;
-      $missing_tables[] = $table_name;
     }
   }
   // Bail if needed DB Tables exist.
@@ -682,22 +680,22 @@ function advagg_requirements($phase) {
 
   // Check that https is correct.
   // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace:2
-  if (  empty($GLOBALS['is_https']) &&
-        (  (isset($_SERVER['HTTPS']) &&  strtolower($_SERVER['HTTPS']) === 'on')
-        || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
-        || (isset($_SERVER['HTTP_HTTPS']) && $_SERVER['HTTP_HTTPS'] === 'on')
-          )
-    ) {
+  if ( empty($GLOBALS['is_https']) &&
+    (  (isset($_SERVER['HTTPS']) &&  strtolower($_SERVER['HTTPS']) === 'on')
+    || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
+    || (isset($_SERVER['HTTP_HTTPS']) && $_SERVER['HTTP_HTTPS'] === 'on')
+    )
+  ) {
     $requirements['advagg_is_https_check'] = array(
       'title' => $t('Adv CSS/JS Agg - HTTPS'),
       'severity' => REQUIREMENT_WARNING,
       'value' => $t('The core global $is_https is not TRUE.'),
       'description' => $t('You need to add in this logic near the top your settings.php file: <pre>@code</pre>', array(
-        '@code' => 'if ( (isset($_SERVER["HTTPS"]) && strtolower($_SERVER["HTTPS"]) == "on")
-|| (isset($_SERVER["HTTP_X_FORWARDED_PROTO"]) && $_SERVER["HTTP_X_FORWARDED_PROTO"] == "https")
-|| (isset($_SERVER["HTTP_HTTPS"]) && $_SERVER["HTTP_HTTPS"] == "on")
+        '@code' => 'if ( (isset($_SERVER[\'HTTPS\']) && strtolower($_SERVER[\'HTTPS\']) == \'on\')
+  || (isset($_SERVER[\'HTTP_X_FORWARDED_PROTO\']) && $_SERVER[\'HTTP_X_FORWARDED_PROTO\'] == \'https\')
+  || (isset($_SERVER[\'HTTP_HTTPS\']) && $_SERVER[\'HTTP_HTTPS\'] == \'on\')
 ) {
-$_SERVER["HTTPS"] = "on";
+  $_SERVER[\'HTTPS\'] = \'on\';
 }')));
   }
 
@@ -1250,7 +1248,6 @@ function advagg_install_chk_urls(&$requirements, $urls, $options, $mod_url, $typ
  */
 function advagg_install_get_first_advagg_file($file_path) {
   module_load_include('inc', 'advagg', 'advagg.missing');
-  $counter = 0;
   $filename = '';
 
   // Open the advagg directory.
@@ -1300,9 +1297,8 @@ function advagg_install_get_first_advagg_file($file_path) {
     }
 
     $data = advagg_get_hashes_from_filename(basename($filename));
-    $output = array();
     if (is_array($data)) {
-      list($type, $aggregate_filenames_hash, $aggregate_contents_hash, $aggregate_settings) = $data;
+      list($type, $aggregate_filenames_hash, $aggregate_contents_hash) = $data;
 
       // Get a list of files.
       $files = advagg_get_files_from_hashes($type, $aggregate_filenames_hash, $aggregate_contents_hash);

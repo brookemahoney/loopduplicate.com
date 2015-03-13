@@ -140,7 +140,7 @@ function advagg_bundler_analysis($filename = '', $force = FALSE) {
 
           // Use most recent bundler_analysis data.
           $max = 0;
-          foreach ($cache_hits as $cid => $data) {
+          foreach ($cache_hits as $data) {
             if ($data->created > $max) {
               $max = $data->created;
               $cache = $data;

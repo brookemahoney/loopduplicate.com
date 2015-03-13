@@ -6,9 +6,9 @@ dependencies[] = advagg
 
 configure = admin/config/development/performance/advagg/js-compress
 
-; Information added by Drupal.org packaging script on 2015-03-12
-version = "7.x-2.7+97-dev"
+; Information added by Drupal.org packaging script on 2015-03-13
+version = "7.x-2.7+102-dev"
 core = "7.x"
 project = "advagg"
-datestamp = "1426124300"
+datestamp = "1426214586"
 

@@ -20,13 +20,13 @@ function advagg_css_compress_requirements($phase) {
 
   // Make sure a compressor is being used.
   // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
-  if (   variable_get('advagg_css_compressor', ADVAGG_CSS_COMPRESSOR) == 0
-      && variable_get('advagg_css_inline_compressor', ADVAGG_CSS_INLINE_COMPRESSOR) == 0
-      ) {
+  if ( variable_get('advagg_css_compressor', ADVAGG_CSS_COMPRESSOR) == 0
+    && variable_get('advagg_css_inline_compressor', ADVAGG_CSS_INLINE_COMPRESSOR) == 0
+  ) {
     // Check all files.
     $file_settings = variable_get('advagg_css_compressor_file_settings', array());
     $compression_used = FALSE;
-    foreach ($file_settings as $form_api_filename => $setting) {
+    foreach ($file_settings as $setting) {
       if (!empty($setting)) {
         $compression_used = TRUE;
         break;

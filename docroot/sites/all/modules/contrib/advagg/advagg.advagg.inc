@@ -73,7 +73,7 @@ function advagg_advagg_build_aggregate_plans_alter(&$files, &$modified, $type) {
 
   $temp_new_files = array();
   $counter = 0;
-  foreach ($files as $filename => $data) {
+  foreach ($files as $data) {
     $group = NULL;
     $every_page = NULL;
     foreach ($data['files'] as $fileinfo) {
@@ -215,7 +215,7 @@ function advagg_advagg_get_info_on_files_alter(&$return, $cached_data, $bypass_c
   list($css_path) = advagg_get_root_files_dir();
   $parts_path = $css_path[1] . '/parts';
 
-  foreach ($return as $filename => &$info) {
+  foreach ($return as &$info) {
     // Skip if not a css file.
     if (empty($info['fileext']) || $info['fileext'] !== 'css') {
       continue;

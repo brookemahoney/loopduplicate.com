@@ -78,7 +78,7 @@ function advagg_css_compress_advagg_modify_css_pre_render_alter(&$children, &$el
   module_load_include('inc', 'advagg_css_compress', 'advagg_css_compress.advagg');
   if ($compressor == 2) {
     // Compress any inline CSS with YUI.
-    foreach ($children as $key => &$values) {
+    foreach ($children as &$values) {
       if (!empty($values['#value'])) {
         advagg_css_compress_yui_cssmin($values['#value']);
       }

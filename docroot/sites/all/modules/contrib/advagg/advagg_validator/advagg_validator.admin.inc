@@ -335,6 +335,7 @@ function advagg_validator_admin_test_advagg_css_directory_callback($form, &$form
 
   // Check list.
   $info = advagg_validator_test_css_files($files);
+  $wrapper = '';
   if (empty($info)) {
     return '<div id="' . $wrapper . '" class="results"></div>';
   }
@@ -361,7 +362,6 @@ function advagg_validator_admin_test_advagg_css_subdirectory_submit($form, &$for
   module_load_include('inc', 'advagg_validator', 'advagg_validator');
 
   $dir = trim(substr($form_state['values']['op'], strpos($form_state['values']['op'], ':') + 1));
-  $slash_count = substr_count('/' . $dir, '/');
 
   // Get list of files.
   $files = array();
@@ -395,7 +395,6 @@ function advagg_validator_admin_test_advagg_css_subdirectory_callback($form, &$f
   module_load_include('inc', 'advagg_validator', 'advagg_validator');
 
   $dir = trim(substr($form_state['values']['op'], strpos($form_state['values']['op'], ':') + 1));
-  $slash_count = substr_count('/' . $dir, '/');
 
   // Get list of files.
   $files = array();
@@ -408,6 +407,7 @@ function advagg_validator_admin_test_advagg_css_subdirectory_callback($form, &$f
 
   // Check list.
   $info = advagg_validator_test_css_files($files);
+  $wrapper = '';
   if (empty($info)) {
     return '<div id="' . $wrapper . '" class="results"></div>';
   }

@@ -37,6 +37,9 @@ function theme_module_filter_system_modules_tabs($variables) {
     array('data' => t('Description'), 'class' => array('description')),
     array('data' => t('Links'), 'class' => array('links')),
   );
+  if (variable_get('module_filter_version_column', 0)) {
+    array_splice($header, 2, 0, array(array('data' => t('Version'), 'class' => array('version'))));
+  }
   $package_ids = array('all');
   $enabled['all'] = array();
 
@@ -101,11 +104,15 @@ function theme_module_filter_system_modules_tabs($variables) {
       }
       $row[] = array('class' => array('name'), 'data' => $label . '><strong>' . drupal_render($module['name']) . '</strong> <span class="module-machine-name">(' . $key . ')</span></label>');
 
+      if (variable_get('module_filter_version_column', 0) && $version) {
+        $row[] = array('class' => array('version'), 'data' => drupal_render($module['version']));
+      }
+
       // Add the description, along with any modules it requires.
       $description = '<span class="details"><span class="text">' . drupal_render($module['description']) . '</span></span>';
-      if ($version || $requires || $required_by) {
+      if ($requires || $required_by || (!variable_get('module_filter_version_column', 0) && $version)) {
         $description .= '<div class="requirements">';
-        if ($version) {
+        if (!variable_get('module_filter_version_column', 0) && $version) {
           $description .= '<div class="admin-requirements">' . t('Version: !module-version', array('!module-version' => drupal_render($module['version']))) . '</div>';
         }
         if ($requires) {

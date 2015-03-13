@@ -1,4 +1,25 @@
-<?php // vi: set fenc=utf-8 ts=4 sw=4 et:
+<?php
+// @ignore comment_docblock_file:file
+// @ignore style_curly_braces:file
+// @ignore style_string_spacing:file
+// @ignore style_else_spacing:file
+// @ignore comment_comment_docblock_missing:file
+// @ignore comment_comment_eg:file
+// @ignore production_code:file
+// @ignore druplart_unary:file
+// @ignore style_uppercase_constants:file
+// @ignore comment_comment_space:file
+// @ignore druplart_conditional_assignment:file
+// @ignore style_paren_spacing:file
+// @ignore style_no_tabs:file
+// @ignore comment_docblock_comment:file
+// @ignore comment_comment_indent:file
+// @ignore style_comma_spacing:file
+// @ignore style_elseif:file
+// @ignore :file
+
+
+
 /*
  * Copyright (C) 2015 Nicolas Grekas - p@tchwork.com
  *
