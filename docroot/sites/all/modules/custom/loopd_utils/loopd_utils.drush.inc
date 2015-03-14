@@ -31,19 +31,17 @@ function loopd_utils_drush_command() {
  * Drush command callback to enable dev mode.
  */
 function drush_loopd_utils_loopd_devmode_on() {
-  $module_utils = new LoopDUtilsModule();
-  $module_list = $module_utils->getDevModules();
-  $module_utils->enable($module_list);
-  drupal_set_message('Dev Mode Enabled.');
+  $module_list = LoopDUtils::getDevModules();
+  LoopDUtils::enable($module_list);
+  drupal_set_message(t('Dev Mode Enabled.'));
 }
 
 /**
  * Drush command callback to disable dev mode.
  */
 function drush_loopd_utils_loopd_devmode_off() {
-  $module_utils = new LoopDUtilsModule();
-  $module_list = $module_utils->getDevModules();
-  $module_utils->uninstall($module_list);
+  $module_list = LoopDUtils::getDevModules();
+  LoopDUtils::uninstall($module_list);
   cache_clear_all();
-  drupal_set_message('Dev Mode Disabled.');
+  drupal_set_message(t('Dev Mode Disabled.'));
 }

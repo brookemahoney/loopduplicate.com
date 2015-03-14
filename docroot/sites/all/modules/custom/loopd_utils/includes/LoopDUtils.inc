@@ -7,13 +7,7 @@
 /**
  * Utilities related to modules.
  */
-class LoopDUtilsModule {
-
-  public function __construct() {
-    // Nothing yet. I this method here so that if another class extends this
-    // class, parent::__construct() can be called in the constructor for that
-    // class.
-  }
+class LoopDUtils {
 
   /**
    * Uninstalls modules.
@@ -25,7 +19,7 @@ class LoopDUtilsModule {
    * @see module_disable()
    * @see drupal_uninstall_modules()
    */
-  public function uninstall(array $module_list, $uninstall_dependents = TRUE) {
+  public static function uninstall(array $module_list, $uninstall_dependents = TRUE) {
     foreach ($module_list as $module_single) {
       $module_single = array($module_single);
       module_disable($module_single, $uninstall_dependents);
@@ -35,7 +29,6 @@ class LoopDUtilsModule {
         drupal_set_message($message, 'warning');
       }
     }
-    return $this;
   }
 
   /**
@@ -47,7 +40,7 @@ class LoopDUtilsModule {
    * 
    * @see module_enable()
    */
-  public function enable(array $module_list, $enable_dependencies = TRUE) {
+  public static function enable(array $module_list, $enable_dependencies = TRUE) {
     foreach ($module_list as $module_single) {
       $module_single = array($module_single);
       if (!module_enable($module_single, $enable_dependencies)) {
@@ -56,13 +49,12 @@ class LoopDUtilsModule {
         drupal_set_message($message, 'warning');
       }
     }
-    return $this;
   }
 
   /**
    * Gets an indexed array of development modules suitable for module_enable().
    */
-  public function getDevModules() {
+  public static function getDevModules() {
     return array(
       // Modules which depend on other modules should be listed first.
       'search_krumo',
@@ -78,5 +70,37 @@ class LoopDUtilsModule {
       // it.
       'temppp',
     );
+  }
+
+  /**
+   * Checks if a string starts with a string.
+   *
+   * @param string $haystack <p>
+   * The string to search in
+   * </p>
+   * @param string $needle <p>
+   * The string to search for
+   * </p>
+   * @return bool If haystack starts with needle, returns TRUE.
+   */
+  public static function startsWith($haystack, $needle) {
+    // Searches backwards starting from haystack length characters from the end
+    return $needle === "" || strrpos($haystack, $needle, -strlen($haystack)) !== FALSE;
+  }
+
+  /**
+   * Checks if a string ends with a string.
+   *
+   * @param string $haystack <p>
+   * The string to search in
+   * </p>
+   * @param string $needle <p>
+   * The string to search for
+   * </p>
+   * @return bool If haystack ends with needle, returns TRUE.
+   */
+  public static function endsWith($haystack, $needle) {
+    // Searches forward starting from end minus needle length characters
+    return $needle === "" || (($temp = strlen($haystack) - strlen($needle)) >= 0 && strpos($haystack, $needle, $temp) !== FALSE);
   }
 }
