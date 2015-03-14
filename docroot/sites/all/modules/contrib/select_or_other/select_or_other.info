@@ -5,9 +5,9 @@ package = Fields
 
 files[] = tests/select_or_other_text.test
 files[] = tests/select_or_other_number.test
-; Information added by Drupal.org packaging script on 2015-03-12
+; Information added by Drupal.org packaging script on 2015-03-14
 version = "7.x-3.x-dev"
 core = "7.x"
 project = "select_or_other"
-datestamp = "1426197199"
+datestamp = "1426342309"
 

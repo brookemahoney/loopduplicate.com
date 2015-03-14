@@ -172,7 +172,7 @@ function select_or_other_field_widget_form_prepare_options($field, $instance, $h
 function select_or_other_taxonomy_default_value($items, $delta) {
   if (!empty($items[$delta]['tid'])) {
     $term = taxonomy_term_load_multiple(array($items[$delta]['tid']));
-    $default_value = !empty($items[$delta]['tid']) ? $term[$items[$delta]['tid']]->name : NULL;
+    $default_value = $items[$delta]['tid'] !== 'autocreate' ? $term[$items[$delta]['tid']]->name : NULL;
   }
   else {
     $default_value = NULL;
