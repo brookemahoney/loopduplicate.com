@@ -30,12 +30,7 @@ function loopd_radix_css_alter(&$css) {
  * Implements hook_js_alter().
  */
 function loopd_radix_js_alter(&$javascript) {
-  // Removes a Radix JS file. This theme uses a modified version which can be
-  // found in the assets/javascripts/source/contrib folder.
-  $radix_path = drupal_get_path('theme', 'radix');
-  unset($javascript[$radix_path . '/assets/javascripts/radix-script.js']);
-
-  // Removes Bootstrap CDN call from Radix.
+  // Removes Bootstrap JS CDN call from Radix.
   $js_names = array_keys($javascript);
   foreach ($js_names as $js_name) {
     if (LoopDUtils::endsWith($js_name, 'bootstrap.min.js')) {
