@@ -11,8 +11,9 @@ include_once 'loopd_article.features.inc';
  *
  * Alters the node form for Articles.
  */
-function loopd_article_form_article_node_form_alter(&$form, &$form_state, $form_id) {
-  $options = &$form['field_article_type'][LANGUAGE_NONE]['#options'];
+function loopd_article_form_article_node_form_alter(&$form) {
+  $language = entity_language('node', $form['#node']);
+  $options = &$form['field_article_type'][$language]['#options'];
 
   // Removes "Drupal Module" option leaving only child terms selectable.
   unset($options[18]);
@@ -20,6 +21,8 @@ function loopd_article_form_article_node_form_alter(&$form, &$form_state, $form_
   // Formats child terms of "Drupal Module" (removes preceding dash.)
   $drupal_module_tids = array(22, 20, 19, 21);
   foreach ($drupal_module_tids as $drupal_module_tid) {
-    $options[$drupal_module_tid] = substr($options[$drupal_module_tid], 1);
+    if (isset($options[$drupal_module_tid])) {
+      $options[$drupal_module_tid] = substr($options[$drupal_module_tid], 1);
+    }
   }
 }
