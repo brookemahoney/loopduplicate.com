@@ -1192,13 +1192,20 @@ function advagg_mod_js_contains_jquery_drupal($filename, $type = '') {
   return $results;
 }
 
+/**
+ * Move analytics.js to be a file instead of inline.
+ *
+ * @param array $js
+ *   JS array.
+ */
 function advagg_mod_ga_inline_to_file(&$js) {
   // Get inline GA js and put it inside of an aggregrate.
   $ga_script = '';
   $debug = variable_get('googleanalytics_debug', 0);
   $library_tracker_url = '//www.google-analytics.com/' . ($debug ? 'analytics_debug.js' : 'analytics.js');
   $library_cache_url = 'http:' . $library_tracker_url;
-  if (variable_get('googleanalytics_cache', 0) && $ga_script = _googleanalytics_cache($library_cache_url)) {
+  $ga_script = _googleanalytics_cache($library_cache_url);
+  if (variable_get('googleanalytics_cache', 0) && $ga_script) {
     // A dummy query-string is added to filenames, to gain control over
     // browser-caching. The string changes on every update or full cache
     // flush, forcing browsers to load a new copy of the files, as the

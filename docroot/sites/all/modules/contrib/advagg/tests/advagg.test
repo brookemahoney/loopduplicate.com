@@ -1,9 +1,18 @@
 <?php
 
 /**
+ * @file
+ * Tests for advagg.module.
+ */
+
+/**
  * CSS Unit Tests.
  */
 class AdvAggCascadingStylesheetsUnitTest extends DrupalUnitTestCase {
+
+  /**
+   * Provide information to the UI for this test.
+   */
   public static function getInfo() {
     return array(
       'name' => 'CSS Unit Tests',
@@ -12,6 +21,9 @@ class AdvAggCascadingStylesheetsUnitTest extends DrupalUnitTestCase {
     );
   }
 
+  /**
+   * Install the advagg module and include needed files.
+   */
   function setUp() {
     // Enable any modules required for the test. This should be an array of
     // module names.
@@ -21,7 +33,10 @@ class AdvAggCascadingStylesheetsUnitTest extends DrupalUnitTestCase {
     module_load_include('inc', 'advagg', 'advagg');
   }
 
- function testLoadCssBasic() {
+  /**
+   * Test for CSS optimizations, url(), and css include statements.
+   */
+  function testLoadCssBasic() {
     // Array of files to test living in 'advagg/tests/css_test_files/'.
     // - Original: name.css
     // - Unoptimized expected content: name.css.unoptimized.css
@@ -40,7 +55,7 @@ class AdvAggCascadingStylesheetsUnitTest extends DrupalUnitTestCase {
     // - Imported files that are external (protocol-relative URL or not)
     //   should not be expanded. (https://drupal.org/node/2014851)
 
-    // File in subfolder. Tests: css_subfolder/css_input_with_import.css.
+    // File in sub-folder. Tests: css_subfolder/css_input_with_import.css.
     // - CSS import path is properly interpreted. (https://drupal.org/node/1198904)
     // - Don't adjust data URIs (https://drupal.org/node/2142441)
 
@@ -128,4 +143,5 @@ class AdvAggCascadingStylesheetsUnitTest extends DrupalUnitTestCase {
       $this->assertEqual($optimized_output_url, $expected, format_string('Optimized CSS file (loaded from an URL) has expected contents (@file)', array('@file' => $file)));
     }
   }
+
 }

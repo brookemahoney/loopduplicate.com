@@ -3106,6 +3106,7 @@ function advagg_json_encode($data) {
         $pretty_data = httprl_pr($data);
       }
       elseif (module_exists('devel') && function_exists('kprint_r')) {
+        // @ignore production_php:1
         $pretty_data = kprint_r($data);
       }
       else {
@@ -3370,7 +3371,8 @@ function advagg_load_stylesheet($file, $optimize = NULL, $reset_basepath = TRUE)
   // stylesheets in their .info file that don't exist in the theme's path,
   // but are merely there to disable certain module CSS files.
   $content = '';
-  if ($contents = @file_get_contents($file)) {
+  $contents = @file_get_contents($file);
+  if ($contents) {
     // Return the processed stylesheet.
     $content = advagg_load_stylesheet_content($contents, $_optimize);
   }
@@ -3419,9 +3421,10 @@ function advagg_load_stylesheet_content($contents, $optimize = FALSE) {
     // There are different conditions for removing leading and trailing
     // whitespace.
     // @see http://php.net/manual/regexp.reference.subpatterns.php
+    // @ignore comment_comment_shell:13
     $contents = preg_replace('<
       # Do not strip any space from within single or double quotes
-      ('.$double_quot.'|'.$single_quot.')
+      (' . $double_quot . '|' . $single_quot . ')
       # Strip leading and trailing whitespace.
       | \s*([@{};,])\s*
       # Strip only leading whitespace from:
@@ -3466,7 +3469,7 @@ function _advagg_load_stylesheet($matches) {
   $directory = dirname($filename);
   // If the file is in the current directory, make sure '.' doesn't appear in
   // the url() path.
-  $directory = $directory == '.' ? '' : $directory .'/';
+  $directory = $directory == '.' ? '' : $directory . '/';
 
   // Alter all internal url() paths. Leave external paths alone. We don't need
   // to normalize absolute paths here (i.e. remove folder/... segments) because
