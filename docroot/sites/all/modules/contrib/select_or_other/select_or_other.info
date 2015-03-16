@@ -3,11 +3,13 @@ description = "Provides a select box form element with additional option 'Other'
 core = 7.x
 package = Fields
 
-files[] = tests/select_or_other_text.test
 files[] = tests/select_or_other_number.test
-; Information added by Drupal.org packaging script on 2015-03-14
+files[] = tests/select_or_other_taxonomy.test
+files[] = tests/select_or_other_text.test
+
+; Information added by Drupal.org packaging script on 2015-03-15
 version = "7.x-3.x-dev"
 core = "7.x"
 project = "select_or_other"
-datestamp = "1426342309"
+datestamp = "1426443791"
 

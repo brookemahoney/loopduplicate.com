@@ -94,12 +94,12 @@ class SelectOrOtherNumberTestCase extends DrupalWebTestCase {
    * Tests Select or Other without other selected.
    */
   function testNoOtherSelected() {
-    $edit = array();
     $langcode = LANGUAGE_NONE;
 
     foreach ($this->field_options as $cardinality => $field_types) {
       foreach ($field_types as $type => $field_names) {
         foreach ($field_names as $field_name => $options) {
+          $edit = array();
           // A node requires a title
           $edit["title"] = $this->randomName(8);
           $keys = array_keys($options);
@@ -134,12 +134,12 @@ class SelectOrOtherNumberTestCase extends DrupalWebTestCase {
   }
 
   function testOtherSelected() {
-    $edit = array();
     $langcode = LANGUAGE_NONE;
 
     foreach ($this->field_options as $cardinality => $field_types) {
       foreach ($field_types as $type => $field_names) {
         foreach ($field_names as $field_name => $options) {
+          $edit = array();
           // A node requires a title
           $edit["title"] = $this->randomName(8);
           if ($cardinality === 'single') {
@@ -178,12 +178,12 @@ class SelectOrOtherNumberTestCase extends DrupalWebTestCase {
 
 
   function testOtherSelectedWithPreExistingKey(){
-    $edit = array();
     $langcode = LANGUAGE_NONE;
 
     foreach ($this->field_options as $cardinality => $field_types) {
       foreach ($field_types as $type => $field_names) {
         foreach ($field_names as $field_name => $options) {
+          $edit = array();
           // A node requires a title
           $edit["title"] = $this->randomName(8);
 

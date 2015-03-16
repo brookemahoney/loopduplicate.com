@@ -385,6 +385,8 @@ function select_or_other_taxonomy_validate($element, &$form_state) {
     unset($tags['select_or_other']);
     $tags += drupal_explode_tags($element['other']['#value']);
   }
+  // Unset the _none value to prevent PDO exceptions.
+  unset($tags['_none']);
 
   if ($tags) {
     // Collect candidate vocabularies.
