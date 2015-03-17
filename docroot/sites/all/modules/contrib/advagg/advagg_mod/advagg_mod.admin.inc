@@ -112,6 +112,26 @@ function advagg_mod_admin_settings_form() {
       ),
     ),
   );
+  $form['js']['placement']['advagg_mod_wrap_inline'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Inline skip list for wrapper code'),
+    '#collapsible' => TRUE,
+    '#collapsed' => empty(trim(variable_get('advagg_mod_wrap_inline_js_skip_list', ADVAGG_MOD_WRAP_INLINE_JS_SKIP_LIST))),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="advagg_mod_js_footer_inline_alter"]' => array('checked' => TRUE),
+      ),
+    ),
+  );
+  $form['js']['placement']['advagg_mod_wrap_inline']['advagg_mod_wrap_inline_js_skip_list'] = array(
+    '#type' => 'textarea',
+    '#default_value' => variable_get('advagg_mod_wrap_inline_js_skip_list', ADVAGG_MOD_WRAP_INLINE_JS_SKIP_LIST),
+    '#description' => t("If the inline JavaScript matches a given string then the whole inline script will not be wrapped. Enter one per line. Useful for things like conversion.js from the Google tracking code, as this is not async friendly (conversion.js needs global varaibles that were previously defined). In that case enter <code>@code</code> or equivalent above, where you replace %replace with the actual ID. Ideally you'd want to fix the code by using <a href='@url'>async frendly JS</a> but this is not always possible with 3rd party code.", array(
+      '@code' => 'var google_conversion_id = XXX;',
+      '%replace' => 'XXX',
+      '@url' => 'https://developers.google.com/adwords-remarketing-tag/asynchronous/',
+    )),
+  );
   $form['js']['placement']['expert'] = array(
     '#type' => 'fieldset',
     '#title' => t('Experimental Settings'),
@@ -236,7 +256,7 @@ function advagg_mod_admin_settings_form() {
     '#default_value' => variable_get('advagg_mod_css_defer_js_code', ADVAGG_MOD_CSS_DEFER_JS_CODE),
     '#options' => array(
       0 => t('Inline javascript loader library (If enabled this is recommended)'),
-      2 => t('Local file included in aggregrate'),
+      2 => t('Local file included in aggregate'),
 //       4 => t('Externally load the latest from github (SLOW! Not a CDN!!!)'),
     ),
     '#description' => t('The <a href="@link">loadCSS</a> library can be included in various ways.', array(

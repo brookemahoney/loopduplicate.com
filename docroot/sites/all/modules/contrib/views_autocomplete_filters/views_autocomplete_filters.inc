@@ -46,7 +46,7 @@ function views_autocomplete_filter($filter_name, $view_name, $display_name, $vie
   $expose_options = $filter['expose'];
 
   // Do not filter if the string length is less that minimum characters setting.
-  if (strlen(trim($string)) < $expose_options['autocomplete_min_chars']) {
+  if (drupal_strlen(trim($string)) < $expose_options['autocomplete_min_chars']) {
     $matches[''] = '<div class="reference-autocomplete">' . t('The %string should have at least %min_chars characters.', array('%string' => $string, '%min_chars' => $expose_options['autocomplete_min_chars'])) . '</div>';
     return drupal_json_output($matches);
   }

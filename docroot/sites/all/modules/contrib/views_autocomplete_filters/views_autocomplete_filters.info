@@ -8,9 +8,9 @@ files[] = views/views_autocomplete_filters.views.inc
 files[] = views/handlers/views_autocomplete_filters_handler_filter_string.inc
 files[] = views/handlers/views_autocomplete_filters_handler_filter_combine.inc
 
-; Information added by Drupal.org packaging script on 2014-06-29
-version = "7.x-1.1+2-dev"
+; Information added by Drupal.org packaging script on 2015-03-17
+version = "7.x-1.1+3-dev"
 core = "7.x"
 project = "views_autocomplete_filters"
-datestamp = "1404041028"
+datestamp = "1426592884"
 

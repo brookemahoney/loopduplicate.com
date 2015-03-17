@@ -121,6 +121,11 @@ define('ADVAGG_MOD_CSS_DEFER_JS_CODE', 0);
  */
 define('ADVAGG_MOD_GA_INLINE_TO_FILE', FALSE);
 
+/**
+ * Default value for inline scripts that should not be altered.
+ */
+define('ADVAGG_MOD_WRAP_INLINE_JS_SKIP_LIST', '');
+
 // Core hook implementations.
 /**
  * Implements hook_init().
@@ -730,6 +735,18 @@ function advagg_mod_wrap_inline_js($matches, $check_string = NULL, $ms_wait = 25
   if (empty($check_string)) {
     $check_string = "typeof window.Drupal !== 'undefined' && typeof window.Drupal.settings !== 'undefined' && typeof window.jQuery !== 'undefined'";
   }
+
+  // Get inline js skip list string and convert it to an array.
+  $inline_js_skip_list = array_filter(array_map('trim', explode("\n", variable_get('advagg_mod_wrap_inline_js_skip_list', ''))));
+  if (!empty($inline_js_skip_list)) {
+    // If the line is on the skip list then do not inline the script.
+    foreach ($inline_js_skip_list as $string_to_check) {
+      if (stripos($matches[2], $string_to_check) !== FALSE) {
+        return $matches[0];
+      }
+    }
+  }
+
   // Use a counter in order to create unique function names.
   static $counter;
   ++$counter;
@@ -740,7 +757,7 @@ function advagg_mod_drupal_settings_loaded$counter() {
   // Count how many times this function is called.
   advagg_mod_drupal_settings_loaded$counter.count = ++advagg_mod_drupal_settings_loaded$counter.count || 1;
   try {
-    if (advagg_mod_drupal_settings_loaded$counter.count <= 10) {
+    if (advagg_mod_drupal_settings_loaded$counter.count <= 40) {
       $matches[2]
 
       // Set this to 100 so that this function only runs once.
@@ -748,8 +765,8 @@ function advagg_mod_drupal_settings_loaded$counter() {
     }
   }
   catch(e) {
-    if (advagg_mod_drupal_settings_loaded$counter.count >= 10) {
-      // Throw the exception if this still fails after 5 seconds.
+    if (advagg_mod_drupal_settings_loaded$counter.count >= 40) {
+      // Throw the exception if this still fails after 10 seconds.
       throw e;
     }
     else {

@@ -18,8 +18,6 @@
 // @ignore style_elseif:file
 // @ignore :file
 
-
-
 /*
  * Copyright (C) 2015 Nicolas Grekas - p@tchwork.com
  *
@@ -183,6 +181,7 @@ class JSqueeze
 
         $code = substr($tree[$key]['code'], 1);
         $code = preg_replace("'\breturn !'", 'return!', $code);
+        $code = preg_replace("'\}(?=(else|while)[^\$.a-zA-Z0-9_])'", "}\r", $code);
         $code = str_replace(array_keys($this->strings), array_values($this->strings), $code);
 
         if ($singleLine) $code = strtr($code, "\n", ';');
@@ -988,4 +987,3 @@ class JSqueeze
         $s = str_replace('##', '#', $s);
     }
 }
-

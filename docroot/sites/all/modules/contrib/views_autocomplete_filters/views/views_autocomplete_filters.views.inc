@@ -1,12 +1,13 @@
 <?php
+
 /**
  * @file
  * Integration with Views.
  */
 
 /**
-* Implements hook_views_data_alter().
-*/
+ * Implements hook_views_data_alter().
+ */
 function views_autocomplete_filters_views_data_alter(&$data) {
   foreach ($data as $data_type => $data_fields) {
     foreach ($data_fields as $fieldname => $data_field) {

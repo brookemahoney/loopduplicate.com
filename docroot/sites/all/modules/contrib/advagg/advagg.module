@@ -3131,28 +3131,81 @@ function advagg_aggressive_cache_conflicts() {
   $hooks = array('css_alter' => TRUE, 'js_alter' => TRUE);
   foreach ($hooks as $hook => $values) {
     $hooks[$hook] = module_implements($hook);
+
+    // Also check themes as drupal_alter() allows for themes to alter things.
+    $theme_keys = array_keys(list_themes());
+    if (!empty($theme_keys)) {
+      foreach ($theme_keys as $theme_key) {
+        $function = $theme_key . '_' . $hook;
+        if (function_exists($function)) {
+          $hooks[$hook][] = $theme_key;
+        }
+      }
+    }
   }
 
   $whitelist = array(
     // Core.
+    //
+    // locale_js_directory variable; default: languages.
+    // javascript_parsed variable; default: array().
     'locale',
+
+    // No control; same every time.
     'simpletest',
+
+    // No control; same every time.
     'seven',
 
     // Popular contrib.
-    'css_injector',
-    'disable_css',
-    'excluded',
-    'fences',
-    'panopoly_core',
+    //
+    // ais_adaptive_styles variable; Default: array().
+    // ais_adaptive_styles_method; Default: 'both-max'.
     'ais',
-    'elfinder',
-    'google_webfont_loader_api',
-    'jqmulti',
-    'jquery_dollar',
-    'labjs_js',
+
+    // No control; same every time.
+    'bluecheese',
+
+    // drupal_static('clientside_validation_settings') array.
     'clientside_validation',
+
+    // _css_injector_load_rule() function.
+    // Changes the weight of all files added in init so no special handling.
+    'css_injector',
+
+    // disable_css_ . $theme . _all variable; default: FALSE.
+    // disable_css_ . $theme . _modules; default: array().
+    // disable_css_ . $theme . _files; default: array().
+    'disable_css',
+
+    // Empty call; commented code is same every time.
+    'elfinder',
+
+    // excluded_css_custom variable; Default: ''.
+    // excluded_javascript_custom variable; Default: ''.
+    'excluded',
+
+    // No control; same every time.
+    'fences',
+
+    // jqmulti_jquery_path() function.
+    // jqmulti_get_files() function.
+    // jqmulti_load_always variable; Default: FALSE.
+    'jqmulti',
+
+    // No control; same every time.
+    'jquery_dollar',
+
+    // labjs_suppress() function.
+    'labjs_js',
+
+    // Empty call.
+    'panopoly_core',
+
+    // speedy_js_production variable; Default: TRUE.
     'speedy',
+
+    // logintoboggan_validating_id() function.
     'logintoboggan',
   );
   // Allow other modules to modify the $whitelist.
