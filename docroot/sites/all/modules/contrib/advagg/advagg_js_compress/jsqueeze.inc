@@ -1,4 +1,5 @@
 <?php
+// @codingStandardsIgnoreFile
 // @ignore comment_docblock_file:file
 // @ignore style_curly_braces:file
 // @ignore style_string_spacing:file

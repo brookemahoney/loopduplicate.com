@@ -97,11 +97,11 @@ function advagg_bundler_advagg_build_aggregate_plans_alter(&$files, &$modified, 
  * This preserves the order.
  *
  * @param array $groupings
- *   array of requested groups
+ *   Array of requested groups.
  * @param int $max
- *   max number of grouping
+ *   Max number of grouping.
  */
-function advagg_bundler_merge(&$groupings, $max) {
+function advagg_bundler_merge(array &$groupings, $max) {
   $group_count = count($groupings);
 
   if (!empty($max)) {

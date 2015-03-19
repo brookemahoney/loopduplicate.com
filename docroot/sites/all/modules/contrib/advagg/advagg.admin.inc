@@ -9,6 +9,7 @@
  * Form builder; Configure advagg settings.
  *
  * @ingroup forms
+ *
  * @see system_settings_form()
  */
 function advagg_admin_settings_form($form, $form_state) {
@@ -46,28 +47,21 @@ function advagg_admin_settings_form($form, $form_state) {
     '#description' => t('If <a href="@link">HTTPRL</a> is installed, advagg will use it to generate aggregates on the fly in a background parallel process.', array('@link' => 'http://drupal.org/project/httprl')),
   );
 
-  $aggressive_cache_conflicts = advagg_aggressive_cache_conflicts();
-  if (empty($aggressive_cache_conflicts)) {
-    $description = t('It appears that there are no incompatible modules, so you should be able to safely use the Aggressive cache.');
-  }
-  else {
-    $description = t('It appears that there might be some incompatible modules. I would test these out before setting the cache to aggressive: %modules', array('%modules' => implode(', ', $aggressive_cache_conflicts)));
-  }
   $options = array(
-    -1 => t('Development ~ 100ms'),
-    1 => t('Normal ~ 10ms'),
-    3 => t('Aggressive ~ 4ms'),
+    -1 => t('Development ~ 300ms'),
+    1 => t('Normal ~ 60ms'),
+    3 => t('Aggressive ~ 12ms'),
   );
   $form['global']['advagg_cache_level'] = array(
     '#type' => 'radios',
     '#title' => t('AdvAgg Cache Settings'),
     '#default_value' => variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL),
     '#options' => $options,
-    '#description' => t("As a reference, core takes about 7 ms to run. Development will scan all files for a change on every page load. Normal is should be fine for all use cases. Aggressive might break depending on how various hook_alter's for CSS/JS are implemented; to see what modules are using css/js_alter you can go to the <a href='@information'>Information Page</a> and under 'AdvAgg CSS/JS hooks implemented by modules' modules using both of these hooks will be listed near the bottom of that section; more information about the Aggressive setting can be found in the advagg README.txt file.", array(
+    '#description' => t("As a reference, core takes about 25 ms to run. Development will scan all files for a change on every page load. Normal is fine for all use cases. Aggressive should be fine in almost all use cases; if your inline css/js changes based off of a variable then the aggressive cache hit ratio will be low; if that is the case consider using Drupal.settings for a better cache hit ratio.", array(
       '@information' => url($config_path . '/advagg/info', array(
         'fragment' => 'edit-hooks-implemented',
       )),
-    )) . ' ' . $description,
+    )),
   );
 
   $form['global']['dev_container'] = array(
@@ -225,7 +219,7 @@ function advagg_admin_settings_form($form, $form_state) {
     '#type' => 'checkbox',
     '#title' => t('Convert absolute paths to be protocol relative paths.'),
     '#default_value' => variable_get('advagg_convert_absolute_to_protocol_relative_path', ADVAGG_CONVERT_ABSOLUTE_TO_PROTOCOL_RELATIVE_PATH),
-    '#description' => t('If the src to a CSS/JS file points starts with http:// or https://, convert it to use a protocol relative path //. Will also convert url() references inside of css files. This is incompatible with IE6 and might cause extra bandwith usage in IE7 & IE8 in regards to url() statements inside css files. According to <a href="@url">current web browser market share</a> IE 6 is less than 0.2% of the total number of browsers in use & IE 7+8 make up under 5% of browsers in use.', array(
+    '#description' => t('If the src to a CSS/JS file points starts with http:// or https://, convert it to use a protocol relative path //. Will also convert url() references inside of css files. This is incompatible with IE6 and might cause extra bandwidth usage in IE7 & IE8 in regards to url() statements inside css files. According to <a href="@url">current web browser market share</a> IE 6 is less than 0.2% of the total number of browsers in use & IE 7+8 make up under 5% of browsers in use.', array(
       '@url' => 'http://www.w3counter.com/trends',
     )),
     '#states' => array(
@@ -245,7 +239,6 @@ function advagg_admin_settings_form($form, $form_state) {
       ),
     ),
   );
-
 
   $form['css'] = array(
     '#type' => 'fieldset',
@@ -480,6 +473,7 @@ function advagg_admin_operations_form($form, $form_state) {
  * Form builder; Show info about advagg and advagg settings.
  *
  * @ingroup forms
+ *
  * @see system_settings_form()
  */
 function advagg_admin_info_form($form, $form_state) {
@@ -494,7 +488,7 @@ function advagg_admin_info_form($form, $form_state) {
   drupal_theme_initialize();
   $core_hooks = theme_get_registry();
   $advagg_hooks = advagg_hooks_implemented();
-  list( , $js_path) = advagg_get_root_files_dir();
+  list(, $js_path) = advagg_get_root_files_dir();
 
   // Output html process functions hooks.
   $form['info'] = array(

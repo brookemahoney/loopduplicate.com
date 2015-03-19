@@ -9,9 +9,9 @@ configure = admin/config/media/wysiwyg-view-mode
 
 files[] = media_wysiwyg_view_mode.test
 
-; Information added by Drupal.org packaging script on 2015-02-25
-version = "7.x-2.0-alpha4+26-dev"
+; Information added by Drupal.org packaging script on 2015-03-18
+version = "7.x-2.0-alpha4+27-dev"
 core = "7.x"
 project = "media"
-datestamp = "1424889185"
+datestamp = "1426708176"
 

@@ -105,7 +105,7 @@ function advagg_validator_admin_js_hint_form() {
  * Scan the file system and build a form tree from it.
  *
  * @param string $type
- *   css or js
+ *   String: css or js.
  * @param bool $run_client_side
  *   Set to TRUE to run the checking code client side.
  *
@@ -477,7 +477,7 @@ function advagg_validator_admin_test_all_css_callback($form, &$form_state) {
  * @return array
  *   $info array minus data if that file is valid.
  */
-function advagg_validator_admin_hide_good_files($info) {
+function advagg_validator_admin_hide_good_files(array $info) {
   $output = array();
   foreach ($info as $filename => $validators) {
     foreach ($validators as $v_name => $v_data) {

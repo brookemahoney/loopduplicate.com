@@ -434,7 +434,7 @@ function advagg_update_7206(&$sandbox) {
  * Callback to delete files if size == 0 & modified more than 60 seconds ago.
  *
  * @param string $uri
- *   location of the file to check.
+ *   Location of the file to check.
  */
 function advagg_install_delete_empty_file_if_stale($uri) {
   // Set stale file threshold to 60 seconds.
@@ -638,13 +638,13 @@ function advagg_requirements($phase) {
   $styles_info = element_info('styles');
   $scripts_info = element_info('scripts');
   // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
-  if (   empty($styles_info['#pre_render'])
-      || !is_array($styles_info['#pre_render'])
-      || !in_array('advagg_modify_css_pre_render', $styles_info['#pre_render'])
-      || empty($scripts_info['#pre_render'])
-      || !is_array($scripts_info['#pre_render'])
-      || !in_array('advagg_modify_js_pre_render', $scripts_info['#pre_render'])
-      ) {
+  if ( empty($styles_info['#pre_render'])
+    || !is_array($styles_info['#pre_render'])
+    || !in_array('advagg_modify_css_pre_render', $styles_info['#pre_render'])
+    || empty($scripts_info['#pre_render'])
+    || !is_array($scripts_info['#pre_render'])
+    || !in_array('advagg_modify_js_pre_render', $scripts_info['#pre_render'])
+  ) {
     $requirements['advagg_hook_element_info_alter'] = array(
       'title' => $t('Adv CSS/JS Agg - element_info'),
       'severity' => REQUIREMENT_WARNING,
@@ -676,6 +676,34 @@ function advagg_requirements($phase) {
         'description' => $t('You need to install the latest patch in <a href="@link">this issue</a>.', array('@link' => 'http://drupal.org/node/1977122')),
       );
     }
+  }
+
+  // Adjust some modules settings.
+  // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
+  $search404_ignore_query = variable_get('search404_ignore_query', 'gif jpg jpeg bmp png');
+  if ( module_exists('search404') &&
+    (  strpos($search404_ignore_query, 'css') === FALSE
+    || strpos($search404_ignore_query, 'js') === FALSE
+    )
+  ) {
+    $added_ext = array();
+    if (strpos($search404_ignore_query, 'css') === FALSE) {
+      $added_ext[] = 'css';
+    }
+    if (strpos($search404_ignore_query, 'js') === FALSE) {
+      $added_ext[] = 'js';
+    }
+    $requirements['advagg_search404_module'] = array(
+      'title' => $t('Adv CSS/JS Agg - Search 404 Settings'),
+      'severity' => REQUIREMENT_ERROR,
+      'value' => $t('HTTP requests to advagg for css/js files may not be generating correctly.'),
+      'description' => $t('The Search 404 module is enabled. You need to change the <code>search404_ignore_query</code> setting, also known as "Extensions to abort search" so advagg will work. Go to the <a href="@config">Search 404 settings</a> page under the "Advanced settings" fieldgroup and look for the "Extensions to abort search" setting. Add <code>@code</code> to the string that looks like this: <p><code>@old</code></p> so it will then look like this: <p><code>@new</code></p>', array(
+        '@config' => url('admin/config/search/search404'),
+        '@code' => ' ' . implode(' ', $added_ext),
+        '@old' => $search404_ignore_query,
+        '@new' => trim($search404_ignore_query) . ' ' . implode(' ', $added_ext),
+      )),
+    );
   }
 
   // Check that https is correct.
@@ -715,19 +743,18 @@ $base_url = str_replace("http://", "https://", $base_url);
   // Make sure http requests will work correctly.
   advagg_install_check_via_http($requirements);
 
-  // If all requirements have been meet, state advagg should be working.
+  // If all requirements have been met, state advagg should be working.
   if (empty($requirements)) {
     $description = '';
     if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) < 0) {
       $description .= ' ' . $t('Currently running in development mode.');
     }
     if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) < 3) {
-      $aggressive_cache_conflicts = advagg_aggressive_cache_conflicts();
-      if (empty($aggressive_cache_conflicts)) {
-        $description .= ' ' . $t('It appears that there are no incompatible modules, so you should be able to safely use the Aggressive cache. To adjust this setting, go to the <a href="@config">AdvAgg: configuration page</a> and under "AdvAgg Cache Settings" select Aggressive and then save.', array(
-          '@config' => url('admin/config/development/performance/advagg', array('fragment' => 'edit-advagg-cache-level')),
-        ));
-      }
+      $description .= ' ' . $t('You should use the Aggressive cache. To adjust this setting, go to the <a href="@config">AdvAgg: configuration page</a> and under "AdvAgg Cache Settings" select Aggressive and then save.', array(
+        '@config' => url('admin/config/development/performance/advagg', array(
+          'fragment' => 'edit-advagg-cache-level',
+        )),
+      ));
     }
 
     $requirements['advagg_ok'] = array(
@@ -745,9 +772,9 @@ $base_url = str_replace("http://", "https://", $base_url);
  * Make sure http requests to css/js files work correctly.
  *
  * @param array $requirements
- *   array of requirements used in hook_requirements().
+ *   Array of requirements used in hook_requirements().
  */
-function advagg_install_check_via_http(&$requirements) {
+function advagg_install_check_via_http(array &$requirements) {
   // If other checks have not passed, do not test this.
   if (!empty($requirements)) {
     // Still check if it's only that the CDN patch has not been applied.
@@ -820,19 +847,23 @@ function advagg_install_check_via_http(&$requirements) {
       //   Headers do not contain "x-advagg" AND
       //   Body does not contain "advagg_missing_fast404".
       // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace:3
-      if (   $request->code != 404
-          || empty($request->data)
-          || (   empty($request->headers['x-advagg'])
-              && strpos($request->data, '<!-- advagg_missing_fast404 -->') === FALSE
-              )
-          ) {
+      if ( $request->code != 404
+        || empty($request->data)
+        || ( empty($request->headers['x-advagg'])
+          && strpos($request->data, '<!-- advagg_missing_fast404 -->') === FALSE
+          )
+      ) {
         // Fast 404 check.
         $url_path_404 = parse_url($url, PHP_URL_PATH);
         $exclude_paths = variable_get('404_fast_paths_exclude', FALSE);
         $fast_404_html = variable_get('404_fast_html', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>404 Not Found</title></head><body><h1>Not Found</h1><p>The requested URL "@path" was not found on this server.</p></body></html>');
         // Replace @path in the variable with the page path.
         $fast_404_html = trim(strtr($fast_404_html, array('@path' => check_plain($url_path_404))));
-        if (!empty($request->data) && $fast_404_html == trim($request->data) && !empty($exclude_paths) && strpos($exclude_paths, 'advagg_') === FALSE) {
+        if ( !empty($request->data)
+          && $fast_404_html == trim($request->data)
+          && !empty($exclude_paths)
+          && strpos($exclude_paths, 'advagg_') === FALSE
+        ) {
           if ($exclude_paths === '/\/(?:styles)\//') {
             $description = $t('Change it from <code>/\/(?:styles)\//</code> to <code>/\/(?:styles|advagg_(cs|j)s)\//</code> Current value: %value', array('%value' => $exclude_paths));
           }
@@ -847,12 +878,12 @@ function advagg_install_check_via_http(&$requirements) {
           );
         }
         // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
-        elseif (   module_exists('fast_404')
-                && defined('FAST_404_EXT_CHECKED')
-                && !in_array('/advagg_', variable_get('fast_404_string_whitelisting', array()))
-                && strpos(variable_get('fast_404_exts', '/^(?!robots).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i'), $type)
-                ) {
-          $requirements['advagg_404_fast_module_' . $type . '_generation'] = array(
+        elseif ( module_exists('fast_404')
+              && defined('FAST_404_EXT_CHECKED')
+              && !in_array('/advagg_', variable_get('fast_404_string_whitelisting', array()))
+              && strpos(variable_get('fast_404_exts', '/^(?!robots).*\.(txt|png|gif|jpe?g|css|js|ico|swf|flv|cgi|bat|pl|dll|exe|asp)$/i'), $type) !== FALSE
+        ) {
+          $requirements['advagg_fast_404_module_' . $type . '_generation'] = array(
             'title' => $t('Adv CSS/JS Agg - Fast 404: HTTP Request'),
             'severity' => REQUIREMENT_ERROR,
             'value' => $t('HTTP requests to advagg for ' . $type . ' files are not getting through.'),
@@ -861,10 +892,10 @@ function advagg_install_check_via_http(&$requirements) {
           );
         }
         // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
-        elseif (   module_exists('stage_file_proxy')
-                && variable_get('stage_file_proxy_origin', NULL)
-                && strpos(file_get_contents(drupal_get_path('module', 'stage_file_proxy') . '/stage_file_proxy.module'), 'advagg') === FALSE
-                ) {
+        elseif ( module_exists('stage_file_proxy')
+              && variable_get('stage_file_proxy_origin', NULL)
+              && strpos(file_get_contents(drupal_get_path('module', 'stage_file_proxy') . '/stage_file_proxy.module'), 'advagg') === FALSE
+        ) {
           // Stage File Proxy patch is missing.
           $requirements['advagg_stage_file_proxy_' . $type . '_generation'] = array(
             'title' => $t('Adv CSS/JS Agg - Fast 404: HTTP Request'),
@@ -970,23 +1001,23 @@ function advagg_install_check_via_http(&$requirements) {
  * Make sure http requests to css/js files work correctly.
  *
  * @param array $requirements
- *   array of requirements used in hook_requirements().
+ *   Array of requirements used in hook_requirements().
  * @param array $urls
- *   array of urls
+ *   Array of urls.
  * @param array $options
- *   options array to pass to drupal_http_request().
+ *   Options array to pass to drupal_http_request().
  * @param bool $mod_url
- *   set to TRUE if an alt URL was used.
+ *   Set to TRUE if an alt URL was used.
  * @param string $type
- *   css or js.
+ *   String: css or js.
  * @param string $url_path
- *   url path to the file.
+ *   The url path to the file.
  * @param string $file_path
- *   file path to the file.
+ *   File path to the file.
  * @param string $filename
- *   name of the file.
+ *   Name of the file.
  */
-function advagg_install_chk_urls(&$requirements, $urls, $options, $mod_url, $type, $url_path, $file_path, $filename) {
+function advagg_install_chk_urls(array &$requirements, array $urls, array $options, $mod_url, $type, $url_path, $file_path, $filename) {
   // Ensure translations don't break at install time.
   $t = get_t();
 
@@ -1011,10 +1042,12 @@ function advagg_install_chk_urls(&$requirements, $urls, $options, $mod_url, $typ
     //  Headers do not contain "content-encoding".
     //  content-encoding is not gzip or deflate.
     // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
-    if (   $request->code != 200
-        || empty($request->headers['content-encoding'])
-        || ($request->headers['content-encoding'] !== 'gzip' && $request->headers['content-encoding'] !== 'deflate')
-        ) {
+    if ( $request->code != 200
+      || empty($request->headers['content-encoding'])
+      || ( $request->headers['content-encoding'] !== 'gzip'
+        && $request->headers['content-encoding'] !== 'deflate'
+      )
+    ) {
       $config_path = advagg_admin_config_root_path();
       // Gzip failed.
       if (!variable_get('advagg_gzip', ADVAGG_GZIP)) {
@@ -1082,10 +1115,10 @@ function advagg_install_chk_urls(&$requirements, $urls, $options, $mod_url, $typ
       $modules = array();
       $matches = array();
       // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
-      if (   !empty($request->headers['x-advagg'])
-          && preg_match('/Generated file at (\\d+)/is', $request->headers['x-advagg'], $matches)
-          && $matches[1] + 30 > REQUEST_TIME
-          ) {
+      if ( !empty($request->headers['x-advagg'])
+        && preg_match('/Generated file at (\\d+)/is', $request->headers['x-advagg'], $matches)
+        && $matches[1] + 30 > REQUEST_TIME
+      ) {
         $requirements['advagg_' . $type . '_loopback_issue' . $key] = array(
           'title' => $t('Adv CSS/JS Agg - Incorrect readings'),
           'severity' => REQUIREMENT_WARNING,
@@ -1099,7 +1132,11 @@ function advagg_install_chk_urls(&$requirements, $urls, $options, $mod_url, $typ
         $modules = apache_get_modules();
       }
 
-      if ($type === 'css' && (empty($request->headers['content-type']) || strpos($request->headers['content-type'], 'text/' . $content_type) === FALSE)) {
+      if ( $type === 'css'
+        && ( empty($request->headers['content-type'])
+          || strpos($request->headers['content-type'], 'text/' . $content_type) === FALSE
+          )
+      ) {
         // Recommend servers configuration be adjusted.
         $requirements['advagg_' . $type . '_type' . $key] = array(
           'title' => $t('Adv CSS/JS Agg - Content-Type'),
@@ -1112,7 +1149,13 @@ function advagg_install_chk_urls(&$requirements, $urls, $options, $mod_url, $typ
         );
       }
 
-      if ($type === 'js' && (empty($request->headers['content-type']) || (strpos($request->headers['content-type'], 'application/' . $content_type) === FALSE && strpos($request->headers['content-type'], 'application/x-' . $content_type) === FALSE))) {
+      if ( $type === 'js'
+        && ( empty($request->headers['content-type'])
+          || ( strpos($request->headers['content-type'], 'application/' . $content_type) === FALSE
+            && strpos($request->headers['content-type'], 'application/x-' . $content_type) === FALSE
+            )
+          )
+      ) {
         // Recommend servers configuration be adjusted.
         $requirements['advagg_' . $type . '_type' . $key] = array(
           'title' => $t('Adv CSS/JS Agg - Content-Type'),
@@ -1130,7 +1173,9 @@ function advagg_install_chk_urls(&$requirements, $urls, $options, $mod_url, $typ
       $apache_module_missing = FALSE;
       // Make sure the expires header is at least set to 1 month
       // (2628000 seconds) in the future.
-      if (!empty($request->headers['expires']) && strtotime($request->headers['expires']) < time() + 2628000) {
+      if ( !empty($request->headers['expires'])
+        && strtotime($request->headers['expires']) < time() + 2628000
+      ) {
         // Recommend servers configuration be adjusted.
         if (function_exists('apache_get_modules') && !in_array('mod_headers', $modules)) {
           $apache_module_missing = TRUE;
@@ -1149,7 +1194,10 @@ function advagg_install_chk_urls(&$requirements, $urls, $options, $mod_url, $typ
       // Make sure the cache-control header max age value is at least set to
       // 1 month (2628000 seconds) in the future.
       $matches = array();
-      if (empty($request->headers['cache-control']) || !preg_match('/max-age=(\\d+)/is', $request->headers['cache-control'], $matches) || $matches[1] < 2628000) {
+      if ( empty($request->headers['cache-control'])
+        || !preg_match('/max-age=(\\d+)/is', $request->headers['cache-control'], $matches)
+        || $matches[1] < 2628000
+      ) {
         // Recommend servers configuration be adjusted.
         if (function_exists('apache_get_modules') && (!in_array('mod_headers', $modules))) {
           $apache_module_missing = TRUE;
@@ -1322,11 +1370,8 @@ function advagg_install_get_first_advagg_file($file_path) {
  *   Options array for drupal_http_request().
  * @param bool $mod_url
  *   Set to TRUE to try and modify the $url variable.
- *
- * @return string
- *   URI is returned.
  */
-function advagg_install_url_mod(&$url, &$options, $mod_url = FALSE) {
+function advagg_install_url_mod(&$url, array &$options, $mod_url = FALSE) {
   // Set the $options array.
   // Set all timeouts to 8 seconds.
   $options += array(
@@ -1348,15 +1393,18 @@ function advagg_install_url_mod(&$url, &$options, $mod_url = FALSE) {
 
   if ($mod_url) {
     $parts = @parse_url($url);
+    if (!is_array($parts)) {
+      return;
+    }
 
     // Pass along user/pass in the URL.
     if (module_exists('shield')) {
       $parts['user'] = variable_get('shield_user', '');
-      $parsed['pass'] = variable_get('shield_pass', '');
+      $parts['pass'] = variable_get('shield_pass', '');
     }
     elseif (isset($_SERVER['AUTH_TYPE']) && $_SERVER['AUTH_TYPE'] == 'Basic') {
       $parts['user'] = $_SERVER['PHP_AUTH_USER'];
-      $parsed['pass'] = $_SERVER['PHP_AUTH_PW'];
+      $parts['pass'] = $_SERVER['PHP_AUTH_PW'];
     }
 
     if (function_exists('httprl_build_url_self')) {
@@ -1386,19 +1434,15 @@ function advagg_install_url_mod(&$url, &$options, $mod_url = FALSE) {
 /**
  * Alt to http_build_url().
  *
- * @see http://php.net/parse-url#85963
- *
  * @param array $parsed
- *   array from parse_url()
+ *   Array from parse_url().
  *
  * @return string
  *   URI is returned.
+ *
+ * @see http://php.net/parse-url#85963
  */
-function advagg_install_glue_url($parsed) {
-  if (!is_array($parsed)) {
-    return FALSE;
-  }
-
+function advagg_install_glue_url(array $parsed) {
   $uri = isset($parsed['scheme']) ? $parsed['scheme'] . ':' . ((strtolower($parsed['scheme']) === 'mailto') ? '' : '//') : '';
   $uri .= isset($parsed['user']) ? $parsed['user'] . (isset($parsed['pass']) ? ':' . $parsed['pass'] : '') . '@' : '';
   $uri .= isset($parsed['host']) ? $parsed['host'] : '';

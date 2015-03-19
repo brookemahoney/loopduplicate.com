@@ -816,8 +816,8 @@ function media_element_process($element, &$form_state, $form) {
     )
   );
 
-  module_load_include('inc', 'media', 'includes/media.browser');
-  media_attach_browser_js($element);
+  $element['#attached']['library'][] = array('media', 'media_browser');
+  $element['#attached']['library'][] = array('media', 'media_browser_settings');
 
   // Prefix and suffix used for Ajax replacement.
   $element['#prefix'] = '<div id="' . $element['#id'] . '-ajax-wrapper">';

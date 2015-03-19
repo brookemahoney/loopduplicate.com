@@ -178,7 +178,7 @@ function advagg_delete_stale_aggregates() {
 
   // Get a list of files.
   $css_files = file_scan_directory($css_path[0], '/.*/', array('nomask' => '/(\.\.?|CVS|\.gz)$/'));
-  $js_files  = file_scan_directory($js_path[0],  '/.*/', array('nomask' => '/(\.\.?|CVS|\.gz)$/'));
+  $js_files = file_scan_directory($js_path[0], '/.*/', array('nomask' => '/(\.\.?|CVS|\.gz)$/'));
 
   // Make the advagg_get_hashes_from_filename() function available.
   module_load_include('inc', 'advagg', 'advagg.missing');
@@ -196,7 +196,7 @@ function advagg_delete_stale_aggregates() {
  * @return array
  *   array of files that got removed.
  */
-function advagg_delete_files_if_stale($files) {
+function advagg_delete_files_if_stale(array $files) {
   // Array used to record what files were deleted.
   $kill_list = array();
 
@@ -205,7 +205,7 @@ function advagg_delete_files_if_stale($files) {
     $filename = $file->filename;
     $data = advagg_get_hashes_from_filename($filename);
     if (is_array($data)) {
-      list( , $aggregate_filenames_hash, $aggregate_contents_hash) = $data;
+      list(, $aggregate_filenames_hash, $aggregate_contents_hash) = $data;
     }
     else {
       // Can not get data on file, remove it.

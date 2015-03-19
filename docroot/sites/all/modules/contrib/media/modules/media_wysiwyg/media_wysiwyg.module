@@ -111,14 +111,8 @@ function media_wysiwyg_pre_render_text_format($element) {
   }
 
   // Load the media browser library.
-  module_load_include('inc', 'media', 'includes/media.browser');
-  $javascript = media_browser_js();
-
-  foreach ($javascript as $key => $definitions) {
-    foreach ($definitions as $definition) {
-      $element['#attached'][$key][] = $definition;
-    }
-  }
+  $element['#attached']['library'][] = array('media', 'media_browser');
+  $element['#attached']['library'][] = array('media', 'media_browser_settings');
 
   // Add wysiwyg-specific settings.
   $settings = array('wysiwyg_allowed_attributes' => variable_get('media_wysiwyg_wysiwyg_allowed_attributes', _media_wysiwyg_wysiwyg_allowed_attributes_default()));

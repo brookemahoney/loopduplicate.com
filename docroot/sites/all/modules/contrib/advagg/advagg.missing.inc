@@ -106,9 +106,9 @@ function advagg_missing_generate() {
  * @param bool $created
  *   If file was created in a different thread.
  * @param string $type
- *   css or js
+ *   String: css or js.
  */
-function advagg_missing_send_saved_file($files_to_save, $uri, $created, $type, $redirect_counter) {
+function advagg_missing_send_saved_file(array $files_to_save, $uri, $created, $type, $redirect_counter) {
   // Negotiate whether to use gzip compression.
   $return_compressed = isset($_SERVER['HTTP_ACCEPT_ENCODING']) && strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') !== FALSE;
   header('Vary: Accept-Encoding', FALSE);
@@ -278,13 +278,13 @@ function advagg_missing_create_file($filename, $no_alters = FALSE, $data = array
  * Generate .htaccess rules and place them in advagg dir.
  *
  * @param array $files_to_save
- *   array of files that where saved.
+ *   Array of files that where saved.
  * @param string $type
- *   css or js
- * @param array $force
- *   (optional) force recreate the .htaccess file.
+ *   String: css or js.
+ * @param bool $force
+ *   (Optional) force recreate the .htaccess file.
  */
-function advagg_htaccess_check_generate($files_to_save, $type, $force = FALSE) {
+function advagg_htaccess_check_generate(array $files_to_save, $type, $force = FALSE) {
   $content_type = $type;
   if ($content_type === 'js') {
     $content_type = 'javascript';
@@ -407,7 +407,7 @@ function advagg_get_hashes_from_filename($filename) {
  * Get the files that belong inside of this aggregate.
  *
  * @param string $type
- *   css or js.
+ *   String: css or js.
  * @param string $aggregate_filenames_hash
  *   Hash of the groupings of files.
  * @param string $aggregate_contents_hash
@@ -448,14 +448,14 @@ function advagg_get_files_from_hashes($type, $aggregate_filenames_hash, $aggrega
  * Given a list of files, grab their contents and glue it into one big string.
  *
  * @param array $files
- *   array of filenames.
+ *   Array of filenames.
  * @param array $aggregate_settings
- *   array of settings.
+ *   Array of settings.
  *
  * @return string
- *   string containing all the files.
+ *   String containing all the files.
  */
-function advagg_get_css_aggregate_contents($files, $aggregate_settings) {
+function advagg_get_css_aggregate_contents(array $files, array $aggregate_settings) {
   // Check if CSS compression is enabled.
   $optimize = TRUE;
   if (!empty($aggregate_settings['settings']['no_alters'])) {
@@ -612,14 +612,14 @@ function advagg_get_css_aggregate_contents($files, $aggregate_settings) {
  * Given a list of files, grab their contents and glue it into one big string.
  *
  * @param array $files
- *   array of filenames.
+ *   Array of filenames.
  * @param array $aggregate_settings
- *   array of settings.
+ *   Array of settings.
  *
  * @return string
- *   string containing all the files.
+ *   String containing all the files.
  */
-function advagg_get_js_aggregate_contents($files, $aggregate_settings) {
+function advagg_get_js_aggregate_contents(array $files, array $aggregate_settings) {
   $data = '';
 
   if (!empty($files)) {
@@ -658,16 +658,16 @@ function advagg_get_js_aggregate_contents($files, $aggregate_settings) {
  * @param string $filename
  *   Just the filename no path information.
  * @param array $files
- *   array of filenames.
+ *   Array of filenames.
  * @param string $type
- *   css or js
+ *   String: css or js.
  * @param array $aggregate_settings
- *   array of settings.
+ *   Array of settings.
  *
  * @return array
  *   $files_to_save array.
  */
-function advagg_save_aggregate($filename, $files, $type, $aggregate_settings) {
+function advagg_save_aggregate($filename, array $files, $type, array $aggregate_settings) {
   list($css_path, $js_path) = advagg_get_root_files_dir();
 
   // Build the aggregates contents.
@@ -873,13 +873,13 @@ function advagg_get_atime($aggregate_filenames_hash, $aggregate_contents_hash, $
 /**
  * Split up as CSS string by @media queries.
  *
- * @see http://stackoverflow.com/questions/14145620/regular-expression-for-media-queries-in-css
- *
  * @param string $css
  *   String of CSS.
  *
  * @return array
  *   array of css with only media queries.
+ *
+ * @see http://stackoverflow.com/questions/14145620/regular-expression-for-media-queries-in-css
  */
 function advagg_parse_media_blocks($css) {
   $media_blocks = array();

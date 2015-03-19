@@ -9,6 +9,7 @@
  * Form builder; Configure advagg settings.
  *
  * @ingroup forms
+ *
  * @see system_settings_form()
  */
 function advagg_js_compress_admin_settings_form($form, $form_state) {
@@ -94,9 +95,9 @@ function advagg_js_compress_admin_settings_form($form, $form_state) {
     '#type' => 'checkbox',
     '#title' => t('Add licensing comments'),
     '#default_value' => variable_get('advagg_js_compress_add_license', ADVAGG_JS_COMPRESS_ADD_LICENSE),
-    '#description' => t('If unchecked, the Advanced Aggregation module\'s licensing comments
+    '#description' => t("If unchecked, the Advanced Aggregation module's licensing comments
    will be omitted from the aggregated files. Omitting the comments will produce somewhat better scores in
-   some automated security scans but otherwise should not affect your site. These are included by default in order to better follow the spirit of the GPL by providing the source for javascript files.'),
+   some automated security scans but otherwise should not affect your site. These are included by default in order to better follow the spirit of the GPL by providing the source for javascript files."),
   );
 
   $options[-1] = t('Default');

@@ -243,7 +243,7 @@ function advagg_validator_parse_soap_response_w3c($xml) {
  * Extract info from the DOMNode Object.
  *
  * @param object $dom
- *   DOMNode Class
+ *   DOMNode Class.
  *
  * @return array
  *   Key Value pair from the DOM Node.

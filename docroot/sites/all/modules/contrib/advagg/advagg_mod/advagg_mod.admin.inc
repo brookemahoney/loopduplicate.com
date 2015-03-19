@@ -9,6 +9,7 @@
  * Form builder; Configure advagg settings.
  *
  * @ingroup forms
+ *
  * @see system_settings_form()
  */
 function advagg_mod_admin_settings_form() {
@@ -61,17 +62,19 @@ function advagg_mod_admin_settings_form() {
     '#default_value' => variable_get('advagg_mod_js_adjust_sort_browsers', ADVAGG_MOD_JS_ADJUST_SORT_BROWSERS),
     '#description' => t('This will group all browser conditional JavaScript to be in the lowest group of that conditional rule.'),
   );
-  $form['js']['adjust_sort']['expert'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Experimental Settings'),
-    '#collapsible' => TRUE,
-    '#collapsed' => !variable_get('advagg_mod_ga_inline_to_file', ADVAGG_MOD_GA_INLINE_TO_FILE),
-  );
-  $form['js']['adjust_sort']['expert']['advagg_mod_ga_inline_to_file'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Move Google Analytics analytics.js code from inline to be a file'),
-    '#default_value' => variable_get('advagg_mod_ga_inline_to_file', ADVAGG_MOD_GA_INLINE_TO_FILE),
-  );
+  if (module_exists('googleanalytics') && variable_get('googleanalytics_cache', 0)) {
+    $form['js']['adjust_sort']['expert'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Experimental Settings'),
+      '#collapsible' => TRUE,
+      '#collapsed' => !variable_get('advagg_mod_ga_inline_to_file', ADVAGG_MOD_GA_INLINE_TO_FILE),
+    );
+    $form['js']['adjust_sort']['expert']['advagg_mod_ga_inline_to_file'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Move Google Analytics analytics.js code from inline to be a file'),
+      '#default_value' => variable_get('advagg_mod_ga_inline_to_file', ADVAGG_MOD_GA_INLINE_TO_FILE),
+    );
+  }
 
   // Adjust javascript location and execution.
   $form['js']['placement'] = array(
@@ -112,11 +115,13 @@ function advagg_mod_admin_settings_form() {
       ),
     ),
   );
+  $advagg_mod_wrap_inline_js_skip_list = trim(variable_get('advagg_mod_wrap_inline_js_skip_list', ADVAGG_MOD_WRAP_INLINE_JS_SKIP_LIST));
+  $advagg_mod_wrap_inline_js_xpath = variable_get('advagg_mod_wrap_inline_js_xpath', ADVAGG_MOD_WRAP_INLINE_JS_XPATH);
   $form['js']['placement']['advagg_mod_wrap_inline'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Inline skip list for wrapper code'),
+    '#title' => t('Inline Wrapper Settings'),
     '#collapsible' => TRUE,
-    '#collapsed' => empty(trim(variable_get('advagg_mod_wrap_inline_js_skip_list', ADVAGG_MOD_WRAP_INLINE_JS_SKIP_LIST))),
+    '#collapsed' => empty($advagg_mod_wrap_inline_js_skip_list) && empty($advagg_mod_wrap_inline_js_xpath),
     '#states' => array(
       'visible' => array(
         ':input[name="advagg_mod_js_footer_inline_alter"]' => array('checked' => TRUE),
@@ -125,12 +130,19 @@ function advagg_mod_admin_settings_form() {
   );
   $form['js']['placement']['advagg_mod_wrap_inline']['advagg_mod_wrap_inline_js_skip_list'] = array(
     '#type' => 'textarea',
+    '#title' => t('Inline skip list for wrapper code'),
     '#default_value' => variable_get('advagg_mod_wrap_inline_js_skip_list', ADVAGG_MOD_WRAP_INLINE_JS_SKIP_LIST),
-    '#description' => t("If the inline JavaScript matches a given string then the whole inline script will not be wrapped. Enter one per line. Useful for things like conversion.js from the Google tracking code, as this is not async friendly (conversion.js needs global varaibles that were previously defined). In that case enter <code>@code</code> or equivalent above, where you replace %replace with the actual ID. Ideally you'd want to fix the code by using <a href='@url'>async frendly JS</a> but this is not always possible with 3rd party code.", array(
+    '#description' => t("If the inline JavaScript matches a given string then the whole inline script will not be wrapped. Enter one per line. Useful for things like conversion.js from the Google tracking code, as this is not async friendly (conversion.js needs global variables that were previously defined). In that case enter <code>@code</code> or equivalent above, where you replace %replace with the actual ID. Ideally you'd want to fix the code by using <a href='@url'>async friendly JS</a> but this is not always possible with 3rd party code.", array(
       '@code' => 'var google_conversion_id = XXX;',
       '%replace' => 'XXX',
       '@url' => 'https://developers.google.com/adwords-remarketing-tag/asynchronous/',
     )),
+  );
+  $form['js']['placement']['advagg_mod_wrap_inline']['advagg_mod_wrap_inline_js_xpath'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Use XPath instead of regex when searching for inline scripts'),
+    '#default_value' => variable_get('advagg_mod_wrap_inline_js_xpath', ADVAGG_MOD_WRAP_INLINE_JS_XPATH),
+    '#description' => t('In general this should be disabled due to the unpredictable nature of parsing html snippets using DOMDocument loadHTML(). Only enable if you have script tags inside a textarea that have not been ran through htmlentities().'),
   );
   $form['js']['placement']['expert'] = array(
     '#type' => 'fieldset',
@@ -160,7 +172,6 @@ function advagg_mod_admin_settings_form() {
     '#default_value' => variable_get('advagg_mod_js_async_shim', ADVAGG_MOD_JS_ASYNC_SHIM),
     '#description' => t('Rewrites all scripts in the page with an "async" attribute to an inline JavaScript loading the script asynchronously in an old browser compatible way. List of <a href="@link">supported browsers</a>. Once all commonly used browsers support the "async" attribute you can happily disable this checkbox.', array('@link' => 'http://caniuse.com/script-async')),
   );
-
 
   $config_path = advagg_admin_config_root_path();
   $form['css'] = array(
@@ -257,7 +268,7 @@ function advagg_mod_admin_settings_form() {
     '#options' => array(
       0 => t('Inline javascript loader library (If enabled this is recommended)'),
       2 => t('Local file included in aggregate'),
-//       4 => t('Externally load the latest from github (SLOW! Not a CDN!!!)'),
+      // 4 => t('Externally load the latest from github (SLOW! Not a CDN!!!)'),
     ),
     '#description' => t('The <a href="@link">loadCSS</a> library can be included in various ways.', array(
       '@link' => 'https://github.com/filamentgroup/loadCSS',
@@ -367,9 +378,9 @@ function advagg_mod_admin_settings_form_validate($form, &$form_state) {
   $css_dir = $multisite_dir . '/advagg_css';
   $js_dir = $multisite_dir . '/advagg_js';
   // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
-  if (   !file_prepare_directory($css_dir, FILE_CREATE_DIRECTORY)
-      || !file_prepare_directory($js_dir, FILE_CREATE_DIRECTORY)
-      ) {
+  if ( !file_prepare_directory($css_dir, FILE_CREATE_DIRECTORY)
+    || !file_prepare_directory($js_dir, FILE_CREATE_DIRECTORY)
+  ) {
     if (!is_dir($multisite_dir) || !is_writable($multisite_dir)) {
       form_set_error('advagg_mod_unified_multisite_dir', t('%dir is not a directory or can not be written to. The shared directory needs to have the same permissions as the "Public file system path" found on the <a href="@file_system_link">File System configuration page</a>.', array(
         '%dir' => $multisite_dir,

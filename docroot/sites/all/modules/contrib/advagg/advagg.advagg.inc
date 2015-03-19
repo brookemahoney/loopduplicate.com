@@ -14,13 +14,13 @@
  * Used to add in a .gz file if none exits.
  *
  * @param array $files_to_save
- *   array($uri => $contents)
+ *   Array($uri => $contents).
  * @param array $aggregate_settings
- *   array of settings.
+ *   Array of settings.
  * @param array $other_parameters
- *   array of containing $files & $type.
+ *   Array of containing $files & $type.
  */
-function advagg_advagg_save_aggregate_alter(&$files_to_save, $aggregate_settings, $other_parameters) {
+function advagg_advagg_save_aggregate_alter(array &$files_to_save, array $aggregate_settings, array $other_parameters) {
   // Return if gzip is disabled.
   if (empty($aggregate_settings['variables']['advagg_gzip'])) {
     return;
@@ -63,9 +63,9 @@ function advagg_advagg_save_aggregate_alter(&$files_to_save, $aggregate_settings
  * @param bool $modified
  *   Change this to TRUE if $files has been changed.
  * @param string $type
- *   css or js.
+ *   String containing css or js.
  */
-function advagg_advagg_build_aggregate_plans_alter(&$files, &$modified, $type) {
+function advagg_advagg_build_aggregate_plans_alter(array &$files, &$modified, $type) {
   // Do nothing if core grouping is disabled.
   if (!variable_get('advagg_core_groups', ADVAGG_CORE_GROUPS)) {
     return;

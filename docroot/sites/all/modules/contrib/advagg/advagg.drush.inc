@@ -73,7 +73,7 @@ function advagg_drush_command() {
  *
  * Callback is called by using drush_hook_command() where
  * hook is the name of the module (advagg) and command is the name of
- * the Drush command with all "-" characters converted to "_" characters
+ * the Drush command with all "-" characters converted to "_" characters.
  */
 function drush_advagg_force_new_aggregates() {
   // Clear out the cache.
@@ -90,7 +90,7 @@ function drush_advagg_force_new_aggregates() {
  *
  * Callback is called by using drush_hook_command() where
  * hook is the name of the module (advagg) and command is the name of
- * the Drush command with all "-" characters converted to "_" characters
+ * the Drush command with all "-" characters converted to "_" characters.
  */
 function drush_advagg_clear_all_files() {
   // Clear out the cache.
@@ -112,7 +112,7 @@ function drush_advagg_clear_all_files() {
  *
  * Callback is called by using drush_hook_command() where
  * hook is the name of the module (advagg) and command is the name of
- * the Drush command with all "-" characters converted to "_" characters
+ * the Drush command with all "-" characters converted to "_" characters.
  */
 function drush_advagg_clear_db_cache() {
   // Run the command.
@@ -128,7 +128,7 @@ function drush_advagg_clear_db_cache() {
  *
  * Callback is called by using drush_hook_command() where
  * hook is the name of the module (advagg) and command is the name of
- * the Drush command with all "-" characters converted to "_" characters
+ * the Drush command with all "-" characters converted to "_" characters.
  */
 function drush_advagg_cron() {
   // Run AdvAgg cron job.

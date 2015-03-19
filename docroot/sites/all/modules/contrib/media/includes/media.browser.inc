@@ -149,41 +149,11 @@ function media_browser($selected = NULL) {
 }
 
 /**
- * Attaches media browser javascript to an element.
- *
- * @param array $element
- *   The element array to attach to.
- */
-function media_attach_browser_js(&$element) {
-  static $js_attached = FALSE;
-  if (!$js_attached) {
-    $javascript = media_browser_js();
-    foreach ($javascript as $key => $definitions) {
-      foreach ($definitions as $definition) {
-        $element['#attached'][$key][] = $definition;
-      }
-    }
-    $js_attached = TRUE;
-  }
-}
-
-/**
- * Helper function to define browser javascript.
- */
-function media_browser_js() {
-  return array(
-    'library' => array(
-      array('media', 'media_browser'),
-      array('media', 'media_browser_settings'),
-    ),
-  );
-}
-
-/**
  * Menu callback for testing the media browser.
  */
 function media_browser_testbed($form) {
-  media_attach_browser_js($form);
+  $form['#attached']['library'][] = array('media', 'media_browser');
+  $form['#attached']['library'][] = array('media', 'media_browser_settings');
 
   $form['test_element'] = array(
     '#type' => 'media',

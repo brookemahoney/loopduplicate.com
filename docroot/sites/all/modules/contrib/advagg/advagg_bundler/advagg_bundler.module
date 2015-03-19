@@ -93,12 +93,12 @@ function advagg_bundler_enabled() {
  * Given a filename return a bundle key.
  *
  * @param string $filename
- *   filename
+ *   Filename.
  * @param bool $force
- *   bypass the cache and get a fresh version of the analysis.
+ *   Bypass the cache and get a fresh version of the analysis.
  *
  * @return string
- *   string to be used for the grouping key.
+ *   String to be used for the grouping key.
  */
 function advagg_bundler_analysis($filename = '', $force = FALSE) {
   // Cache query in a static.
