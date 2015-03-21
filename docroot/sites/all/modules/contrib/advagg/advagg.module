@@ -1702,6 +1702,9 @@ function advagg_get_js($scope = 'header', array $javascript = array(), $skip_alt
     if (isset($item['attributes']['onload'])) {
       $items[$key]['onload'] = $item['attributes']['onload'];
     }
+    if (isset($item['attributes']['onerror'])) {
+      $items[$key]['onerror'] = $item['attributes']['onerror'];
+    }
   }
 
   // Render the HTML needed to load the JavaScript.
@@ -2600,7 +2603,16 @@ function advagg_pre_render_scripts(array $elements) {
         $element['#attributes']['async'] = 'async';
       }
       if (!empty($group['onload'])) {
-        $element['#attributes']['onload'] = $group['onload'];
+        if (!isset($element['#attributes']['onload'])) {
+          $element['#attributes']['onload'] = '';
+        }
+        $element['#attributes']['onload'] .= $group['onload'];
+      }
+      if (!empty($group['onerror'])) {
+        if (!isset($element['#attributes']['onerror'])) {
+          $element['#attributes']['onerror'] = '';
+        }
+        $element['#attributes']['onerror'] .= $group['onerror'];
       }
       $elements[] = $element;
     }
@@ -2622,7 +2634,16 @@ function advagg_pre_render_scripts(array $elements) {
           $element['#attributes']['async'] = 'async';
         }
         if (!empty($item['onload'])) {
-          $element['#attributes']['onload'] = $item['onload'];
+          if (!isset($element['#attributes']['onload'])) {
+            $element['#attributes']['onload'] = '';
+          }
+          $element['#attributes']['onload'] .= $item['onload'];
+        }
+        if (!empty($item['onerror'])) {
+          if (!isset($element['#attributes']['onerror'])) {
+            $element['#attributes']['onerror'] = '';
+          }
+          $element['#attributes']['onerror'] .= $item['onerror'];
         }
         $element['#browsers'] = isset($item['browsers']) ? $item['browsers'] : array();
 
@@ -2684,7 +2705,7 @@ function advagg_pre_render_scripts(array $elements) {
 
 
 /**
- * #pre_render callback to add the elements needed for CSS tags to be rendered.
+ * A #pre_render callback to add elements needed for CSS tags to be rendered.
  *
  * For production websites, LINK tags are preferable to STYLE tags with @import
  * statements, because:

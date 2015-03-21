@@ -264,6 +264,48 @@ function advagg_mod_js_alter(&$js) {
   if ( variable_get('advagg_mod_js_defer', ADVAGG_MOD_JS_DEFER)
     || variable_get('advagg_mod_js_async', ADVAGG_MOD_JS_ASYNC)
   ) {
+    $use_on_error = FALSE;
+    // If everything is async safe then we can use on error.
+    // Only needed if the jquery_update javascript is loaded via async/defer.
+    if ($use_on_error) {
+      $jquery_update_fallback = '';
+      $jquery_update_ui_fallback = '';
+      $inline_array = array();
+      if (module_exists('jquery_update') && variable_get('jquery_update_jquery_cdn', 'none') !== 'none') {
+        foreach ($js as $name => $values) {
+          if ($values['type'] !== 'inline') {
+            continue;
+          }
+          if (strpos($values['data'], 'window.jQuery') !== FALSE) {
+            $path = drupal_get_path('module', 'jquery_update');
+            $version = variable_get('jquery_update_jquery_version', '1.10');
+            $min = variable_get('jquery_update_compression_type', 'min') == 'none' ? '' : '.min';
+            $jquery_update_fallback = base_path() . $path . '/replace/jquery/' . $version . '/jquery' . $min . '.js';
+            $inline_array = $values;
+            unset($js[$name]);
+            continue;
+          }
+          if (strpos($values['data'], 'window.jQuery.ui') !== FALSE) {
+            $path = drupal_get_path('module', 'jquery_update');
+            $min = variable_get('jquery_update_compression_type', 'min') == 'none' ? '' : '.min';
+            $js_path = ($min == '.min') ? '/replace/ui/ui/minified/jquery-ui.min.js' : '/replace/ui/ui/jquery-ui.js';
+            $jquery_update_ui_fallback = base_path() . $path . $js_path;
+            if (empty($inline_array)) {
+              $inline_array = $values;
+            }
+            unset($js[$name]);
+            continue;
+          }
+        }
+      }
+      if (!empty($jquery_update_fallback) || !empty($jquery_update_ui_fallback)) {
+        $inline_array['group'] = '-150';
+        $inline_array['weight'] += -10;
+        $inline_array['data'] = 'function advagg_fallback(file){var head = document.getElementsByTagName("head")[0];var script = document.createElement("script");script.src = file;script.type = "text/javascript";head.appendChild(script);};';
+        $js[] = $inline_array;
+      }
+    }
+
     foreach ($js as $name => &$values) {
       if ($values['type'] !== 'file' && $values['type'] !== 'external') {
         continue;
@@ -278,51 +320,51 @@ function advagg_mod_js_alter(&$js) {
       }
 
       if (strpos($name, 'jquery.js') !== FALSE || strpos($name, 'jquery.min.js') !== FALSE) {
-        // Do not defer/async the loading of jquery.js
-        if (variable_get('advagg_mod_js_defer', ADVAGG_MOD_JS_DEFER)) {
-          $values['defer'] = FALSE;
-        }
-        if (variable_get('advagg_mod_js_async', ADVAGG_MOD_JS_ASYNC)) {
-          $values['async'] = FALSE;
-        }
-
         // jquery_update fallback.
-        if (module_exists('jquery_update')) {
-          $values['onload'] = "if (typeof window.init_drupal_jquery_update_fallback === 'function') {init_drupal_jquery_update_fallback();}";
+        if (module_exists('jquery_update') && variable_get('jquery_update_jquery_cdn', 'none') !== 'none') {
+          if ($use_on_error) {
+            if (!isset($values['onerror'])) {
+              $values['onerror'] = '';
+            }
+            $values['onerror'] .= 'advagg_fallback(\'' . $jquery_update_fallback . '\');';
+          }
+          // Do not defer/async the loading of jquery.js
+          if (variable_get('advagg_mod_js_defer', ADVAGG_MOD_JS_DEFER)) {
+            $values['defer'] = FALSE;
+          }
+          if (variable_get('advagg_mod_js_async', ADVAGG_MOD_JS_ASYNC)) {
+            $values['async'] = FALSE;
+          }
         }
       }
       if (strpos($name, 'jquery-ui.js') !== FALSE || strpos($name, 'jquery-ui.min.js') !== FALSE) {
-        // Do not defer/async the loading of jquery-ui.js
-        if (variable_get('advagg_mod_js_defer', ADVAGG_MOD_JS_DEFER)) {
-          $values['defer'] = FALSE;
-        }
-        if (variable_get('advagg_mod_js_async', ADVAGG_MOD_JS_ASYNC)) {
-          $values['async'] = FALSE;
-        }
-
-        // jquery_update fallback.
-        if (module_exists('jquery_update')) {
-          $values['onload'] = "if (typeof window.init_drupal_jquery_ui_update_fallback === 'function') {init_drupal_jquery_ui_update_fallback();}";
+        // jquery_update ui fallback.
+        if (module_exists('jquery_update') && variable_get('jquery_update_jquery_cdn', 'none') !== 'none') {
+          if ($use_on_error) {
+            if (!isset($values['onerror'])) {
+              $values['onerror'] = '';
+            }
+            $values['onerror'] .= 'advagg_fallback(' . $jquery_update_ui_fallback . ');';
+          }
+          // Do not defer/async the loading of jquery-ui.js
+          if (variable_get('advagg_mod_js_defer', ADVAGG_MOD_JS_DEFER)) {
+            $values['defer'] = FALSE;
+          }
+          if (variable_get('advagg_mod_js_async', ADVAGG_MOD_JS_ASYNC)) {
+            $values['async'] = FALSE;
+          }
         }
       }
 
       // Drupal settings.
       if ($name === 'misc/drupal.js') {
-        $values['onload'] = "if (typeof window.init_drupal_core_settings === 'function') {init_drupal_core_settings();}";
-        if (variable_get('advagg_mod_js_defer', ADVAGG_MOD_JS_DEFER)) {
-          $values['defer'] = FALSE;
+        // Initialize the Drupal.settings JavaScript object after this has
+        // loaded.
+        if (!isset($values['onload'])) {
+          $values['onload'] = '';
         }
-        if (variable_get('advagg_mod_js_async', ADVAGG_MOD_JS_ASYNC)) {
-          $values['async'] = FALSE;
-        }
-      }
-      if ($name === 'misc/jquery.once.js') {
-        if (variable_get('advagg_mod_js_defer', ADVAGG_MOD_JS_DEFER)) {
-          $values['defer'] = FALSE;
-        }
-        if (variable_get('advagg_mod_js_async', ADVAGG_MOD_JS_ASYNC)) {
-          $values['async'] = FALSE;
-        }
+        $matches[0] = $matches[2] = 'init_drupal_core_settings();';
+        $values['onload'] .= advagg_mod_wrap_inline_js($matches, "typeof window.init_drupal_core_settings === 'function' && window.jQuery && window.Drupal", 20);
       }
     }
   }
@@ -556,46 +598,30 @@ function advagg_mod_advagg_modify_js_pre_render_alter(&$children, &$elements) {
   if ( variable_get('advagg_mod_js_defer', ADVAGG_MOD_JS_DEFER)
     || variable_get('advagg_mod_js_async', ADVAGG_MOD_JS_ASYNC)
   ) {
+    // Capture all onload code.
+    $onload_code = array();
+    foreach ($children as $values) {
+      if (isset($values['#attributes']['onload'])) {
+        $onload_code[$values['#attributes']['src']] = $values['#attributes']['onload'];
+      }
+    }
+
     foreach ($children as &$values) {
-      if (empty($values['#attributes']['src'])) {
-        continue;
-      }
-      if (variable_get('advagg_mod_js_defer', ADVAGG_MOD_JS_DEFER) && isset($values['#attributes']['defer'])) {
-        $values['#attributes']['defer'] = TRUE;
-      }
-      if (variable_get('advagg_mod_js_async', ADVAGG_MOD_JS_ASYNC) && isset($values['#attributes']['async'])) {
-        $values['#attributes']['async'] = TRUE;
-      }
-      // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace
-      if ( strpos($values['#attributes']['src'], 'jquery-ui.js') !== FALSE
-        || strpos($values['#attributes']['src'], 'jquery-ui.min.js') !== FALSE
-        || strpos($values['#attributes']['src'], 'jquery.js') !== FALSE
-        || strpos($values['#attributes']['src'], 'jquery.min.js') !== FALSE
-        || strpos($values['#attributes']['src'], 'jquery.once.js') !== FALSE
-        || strpos($values['#attributes']['src'], 'jquery.once.min.js') !== FALSE
-      ) {
-        unset($values['#attributes']['async']);
-      }
-      if (empty($values['#value'])) {
-        continue;
-      }
-
-      // Workaround bug with onload and jquery update.
-      if (!empty($values['#attributes']['onload'])) {
-        unset($values['#attributes']['onload']);
-      }
-
-      // Core.
-      if (strpos($values['#value'], 'jQuery.extend(Drupal.settings') !== FALSE) {
-        $values['#value'] = 'function init_drupal_core_settings() {' . $values['#value'] . '}';
-      }
-
-      // JQuery Update.
-      if (strpos($values['#value'], 'window.jQuery') !== FALSE) {
-        $values['#value'] = 'function init_drupal_jquery_update_fallback() {' . $values['#value'] . '}';
-      }
-      if (strpos($values['#value'], 'window.jQuery.ui') !== FALSE) {
-        $values['#value'] = 'function init_drupal_jquery_ui_update_fallback() {' . $values['#value'] . '}';
+      // Core's Drupal.settings. Put inside wrapper if there is an onload call
+      // for init_drupal_core_settings. Have to do this here because the
+      // settings needed to be rendered.
+      if (!empty($values['#value']) && strpos($values['#value'], 'jQuery.extend(Drupal.settings') !== FALSE) {
+        $found = FALSE;
+        foreach ($onload_code as $src =>  $code) {
+          if (strpos($code, 'init_drupal_core_settings(') !== FALSE) {
+            $found = TRUE;
+            unset($onload_code[$src]);
+            break;
+          }
+        }
+        if ($found) {
+          $values['#value'] = 'function init_drupal_core_settings() {' . $values['#value'] . '}';
+        }
       }
     }
   }
@@ -789,37 +815,37 @@ function advagg_mod_wrap_inline_js(array $matches, $check_string = NULL, $ms_wai
 
   // JS wrapper code.
   $new = "
-function advagg_mod_drupal_settings_loaded$counter() {
+function advagg_mod_$counter() {
   // Count how many times this function is called.
-  advagg_mod_drupal_settings_loaded$counter.count = ++advagg_mod_drupal_settings_loaded$counter.count || 1;
+  advagg_mod_$counter.count = ++advagg_mod_$counter.count || 1;
   try {
-    if (advagg_mod_drupal_settings_loaded$counter.count <= 40) {
+    if (advagg_mod_$counter.count <= 40) {
       $matches[2]
 
       // Set this to 100 so that this function only runs once.
-      advagg_mod_drupal_settings_loaded$counter.count = 100;
+      advagg_mod_$counter.count = 100;
     }
   }
   catch(e) {
-    if (advagg_mod_drupal_settings_loaded$counter.count >= 40) {
-      // Throw the exception if this still fails after 10 seconds.
+    if (advagg_mod_$counter.count >= 40) {
+      // Throw the exception if this still fails after running 40 times.
       throw e;
     }
     else {
-      // Try again in a quarter second.
-      window.setTimeout(advagg_mod_drupal_settings_loaded$counter, $ms_wait);
+      // Try again in $ms_wait ms.
+      window.setTimeout(advagg_mod_$counter, $ms_wait);
     }
   }
 }
-function advagg_mod_check_if_drupal_settings_loaded$counter() {
-    if ($check_string) {
-        advagg_mod_drupal_settings_loaded$counter();
-    }
-    else {
-        window.setTimeout(advagg_mod_check_if_drupal_settings_loaded$counter, $ms_wait);
-    }
+function advagg_mod_${counter}_check() {
+  if ($check_string) {
+    advagg_mod_$counter();
+  }
+  else {
+    window.setTimeout(advagg_mod_${counter}_check, $ms_wait);
+  }
 }
-advagg_mod_check_if_drupal_settings_loaded$counter();";
+advagg_mod_${counter}_check();";
 
   $return = str_replace($matches[2], $new, $matches[0]);
   return $return;

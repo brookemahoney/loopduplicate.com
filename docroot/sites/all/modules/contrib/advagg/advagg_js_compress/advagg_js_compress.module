@@ -101,6 +101,23 @@ function advagg_js_compress_advagg_modify_js_pre_render_alter(&$children, &$elem
   // Compress any inline JS.
   module_load_include('inc', 'advagg_js_compress', 'advagg_js_compress.advagg');
   foreach ($children as &$values) {
+    // Compress onload.
+    if (!empty($values['#attributes']['onload'])) {
+      $contents = $values['#attributes']['onload'];
+      $filename = drupal_hash_base64($contents);
+      advagg_js_compress_prep($contents, $filename, $aggregate_settings, FALSE);
+      $values['#attributes']['onload'] = $contents;
+    }
+
+    // Compress onerror.
+    if (!empty($values['#attributes']['onerror'])) {
+      $contents = $values['#attributes']['onerror'];
+      $filename = drupal_hash_base64($contents);
+      advagg_js_compress_prep($contents, $filename, $aggregate_settings, FALSE);
+      $values['#attributes']['onerror'] = $contents;
+    }
+
+    // Compress inline.
     if (!empty($values['#value'])) {
       $contents = $values['#value'];
       $filename = drupal_hash_base64($contents);
