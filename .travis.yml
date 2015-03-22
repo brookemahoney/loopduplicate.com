@@ -38,7 +38,7 @@ install:
   - cp $TRAVIS_BUILD_DIR/docroot/sites/default/travis.settings.php $TRAVIS_BUILD_DIR/docroot/sites/default/settings.php
 
   # Installs additional libraries via composer.
-  composer install
+  - composer install
 
 before_script:
 
