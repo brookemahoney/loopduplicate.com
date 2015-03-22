@@ -13,7 +13,7 @@
       var filters_visible = $.cookie('search-filters--visible');
 
       // On page load.
-      $filters.before('<h5 id="search-toggle-filters" class="search-toggle-filters">(+/-) Show/Hide Filters</h5>');
+      $filters.before('<h5 id="search-toggle-filters" class="search-toggle-filters">(+/-) ' + Drupal.t('Show/Hide Filters') + '</h5>');
       var $toggle = $('#search-toggle-filters');
       if (filters_visible === '0') {
         $results.toggleClass('col-sm-8 col-md-9');
