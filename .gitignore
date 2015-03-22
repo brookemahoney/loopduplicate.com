@@ -12,3 +12,4 @@ sites/default/files
 *node_modules*
 docroot/error_log
 private*
+vendor*

@@ -1,0 +1,8 @@
+{
+  "autoload": {
+    "classmap": ["docroot//"]
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~4.5"
+  }
+}

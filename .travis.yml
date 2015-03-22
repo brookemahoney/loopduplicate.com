@@ -37,6 +37,9 @@ install:
   # Copies over settings.php
   - cp $TRAVIS_BUILD_DIR/docroot/sites/default/travis.settings.php $TRAVIS_BUILD_DIR/docroot/sites/default/settings.php
 
+  # Installs additional libraries via composer.
+  composer install
+
 before_script:
 
   # Copy drush alias.
@@ -63,9 +66,13 @@ script:
   # Runs PhantomJs.
   - phantomjs --webdriver=8643 > ~/phantomjs.log 2>&1 &
 
-  # Runs Tests.
+  # Runs Behat Tests.
   - cd $TRAVIS_BUILD_DIR/docroot/sites/default/tests/behat
   - ./bin/behat
+
+  # Runs PHPUnit Tests.
+  - cd $TRAVIS_BUILD_DIR
+  - vendor/bin/phpunit -c phpunit.xml
 
   # Prints logs.
   - cat ~/phantomjs.log
