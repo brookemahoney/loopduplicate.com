@@ -7,7 +7,6 @@
 require_once dirname(__FILE__) . '/includes/html.inc';
 require_once dirname(__FILE__) . '/includes/node.inc';
 require_once dirname(__FILE__) . '/includes/page.inc';
-require_once dirname(__FILE__) . '/includes/views.inc';
 
 /**
  * Implements hook_css_alter().
