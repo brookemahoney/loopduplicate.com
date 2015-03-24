@@ -176,12 +176,16 @@ function drush_advagg_smart_cache_flush() {
     drush_log('Advagg Cache Cleared', 'ok');
   }
   else {
+    list($css_path) = advagg_get_root_files_dir();
+    $parts_uri = $css_path[1] . '/parts';
+
     // Report back the results.
-    if (empty($flushed)) {
-      drush_log(dt('No changes found. Nothing was cleared.'), 'ok');
-      return;
-    }
     foreach ($flushed as $filename => $data) {
+      if (strpos($filename, $parts_uri) === 0) {
+        // Do not report on css files manged in the parts directory.
+        unset($flushed[$filename]);
+        continue;
+      }
       $ext = pathinfo($filename, PATHINFO_EXTENSION);
       drush_log(dt('The file %filename has changed. %db_usage aggregates are using this file. %db_count db cache entries and all %type full cache entries have been flushed from the cache bins.', array(
         '%filename' => $filename,
@@ -189,6 +193,11 @@ function drush_advagg_smart_cache_flush() {
         '%db_count' => $data[1],
         '%type' => $ext,
       )), 'ok');
+    }
+
+    if (empty($flushed)) {
+      drush_log(dt('No changes found. Nothing was cleared.'), 'ok');
+      return;
     }
   }
 }

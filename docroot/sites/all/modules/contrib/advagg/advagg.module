@@ -363,7 +363,7 @@ function advagg_system_info_alter(&$info, $file, $type) {
     && ((!empty($info['dependencies'])
       && is_array($info['dependencies'])
       && in_array('advagg', $info['dependencies'])
-      ) || $file->name === 'advagg' )
+      ) || $file->name === 'advagg')
   ) {
     $pos = strpos($info['configure'], '/advagg') + 7;
     $substr = substr($info['configure'], 0, $pos);
@@ -513,6 +513,9 @@ function advagg_cron($bypass_time_check = FALSE) {
   // Clear out all stale advagg aggregated files.
   module_load_include('inc', 'advagg', 'advagg.cache');
   $return[] = advagg_delete_stale_aggregates();
+
+  // Remove orphaned files.
+  $return[] = advagg_delete_orphaned_aggregates();
 
   // Remove aggregates that include missing files.
   $return[] = advagg_remove_missing_files_from_db();
@@ -3222,7 +3225,15 @@ function advagg_scan_filesystem_for_changes_live() {
   if (empty($flushed) || !user_is_logged_in()) {
     return;
   }
+
+  list($css_path) = advagg_get_root_files_dir();
+  $parts_uri = $css_path[1] . '/parts';
+
   foreach ($flushed as $filename => $data) {
+    if (strpos($filename, $parts_uri) === 0) {
+      // Do not report on css files manged in the parts directory.
+      continue;
+    }
     $ext = pathinfo($filename, PATHINFO_EXTENSION);
     drupal_set_message(t('The file %filename has changed. %db_usage aggregates are using this file. %db_count db cache entries and all %type full cache entries have been flushed from the cache bins.', array(
       '%filename' => $filename,
@@ -3361,7 +3372,7 @@ function advagg_file_create_url($path, array $aggregate_settings = array()) {
  *
  * @see drupal_load_stylesheet()
  */
-function advagg_load_stylesheet($file, $optimize = NULL, $reset_basepath = TRUE) {
+function advagg_load_stylesheet($file, $optimize = FALSE, $reset_basepath = TRUE) {
   // These statics are not cache variables, so we don't use drupal_static().
   static $_optimize, $basepath;
   if ($reset_basepath) {

@@ -73,13 +73,13 @@ function advagg_admin_settings_form($form, $form_state) {
     ),
   );
   // Show msg about advagg css compress.
-  if (module_exists('advagg_css_compress') && (variable_get('advagg_css_compressor', ADVAGG_CSS_COMPRESSOR) || variable_get('advagg_css_inline_compressor', ADVAGG_CSS_INLINE_COMPRESSOR))) {
+  if (module_exists('advagg_css_compress') && (variable_get('advagg_css_compressor', ADVAGG_CSS_COMPRESSOR) || variable_get('advagg_css_compress_inline', ADVAGG_CSS_COMPRESS_INLINE))) {
     $form['global']['dev_container']['advagg_css_compress_msg'] = array(
       '#markup' => '<p>' . t('The <a href="@css">AdvAgg CSS Compression module</a> is disabled when in development mode.', array('@css' => url($config_path . '/advagg/css-compress'))) . '</p>',
     );
   }
   // Show msg about advagg js compress.
-  if (module_exists('advagg_js_compress') && (variable_get('advagg_js_compressor', ADVAGG_JS_COMPRESSOR) || variable_get('advagg_js_inline_compressor', ADVAGG_JS_INLINE_COMPRESSOR))) {
+  if (module_exists('advagg_js_compress') && (variable_get('advagg_js_compressor', ADVAGG_JS_COMPRESSOR) || variable_get('advagg_js_compress_inline', ADVAGG_JS_COMPRESS_INLINE))) {
     $form['global']['dev_container']['advagg_js_compress_msg'] = array(
       '#markup' => '<p>' . t('The <a href="@js">AdvAgg JS Compression module</a> is disabled when in development mode.', array('@js' => url($config_path . '/advagg/js-compress'))) . '</p>',
     );
@@ -823,12 +823,16 @@ function advagg_admin_flush_cache_button() {
     drupal_set_message(t('Advagg Cache Cleared'));
   }
   else {
+    list($css_path) = advagg_get_root_files_dir();
+    $parts_uri = $css_path[1] . '/parts';
+
     // Report back the results.
-    if (empty($flushed)) {
-      drupal_set_message(t('No changes found. Nothing was cleared.'));
-      return;
-    }
     foreach ($flushed as $filename => $data) {
+      if (strpos($filename, $parts_uri) === 0) {
+        // Do not report on css files manged in the parts directory.
+        unset($flushed[$filename]);
+        continue;
+      }
       $ext = pathinfo($filename, PATHINFO_EXTENSION);
       drupal_set_message(t('The file %filename has changed. %db_usage aggregates are using this file. %db_count db cache entries and all %type full cache entries have been flushed from the cache bins.', array(
         '%filename' => $filename,
@@ -836,6 +840,11 @@ function advagg_admin_flush_cache_button() {
         '%db_count' => $data[1],
         '%type' => $ext,
       )));
+    }
+
+    if (empty($flushed)) {
+      drupal_set_message(t('No changes found. Nothing was cleared.'));
+      return;
     }
   }
 }
@@ -912,7 +921,7 @@ function advagg_admin_remove_missing_files_from_db_button() {
   // Remove aggregates that include missing files.
   $deleted = advagg_remove_missing_files_from_db();
   if (empty($deleted)) {
-    drupal_set_message(t('No missing files found and/or could be safely cleared out of the database.'));
+    drupal_set_message(t('No missing files found or they could not be safely cleared out of the database.'));
   }
   else {
     drupal_set_message(t('Some missing files were found and could be safely cleared out of the database. <pre> @raw </pre>', array('@raw' => print_r($deleted, TRUE))));

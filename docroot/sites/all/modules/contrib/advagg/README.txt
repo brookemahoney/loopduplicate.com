@@ -238,7 +238,7 @@ current defaults are shown.
     $conf['advagg_js_cdn_jquery'] = TRUE;
 
     // Value for the compression ratio test.
-    $conf['advagg_js_max_compress_ratio'] = 0.9;
+    $conf['advagg_js_compress_max_ratio'] = 0.9;
 
     // Value for the compression ratio test.
     $conf['advagg_js_compress_ratio'] = 0.1;

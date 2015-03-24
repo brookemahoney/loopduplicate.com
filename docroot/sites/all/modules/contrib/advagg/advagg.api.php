@@ -105,7 +105,7 @@ function hook_advagg_changed_files(array $files, array $types) {
 function hook_advagg_current_hooks_hash_array_alter(array &$aggregate_settings) {
   $aggregate_settings['variables']['advagg_js_compressor'] = variable_get('advagg_js_compressor', ADVAGG_JS_COMPRESSOR);
   $aggregate_settings['variables']['advagg_js_compress_packer'] = variable_get('advagg_js_compress_packer', ADVAGG_JS_COMPRESS_PACKER);
-  $aggregate_settings['variables']['advagg_js_max_compress_ratio'] = variable_get('advagg_js_max_compress_ratio', ADVAGG_JS_MAX_COMPRESS_RATIO);
+  $aggregate_settings['variables']['advagg_js_compress_max_ratio'] = variable_get('advagg_js_compress_max_ratio', ADVAGG_JS_COMPRESS_MAX_RATIO);
 }
 
 /**
@@ -450,7 +450,7 @@ function hook_advagg_js_groups_alter(array &$js_groups, $preprocess_js) {
  */
 function hook_advagg_modify_css_pre_render_alter(array &$children, array &$elements) {
   // Get variables.
-  $compressor = variable_get('advagg_css_inline_compressor', ADVAGG_CSS_INLINE_COMPRESSOR);
+  $compressor = variable_get('advagg_css_compress_inline', ADVAGG_CSS_COMPRESS_INLINE);
 
   // Do nothing if the compressor is disabled.
   if (empty($compressor)) {
@@ -459,7 +459,7 @@ function hook_advagg_modify_css_pre_render_alter(array &$children, array &$eleme
 
   // Do nothing if the page is not cacheable and inline compress if not
   // cacheable is not checked.
-  if (!variable_get('advagg_css_inline_compress_if_not_cacheable', ADVAGG_CSS_INLINE_COMPRESS_IF_NOT_CACHEABLE) && !drupal_page_is_cacheable()) {
+  if (!variable_get('advagg_css_compress_inline_if_not_cacheable', ADVAGG_CSS_COMPRESS_INLINE_IF_NOT_CACHEABLE) && !drupal_page_is_cacheable()) {
     return;
   }
 
@@ -494,8 +494,8 @@ function hook_advagg_modify_css_pre_render_alter(array &$children, array &$eleme
  */
 function hook_advagg_modify_js_pre_render_alter(array &$children, array &$elements) {
   // Get variables.
-  $aggregate_settings['variables']['advagg_js_compressor'] = variable_get('advagg_js_inline_compressor', ADVAGG_JS_INLINE_COMPRESSOR);
-  $aggregate_settings['variables']['advagg_js_max_compress_ratio'] = variable_get('advagg_js_max_compress_ratio', ADVAGG_JS_MAX_COMPRESS_RATIO);
+  $aggregate_settings['variables']['advagg_js_compressor'] = variable_get('advagg_js_compress_inline', ADVAGG_JS_COMPRESS_INLINE);
+  $aggregate_settings['variables']['advagg_js_compress_max_ratio'] = variable_get('advagg_js_compress_max_ratio', ADVAGG_JS_COMPRESS_MAX_RATIO);
 
   // Do nothing if the compressor is disabled.
   if (empty($aggregate_settings['variables']['advagg_js_compressor'])) {
@@ -504,7 +504,7 @@ function hook_advagg_modify_js_pre_render_alter(array &$children, array &$elemen
 
   // Do nothing if the page is not cacheable and inline compress if not
   // cacheable is not checked.
-  if (!variable_get('advagg_js_inline_compress_if_not_cacheable', ADVAGG_JS_INLINE_COMPRESS_IF_NOT_CACHEABLE) && !drupal_page_is_cacheable()) {
+  if (!variable_get('advagg_js_compress_inline_if_not_cacheable', ADVAGG_JS_COMPRESS_INLINE_IF_NOT_CACHEABLE) && !drupal_page_is_cacheable()) {
     return;
   }
 
@@ -531,7 +531,7 @@ function hook_advagg_modify_js_pre_render_alter(array &$children, array &$elemen
  *   Use 0 to change context to what is inside of $aggregate_settings.
  *   Use 1 to change context back.
  *
- * @see advagg_context_css()
+ * @see advagg_context_switch()
  * @see advagg_advagg_context_alter()
  */
 function hook_advagg_context_alter(array &$original, array $aggregate_settings, $mode) {

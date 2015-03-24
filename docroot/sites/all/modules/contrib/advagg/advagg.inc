@@ -561,7 +561,7 @@ function advagg_get_info_on_file($filename, $bypass_cache = FALSE, $run_alter = 
  * @return string
  *   String: The filename. No path info.
  */
-function advagg_build_filename($type, $aggregate_filenames_hash, $aggregate_contents_hash, $hooks_hash = NULL) {
+function advagg_build_filename($type, $aggregate_filenames_hash, $aggregate_contents_hash, $hooks_hash = '') {
   if (empty($hooks_hash)) {
     $hooks_hash = advagg_get_current_hooks_hash();
   }
@@ -1088,7 +1088,7 @@ function advagg_build_aggregate_plans(array $files_to_aggregate, $type) {
     if ($type === 'css') {
       $mixed_media = FALSE;
       $media = NULL;
-      foreach ($values['files'] as $key => $value) {
+      foreach ($values['files'] as $value) {
         if (!isset($value['media'])) {
           continue;
         }
@@ -1233,7 +1233,7 @@ function advagg_create_aggregate_files(array $plans, $type) {
  */
 function advagg_load_css_stylesheet($file, $optimize, array $aggregate_settings = array()) {
   // Change context to that of when this aggregate was created.
-  advagg_context_css($aggregate_settings, 0);
+  advagg_context_switch($aggregate_settings, 0);
 
   // Get the stylesheets contents.
   $contents = advagg_load_stylesheet($file, $optimize);
@@ -1247,21 +1247,21 @@ function advagg_load_css_stylesheet($file, $optimize, array $aggregate_settings 
   if (count($url_parts) === 2) {
     $css_base_url = $url_parts[1];
   }
-  _advagg_build_css_path(NULL, $css_base_url . '/', $aggregate_settings);
+  _advagg_build_css_path(array(), $css_base_url . '/', $aggregate_settings);
 
   // Anchor all paths in the CSS with its base URL, ignoring external,
   // absolute paths, and urls that start with # or %23 (SVG).
   $contents = preg_replace_callback('%url\(\s*+[\'"]?+(?![a-z]++:|/|\#|\%23+)([^\'"()\s]++)[\'"]?+\s*+\)%i', '_advagg_build_css_path', $contents);
 
   // Change context back.
-  advagg_context_css($aggregate_settings, 1);
+  advagg_context_switch($aggregate_settings, 1);
 
   // Return the stylesheets contents.
   return $contents;
 }
 
 /**
- * Changes context when generating CSS.
+ * Changes context when generating CSS or JS files.
  *
  * @param array $aggregate_settings
  *   Array of settings.
@@ -1269,7 +1269,7 @@ function advagg_load_css_stylesheet($file, $optimize, array $aggregate_settings 
  *   Use 0 to change context to what is inside of $aggregate_settings.
  *   Use 1 to change context back.
  */
-function advagg_context_css(array $aggregate_settings, $mode) {
+function advagg_context_switch(array $aggregate_settings, $mode) {
   $original = &drupal_static(__FUNCTION__);
 
   // Use current $aggregate_settings if none was passed in.
@@ -1284,23 +1284,33 @@ function advagg_context_css(array $aggregate_settings, $mode) {
 /**
  * Prefixes all paths within a CSS file for drupal_build_css_cache().
  *
+ * @param array $matches
+ *   Array of matched items from preg_replace_callback().
+ * @param string $base
+ *   Base path.
+ * @param array $aggregate_settings
+ *   Array of settings.
+ *
+ * @return string
+ *   New version of the url() string from the css.
+ *
  * @see _drupal_build_css_path()
  * @see https://drupal.org/node/1961340#comment-7735815
  * @see https://drupal.org/node/1514182#comment-7875489
  */
-function _advagg_build_css_path($matches, $base = NULL, $aggregate_settings = NULL) {
-  $_base = &drupal_static(__FUNCTION__);
-  $_aggregate_settings = &drupal_static(__FUNCTION__ . '_aggregate_settings');
+function _advagg_build_css_path(array $matches, $base = '', array $aggregate_settings = array()) {
+  $_base = &drupal_static(__FUNCTION__, '');
+  $_aggregate_settings = &drupal_static(__FUNCTION__ . '_aggregate_settings', array());
   // Store base path for preg_replace_callback.
-  if (isset($base)) {
+  if (!empty($base)) {
     $_base = $base;
   }
-  if (isset($aggregate_settings)) {
+  if (!empty($aggregate_settings)) {
     $_aggregate_settings = $aggregate_settings;
   }
   // Short circuit if no matches were passed in.
   if (empty($matches)) {
-    return;
+    return '';
   }
 
   // Prefix with base and remove '../' segments where possible.

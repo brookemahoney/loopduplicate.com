@@ -81,6 +81,7 @@ function advagg_missing_generate() {
 
   // Redirect and try again on failure.
   if (empty($created)) {
+    $uri = advagg_generate_location_uri($filename, $data[0], $data[3]);
     ++$redirect_counter;
     $uri .= '?redirect_counter=' . $redirect_counter;
     header('Location: ' . $uri, TRUE, 307);
@@ -93,7 +94,46 @@ function advagg_missing_generate() {
 
   // Output file's contents if creating the file was successful.
   // This function will call exit.
-  advagg_missing_send_saved_file($files_to_save, $uri, $created, $type, $redirect_counter);
+  advagg_missing_send_saved_file($files_to_save, $uri, $created, $filename, $type, $redirect_counter, $data[3]);
+}
+
+/**
+ * Given the filename, type, & settings, create absolute URL for 307 redirect.
+ *
+ * Due to url inbound alter we can not trust that the redirect will work if
+ * using $GLOBALS['base_path'] . $_GET['q']. Generate the uri as if it was
+ * going to be embedded in the html.
+ *
+ * @param string $filename
+ *   Just the filename no path information.
+ * @param string $type
+ *   String: css or js.
+ * @param array $aggregate_settings
+ *   Array of settings.
+ *
+ * @return string
+ *   String pointing to the URI of the file.
+ */
+function advagg_generate_location_uri($filename, $type, array $aggregate_settings = array()) {
+  list($css_path, $js_path) = advagg_get_root_files_dir();
+  if ($type === 'css') {
+    $uri_307 = $css_path[0] . '/' . $filename;
+  }
+  elseif ($type === 'js') {
+    $uri_307 = $js_path[0] . '/' . $filename;
+  }
+
+  // 307s need to be absolute. RFC 2616 14.30.
+  $aggregate_settings['variables']['advagg_convert_absolute_to_relative_path'] = FALSE;
+  $aggregate_settings['variables']['advagg_convert_absolute_to_protocol_relative_path'] = FALSE;
+
+  // Make advagg_context_switch available.
+  module_load_include('inc', 'advagg', 'advagg');
+  advagg_context_switch($aggregate_settings, 0);
+  $uri_307 = advagg_file_create_url($uri_307, $aggregate_settings);
+  advagg_context_switch($aggregate_settings, 1);
+
+  return $uri_307;
 }
 
 /**
@@ -105,10 +145,14 @@ function advagg_missing_generate() {
  *   Requested filename.
  * @param bool $created
  *   If file was created in a different thread.
+ * @param string $filename
+ *   Just the filename no path information.
  * @param string $type
  *   String: css or js.
+ * @param array $aggregate_settings
+ *   Array of settings. Used to generate the 307 redirect location.
  */
-function advagg_missing_send_saved_file(array $files_to_save, $uri, $created, $type, $redirect_counter) {
+function advagg_missing_send_saved_file(array $files_to_save, $uri, $created, $filename, $type, $redirect_counter, array $aggregate_settings = array()) {
   // Negotiate whether to use gzip compression.
   $return_compressed = isset($_SERVER['HTTP_ACCEPT_ENCODING']) && strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') !== FALSE;
   header('Vary: Accept-Encoding', FALSE);
@@ -174,6 +218,7 @@ function advagg_missing_send_saved_file(array $files_to_save, $uri, $created, $t
   }
   else {
     // Redirect and try again on failure.
+    $uri = advagg_generate_location_uri($filename, $type, $aggregate_settings);
     ++$redirect_counter;
     $uri .= '?redirect_counter=' . $redirect_counter;
     header('Location: ' . $uri, TRUE, 307);
@@ -355,12 +400,14 @@ function advagg_htaccess_check_generate(array $files_to_save, $type, $force = FA
  *
  * @param string $filename
  *   Just the filename no path information.
+ * @param bool $skip_hash_settings
+ *   Allows for the skipping of db lookup for required file hooks.
  *
  * @return mixed
  *   On failure a string saying why it failed.
  *   On success array($ext, $aggregate_hash, $files_hash).
  */
-function advagg_get_hashes_from_filename($filename) {
+function advagg_get_hashes_from_filename($filename, $skip_hash_settings = FALSE) {
   // Verify requested filename has the correct pattern.
   if (!advagg_match_file_pattern($filename)) {
     return t('Wrong pattern.');
@@ -389,10 +436,13 @@ function advagg_get_hashes_from_filename($filename) {
   $aggregate_contents_hash = substr($filename, $aggregate_contents_start, 43);
   $hooks_hashes_value = substr($filename, $hooks_hashes_start, 43);
 
-  // Verify that the hooks hashes is valid.
-  $aggregate_settings = advagg_get_hash_settings($hooks_hashes_value);
-  if (empty($aggregate_settings)) {
-    return t('Bad hooks hashes value.');
+  $aggregate_settings = array();
+  if (!$skip_hash_settings) {
+    // Verify that the hooks hashes is valid.
+    $aggregate_settings = advagg_get_hash_settings($hooks_hashes_value);
+    if (empty($aggregate_settings)) {
+      return t('Bad hooks hashes value.');
+    }
   }
 
   return array(

@@ -12,7 +12,7 @@
  * Uses the database to scan CSS/JS files for changes.
  *
  * @return array
- *   array of files that have changed.
+ *   Array of files that have changed.
  */
 function advagg_scan_for_changes() {
   // Get all files stored in the database and filesystem.
@@ -83,7 +83,7 @@ function advagg_scan_for_changes() {
  * Flush the correct caches so CSS/JS changes go live.
  *
  * @return array
- *   array of files that have changed and caches flushed.
+ *   Array of files that have changed and caches flushed.
  */
 function advagg_push_new_changes() {
   // Scan the file system for changes to CSS/JS files.
@@ -139,7 +139,7 @@ function advagg_push_new_changes() {
  *   Set to TRUE to only have cache ids returned.
  *
  * @return array
- *   array of aggregates that use this file.
+ *   Array of aggregates that use this file.
  */
 function advagg_get_aggregates_using_file($filename_hash, $cid_only = FALSE) {
   // Create main query for the advagg_aggregates table.
@@ -168,17 +168,32 @@ function advagg_get_aggregates_using_file($filename_hash, $cid_only = FALSE) {
 }
 
 /**
+ * Get all CSS/JS advagg files.
+ *
+ * @param array $options
+ *   Array of options to pass along to file_scan_directory().
+ *
+ * @return array
+ *   Array of css and js files.
+ */
+function advagg_get_all_files(array $options = array()) {
+  list($css_path, $js_path) = advagg_get_root_files_dir();
+  $options += array('nomask' => '/(\.\.?|CVS|\.gz)$/');
+
+  // Get a list of files.
+  $css_files = file_scan_directory($css_path[0], '/.*/', $options);
+  $js_files = file_scan_directory($js_path[0], '/.*/', $options);
+  return array($css_files, $js_files);
+}
+
+/**
  * Scan CSS/JS advagg dir & remove that file if atime is grater than 30 days.
  *
  * @return array
- *   array of files that got removed.
+ *   Array of files that got removed.
  */
 function advagg_delete_stale_aggregates() {
-  list($css_path, $js_path) = advagg_get_root_files_dir();
-
-  // Get a list of files.
-  $css_files = file_scan_directory($css_path[0], '/.*/', array('nomask' => '/(\.\.?|CVS|\.gz)$/'));
-  $js_files = file_scan_directory($js_path[0], '/.*/', array('nomask' => '/(\.\.?|CVS|\.gz)$/'));
+  list($css_files, $js_files) = advagg_get_all_files();
 
   // Make the advagg_get_hashes_from_filename() function available.
   module_load_include('inc', 'advagg', 'advagg.missing');
@@ -194,7 +209,7 @@ function advagg_delete_stale_aggregates() {
  *   Array of files returned by file_scan_directory.
  *
  * @return array
- *   array of files that got removed.
+ *   Array of files that got removed.
  */
 function advagg_delete_files_if_stale(array $files) {
   // Array used to record what files were deleted.
@@ -260,17 +275,18 @@ function advagg_flush_all_cache_bins() {
  *   Set to TRUE to remove the htaccess files as well.
  *
  * @return array
- *   array of all files removed.
+ *   Array of all files removed.
  */
 function advagg_remove_all_aggregated_files($kill_htaccess = FALSE) {
-  list($css_path, $js_path) = advagg_get_root_files_dir();
-
-  // Find all files in the advagg CSS/JS directories and delete them.
-  $css_files = file_scan_directory($css_path[0], '/.*/', array('callback' => 'file_unmanaged_delete'));
-  $js_files = file_scan_directory($js_path[0], '/.*/', array('callback' => 'file_unmanaged_delete'));
+  $options = array(
+    'callback' => 'file_unmanaged_delete',
+    'nomask' => '/(\.\.?|CVS)$/',
+  );
+  list($css_files, $js_files) = advagg_get_all_files($options);
 
   // Remove the htaccess files as well.
   if ($kill_htaccess) {
+    list($css_path, $js_path) = advagg_get_root_files_dir();
     if (file_exists($css_path[0] . '/.htaccess')) {
       file_unmanaged_delete($css_path[0] . '/.htaccess');
       $css_files[] = $css_path[0] . '/.htaccess';
@@ -355,6 +371,7 @@ function advagg_remove_missing_files_from_db() {
           ->condition('aggregate_filenames_hash', $values['aggregate_filenames_hash'])
           ->condition('atime', REQUEST_TIME - variable_get('advagg_remove_missing_files_from_db_time', ADVAGG_REMOVE_MISSING_FILES_FROM_DB_TIME), '<')
           ->execute();
+
         if ($can_delete > 0) {
           $advagg_aggregates_versions_del += $can_delete;
           $advagg_aggregates_del += db_delete('advagg_aggregates')
@@ -374,15 +391,15 @@ function advagg_remove_missing_files_from_db() {
       $advagg_files_del += db_delete('advagg_files')
         ->condition('filename_hash', $filename_hash)
         ->execute();
-    }
 
-    // Add info to array.
-    $types[$ext] = TRUE;
-    $deleted[$filename] = array(
-      'advagg_files' => $advagg_files_del,
-      'advagg_aggregates_versions' => $advagg_aggregates_versions_del,
-      'advagg_aggregates' => $advagg_aggregates_del,
-    );
+      // Add info to array.
+      $types[$ext] = TRUE;
+      $deleted[$filename] = array(
+        'advagg_files' => $advagg_files_del,
+        'advagg_aggregates_versions' => $advagg_aggregates_versions_del,
+        'advagg_aggregates' => $advagg_aggregates_del,
+      );
+    }
   }
 
   // If something was deleted, clear the full aggregates cache.
@@ -394,6 +411,100 @@ function advagg_remove_missing_files_from_db() {
 
   // Return what was deleted.
   return $deleted;
+}
+
+/**
+ * Scan CSS/JS advagg dir & remove file if there is no associated db record.
+ *
+ * @return array
+ *   Array of files that got removed.
+ */
+function advagg_delete_orphaned_aggregates() {
+  list($css_files, $js_files) = advagg_get_all_files();
+
+  // Make the advagg_get_hashes_from_filename() function available.
+  module_load_include('inc', 'advagg', 'advagg.missing');
+  $css_files = advagg_delete_files_if_orphaned($css_files);
+  $js_files = advagg_delete_files_if_orphaned($js_files);
+  return array($css_files, $js_files);
+}
+
+/**
+ * Given an array of files remove that file if there is no associated db record.
+ *
+ * @param array $files
+ *   Array of files returned by file_scan_directory.
+ *
+ * @return array
+ *   Array of files that got removed.
+ */
+function advagg_delete_files_if_orphaned(array $files) {
+  // Get the uri for the advagg_css/parts directory.
+  list($css_path) = advagg_get_root_files_dir();
+  $parts_uri = $css_path[0] . '/parts';
+
+  // Array used to record what files were deleted.
+  $kill_list = $keyed_file_list = array();
+
+  // Create a listing of all file names and associated hashes.
+  foreach ($files as $uri => $file) {
+    // Get info on file.
+    $data = advagg_get_hashes_from_filename($file->filename, TRUE);
+    if (is_array($data)) {
+      list(, $aggregate_filenames_hash) = $data;
+      // Check to see if the file is in the database.
+      $keyed_file_list[$aggregate_filenames_hash] = $uri;
+    }
+    else {
+      // Check to see if this is a parts css file.
+      $start = strpos($file->uri, $parts_uri);
+      if ($start !== FALSE) {
+        // Get the original filename.
+        $original_file = substr($file->uri, $start + strlen($parts_uri) + 1);
+        $original_file = preg_replace('/(.\\d+\\.css)$/i', '.css', $original_file);
+        if (file_exists($original_file)) {
+          // Original file exists, do not delete.
+          continue;
+        }
+      }
+
+      // Can not get data on file, remove it.
+      $kill_list[] = $uri;
+      continue;
+    }
+  }
+
+  if (!empty($keyed_file_list)) {
+    $filenames_hash = array_keys($keyed_file_list);
+    $aggregates_in_database = array();
+    // Process in chunks when a large array is passed.
+    do {
+      // Check if the aggregate_filenames_hash exists in the database.
+      $aggregates_in_database += db_select('advagg_aggregates_versions', 'av')
+        ->fields('av', array('aggregate_filenames_hash'))
+        ->condition('av.aggregate_filenames_hash', array_splice($filenames_hash, 0, 1000), 'IN')
+        ->distinct()
+        ->execute()
+        ->fetchAllAssoc('aggregate_filenames_hash');
+    } while (count($filenames_hash));
+
+    // Get values not found in the database.
+    $to_delete = array_values(array_diff_key($keyed_file_list, $aggregates_in_database));
+    // Add the file uri to the kill list.
+    $kill_list = array_merge($kill_list, $to_delete);
+  }
+
+  if (!empty($kill_list)) {
+    foreach ($kill_list as $uri) {
+      if (file_exists($uri)) {
+        file_unmanaged_delete($uri);
+        if (file_exists($uri . '.gz')) {
+          file_unmanaged_delete($uri . '.gz');
+        }
+      }
+    }
+  }
+  return $kill_list;
 }
 
 /**

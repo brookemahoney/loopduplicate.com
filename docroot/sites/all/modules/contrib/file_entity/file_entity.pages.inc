@@ -112,18 +112,6 @@ function file_entity_add_upload_step_upload($form, &$form_state, array $options 
     '#default_value' => isset($form_state['storage']['upload']) ? $form_state['storage']['upload'] : NULL,
   );
 
-  // Add an option to specify the upload path if the user has permission to do so.
-  $form['path'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Upload path'),
-    '#description' => t('Enter the path within the upload folder where you would like to place the file (e.g. "documents/finance").  Do not add preceding or trailing slashes.  Leave blank to keep it at the root, with no subfolders.'),
-    '#default_value' => file_uri_target($form['upload']['#upload_location']),
-    '#required' => FALSE,
-    '#maxlength' => 255,
-    '#autocomplete_path' => 'file/add/path/autocomplete',
-    '#access' => file_entity_upload_path_access(),
-  );
-
   $form['actions'] = array('#type' => 'actions');
   $form['actions']['next'] = array(
     '#type' => 'submit',
@@ -447,28 +435,6 @@ function file_entity_add_upload_submit($form, &$form_state) {
       // Change the file from temporary to permanent.
       $file->status = FILE_STATUS_PERMANENT;
 
-      // Move the file to the specified target directory if the user is authorized.
-      if (file_entity_upload_path_access()) {
-
-        // A slash is only needed before the filename if we're dropping the file
-        // somewhere other than the root of the filesystem.  Otherwise, we'll
-        // end up with too many (e.g. "public:///file.png").
-        $separator = strlen($form_state['storage']['path']) ? "/" : "";
-
-        // Get the URI for the target path.
-        $uri_new = file_entity_upload_destination_uri(array(
-          'uri_scheme' => file_uri_scheme($file->uri),
-          'file_directory' => $form_state['storage']['path'],
-        )) . $separator . drupal_basename($file->uri);
-
-        // If it changed, move the file to its new location.
-        if ($file->uri != $uri_new) {
-          $path = drupal_dirname($uri_new);
-          file_prepare_directory($path, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS);
-          $file = file_move($file, $uri_new, FILE_EXISTS_RENAME);
-        }
-      }
-
       // Save the form fields.
       // Keep in mind that the values for the Field API fields must be in
       // $form_state['values'] and not in ['storage']. This is true as long as
@@ -520,12 +486,7 @@ function file_entity_upload_destination_uri(array $params, array $data = array()
     'file_directory' => '',
   );
 
-  // Sanitize the provided path by removing any slashes and dots from the
-  // beginning and end, and neutralize any attempts to traverse up the tree.
-  // We're assuming it's not necessary to run check_url() on it because this is
-  // usually done on output.
-  $destination = trim($params['file_directory'], '/.');
-  $destination = str_replace('/../', '/', $destination);
+  $destination = trim($params['file_directory'], '/');
 
   // Replace tokens.
   $destination = token_replace($destination, $data);
@@ -567,24 +528,9 @@ function file_entity_add_upload_multiple($form, &$form_state, $params = array())
  * Submit handler for the multiple upload form.
  */
 function file_entity_add_upload_multiple_submit($form, &$form_state) {
-
-  // Set the upload directory where the file should be dropped.
-  if (file_entity_upload_path_access()) {
-
-    // The current user has permission to specify the location.
-    // Grab it from the submitted form.
-    $upload_location = file_entity_upload_destination_uri(array(
-      'file_directory' => $form_state['values']['path'],
-    )) . "/";
-  }
-  else if (!empty($form['upload']['#upload_location'])) {
-    // If the form specfied a directory at the outset, use that.
-    $upload_location = $form['upload']['#upload_location'] . '/';
-  }
-  else {
-    // Use the default location for uploaded files.
-    $upload_location = variable_get('file_default_scheme', 'public') . '://';
-  }
+  $upload_location = !empty($form['upload']['#upload_location']) ?
+    $form['upload']['#upload_location'] . '/' :
+    variable_get('file_default_scheme', 'public') . '://';
 
   // Ensure writable destination directory for the files.
   file_prepare_directory($upload_location, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS);
