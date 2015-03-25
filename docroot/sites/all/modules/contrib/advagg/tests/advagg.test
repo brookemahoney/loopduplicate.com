@@ -111,7 +111,7 @@ class AdvAggCascadingStylesheetsUnitTest extends DrupalUnitTestCase {
       $this->assertEqual($optimized_output_url, $expected, format_string('Optimized CSS file (loaded from an URL) has expected contents (@file)', array('@file' => $file)));
     }
 
-    // File. Tests: advagg*.css
+    // File. Tests: advagg.css
     // - Various url() tests.
     //   https://www.drupal.org/node/1514182
     //   https://www.drupal.org/node/1961340
@@ -126,20 +126,25 @@ class AdvAggCascadingStylesheetsUnitTest extends DrupalUnitTestCase {
       $aggregate_settings = array(
         'variables' => array(
           'is_https' => FALSE,
-          'base_path' => '/',
+          'base_path' => ($GLOBALS['base_path'] === '/checkout/') ? $GLOBALS['base_path'] : $GLOBALS['base_path'] . 'advagg_base_path_test/',
           'advagg_convert_absolute_to_relative_path' => TRUE,
-          'advagg_convert_absolute_to_protocol_relative_path' => TRUE,
+          'advagg_convert_absolute_to_protocol_relative_path' => FALSE,
+          'advagg_force_https_path' => FALSE,
         ),
       );
+      if (module_exists('cdn')) {
+        $aggregate_settings['variables'][CDN_MODE_VARIABLE] = CDN_DISABLED;
+        $aggregate_settings['variables'][CDN_STATUS_VARIABLE] = CDN_DISABLED;
+      }
 
       $expected = file_get_contents($file_path . '.optimized.css');
       $optimized_output = advagg_load_css_stylesheet($file_path, TRUE, $aggregate_settings);
-      $optimized_output = str_replace('/' . drupal_get_path('module', 'advagg') . '/', '', $optimized_output);
-      $this->assertEqual($optimized_output, $expected, format_string('Optimized CSS file has expected contents (@file)', array('@file' => $file)) . '<br>' . nl2br($optimized_output));
+      $optimized_output = str_replace($aggregate_settings['variables']['base_path'] . drupal_get_path('module', 'advagg') . '/', '', $optimized_output);
+      $this->assertEqual($optimized_output, $expected, format_string('Optimized CSS file has expected contents (@file)', array('@file' => $file)) . "<br>\n<br>\n" . $path . "<br>\n<br>\n" . $file_path . "<br>\n<br>\n" . $file_url . "<br>\n<br>\n" . drupal_get_path('module', 'advagg') . "<br>\n<br>\n" . file_create_url($file_path) . "<br>\n<br>\n" . $optimized_output . "<br>\n<br>\n" . $GLOBALS['base_url'] . "<br>\n<br>\n" . $GLOBALS['base_path'] . "<br>\n<br>\n" . $GLOBALS['base_root'] . "<br>\n<br>\n" . $aggregate_settings['variables']['base_path']);
 
       $expected = file_get_contents($file_path . '.optimized.css');
       $optimized_output_url = advagg_load_css_stylesheet($file_url, TRUE, $aggregate_settings);
-      $optimized_output_url = str_replace('/' . drupal_get_path('module', 'advagg') . '/', '', $optimized_output_url);
+      $optimized_output_url = str_replace($aggregate_settings['variables']['base_path'] . drupal_get_path('module', 'advagg') . '/', '', $optimized_output_url);
       $this->assertEqual($optimized_output_url, $expected, format_string('Optimized CSS file (loaded from an URL) has expected contents (@file)', array('@file' => $file)));
     }
   }

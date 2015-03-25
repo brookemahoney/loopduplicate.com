@@ -164,17 +164,26 @@ function advagg_advagg_context_alter(&$original, $aggregate_settings, $mode) {
       $original[CDN_STATUS_VARIABLE] = variable_get(CDN_STATUS_VARIABLE, CDN_DISABLED);
 
       // Set context for file_create_url()/cdn_file_url_alter().
-      $GLOBALS['conf'][CDN_MODE_VARIABLE] = $aggregate_settings['variables'][CDN_MODE_VARIABLE];
-      $GLOBALS['conf'][CDN_BASIC_FARFUTURE_VARIABLE] = $aggregate_settings['variables'][CDN_BASIC_FARFUTURE_VARIABLE];
-      $GLOBALS['conf'][CDN_HTTPS_SUPPORT_VARIABLE] = $aggregate_settings['variables'][CDN_HTTPS_SUPPORT_VARIABLE];
-      $GLOBALS['conf'][CDN_STATUS_VARIABLE] = $aggregate_settings['variables'][CDN_STATUS_VARIABLE];
+      $GLOBALS['conf'][CDN_MODE_VARIABLE] = isset($aggregate_settings['variables'][CDN_MODE_VARIABLE])
+        ? $aggregate_settings['variables'][CDN_MODE_VARIABLE]
+        : variable_get(CDN_MODE_VARIABLE, CDN_MODE_BASIC);
+      $GLOBALS['conf'][CDN_BASIC_FARFUTURE_VARIABLE] = isset($aggregate_settings['variables'][CDN_BASIC_FARFUTURE_VARIABLE])
+        ? $aggregate_settings['variables'][CDN_BASIC_FARFUTURE_VARIABLE]
+        : variable_get(CDN_BASIC_FARFUTURE_VARIABLE, CDN_BASIC_FARFUTURE_DEFAULT);
+      $GLOBALS['conf'][CDN_HTTPS_SUPPORT_VARIABLE] = isset($aggregate_settings['variables'][CDN_HTTPS_SUPPORT_VARIABLE])
+        ? $aggregate_settings['variables'][CDN_HTTPS_SUPPORT_VARIABLE]
+        : variable_get(CDN_HTTPS_SUPPORT_VARIABLE, FALSE);
+      $GLOBALS['conf'][CDN_STATUS_VARIABLE] = isset($aggregate_settings['variables'][CDN_STATUS_VARIABLE])
+        ? $aggregate_settings['variables'][CDN_STATUS_VARIABLE]
+        : variable_get(CDN_STATUS_VARIABLE, CDN_DISABLED);
+
       // Disable CDN if cdn_check_drupal_path is FALSE.
-      if (!$aggregate_settings['variables']['cdn_check_drupal_path']) {
+      if (empty($aggregate_settings['variables']['cdn_check_drupal_path'])) {
         $original[CDN_STATUS_VARIABLE] = CDN_DISABLED;
       }
 
       // Handle HTTPS.
-      if ($aggregate_settings['variables']['cdn_request_is_https'] && !cdn_request_is_https()) {
+      if (!empty($aggregate_settings['variables']['cdn_request_is_https']) && !cdn_request_is_https()) {
         if (isset($_SERVER['HTTPS'])) {
           $original['HTTPS'] = $_SERVER['HTTPS'];
         }

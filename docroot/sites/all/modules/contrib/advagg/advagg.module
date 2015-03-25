@@ -628,9 +628,9 @@ function advagg_ajax_render_alter(&$commands) {
   list(, $core_scripts_header, $core_scripts_footer, $items, $settings) = advagg_build_ajax_js_css();
 
   // Get AdvAgg JS.
-  $scripts_footer = advagg_get_js('footer', $items['js'], TRUE, TRUE);
+  $scripts_footer = advagg_get_js('footer', $items['js'], TRUE);
   $scripts_footer = drupal_render($scripts_footer);
-  $scripts_header = advagg_get_js('header', $items['js'], TRUE, TRUE);
+  $scripts_header = advagg_get_js('header', $items['js'], TRUE);
   $scripts_header = drupal_render($scripts_header);
 
   // Remove core JS.
@@ -1114,16 +1114,42 @@ function _advagg_aggregate_js(array &$js_groups) {
 }
 
 /**
- * Builds the arrays needed for js rendering and caching.
+ * Builds the arrays needed for css rendering and caching.
+ *
+ * @param bool $skip_alter
+ *   (Optional) If set to TRUE, this function skips calling drupal_alter() on
+ *   css, useful for the aggressive cache.
  *
  * @return array
- *   array contains the 3 arrays used for javascript.
+ *   Array contains the 2 arrays used for css.
  */
-function _advagg_build_js_arrays_for_rendering() {
+function _advagg_build_css_arrays_for_rendering($skip_alter = FALSE) {
+  // Get the raw CSS variable.
+  $raw_css = drupal_add_css();
+  // Process & Sort css.
+  $full_css = advagg_get_css($raw_css, $skip_alter);
+  // Add attached js to drupal_add_js() function.
+  drupal_process_attached($full_css);
+  // Remove #attached since it's been added to the javascript array now.
+  unset($full_css['#attached']);
+  return array($raw_css, $full_css);
+}
+
+/**
+ * Builds the arrays needed for js rendering and caching.
+ *
+ * @param bool $skip_alter
+ *   (Optional) If set to TRUE, this function skips calling drupal_alter() on
+ *   js, useful for the aggressive cache.
+ *
+ * @return array
+ *   Array contains the 3 arrays used for javascript.
+ */
+function _advagg_build_js_arrays_for_rendering($skip_alter = FALSE) {
   // Get the raw JS variable.
   $javascript = drupal_add_js();
   // Process & Sort JS.
-  $full_javascript = advagg_get_full_js($javascript);
+  $full_javascript = advagg_get_full_js($javascript, $skip_alter);
   // Get scopes used in the js.
   $scopes = advagg_get_js_scopes($full_javascript);
   // Add JS to the header and footer of the page.
@@ -1168,6 +1194,68 @@ function advagg_css_in_js() {
 }
 
 /**
+ * Given the full css and js scope array return back the render cache.
+ *
+ * @param array $full_css
+ *   Array from advagg_get_css() with #attached removed because it was built by
+ *   _advagg_build_css_arrays_for_rendering().
+ * @param array $js_scope_array
+ *   Array built from iterations of advagg_get_js() inside of
+ *   _advagg_build_js_arrays_for_rendering().
+ *
+ * @return array
+ *   Array containing the $css_cache, $js_cache, $css_cache_id, & $js_cache_id.
+ */
+function advagg_get_render_cache(array $full_css, array $js_scope_array) {
+  $cids = array();
+  $css_cache_id = '';
+  $js_cache_id = '';
+
+  // Get advagg hash.
+  $hooks_hash = advagg_get_current_hooks_hash();
+  if (advagg_file_aggregation_enabled('css')) {
+    // Generate css cache id.
+    $cids[] = $css_cache_id = 'advagg:css:full:' . $hooks_hash . ':' . drupal_hash_base64(serialize($full_css));
+  }
+  if (advagg_file_aggregation_enabled('js')) {
+    // Generate js cache id.
+    $cids[] = $js_cache_id = 'advagg:js:full:' . $hooks_hash . ':' . drupal_hash_base64(serialize($js_scope_array));
+  }
+
+  if (!empty($cids)) {
+    // Get the cached data.
+    $cached_data = cache_get_multiple($cids, 'cache_advagg_aggregates');
+
+    // Set variables from the cache,
+    if (isset($cached_data[$css_cache_id])) {
+      $css_cache = $cached_data[$css_cache_id];
+    }
+    if (isset($cached_data[$js_cache_id])) {
+      $js_cache = $cached_data[$js_cache_id];
+    }
+  }
+
+  // Special handling if the css is loaded via JS.
+  if ( advagg_css_in_js()
+    && !empty($css_cache)
+    && empty($js_cache)
+    ) {
+    // If CSS is being loaded via JavaScript and the css cache is set but the
+    // js cache is not set; then unset the css cache as well.
+    unset($css_cache);
+  }
+
+  // Set to empty arrays on a cache miss.
+  if (!isset($css_cache)) {
+    $css_cache = new stdClass();
+  }
+  if (!isset($js_cache)) {
+    $js_cache = new stdClass();
+  }
+  return array($css_cache, $js_cache, $css_cache_id, $js_cache_id);
+}
+
+/**
  * Replacement for template_process_html().
  */
 function _advagg_process_html(&$variables) {
@@ -1200,54 +1288,26 @@ function _advagg_process_html(&$variables) {
   if (function_exists('drupal_add_js_page_defaults')) {
     drupal_add_js_page_defaults();
   }
-  // Get the raw CSS variable.
-  $variables['css'] = drupal_add_css();
-  // Process & Sort css.
-  $full_css = advagg_get_css($variables['css']);
-  // Add attached js to drupal_add_js() function.
-  drupal_process_attached($full_css);
-  // Remove #attached since it's been added to the javascript array now.
-  unset($full_css['#attached']);
-
-  // Get all JS variables needed.
-  list($javascript, $js_scope_settings_array, $js_scope_array) = _advagg_build_js_arrays_for_rendering();
+  $javascript = array();
 
   // Try the render cache.
-  if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) >= 3 && !variable_get('advagg_debug', ADVAGG_DEBUG)) {
-    $cids = array();
+  if (!variable_get('advagg_debug', ADVAGG_DEBUG)) {
+    if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) >= 5) {
+      // Get all CSS & JS variables needed; running no alters.
+      list($variables['css'], $full_css) = _advagg_build_css_arrays_for_rendering(TRUE);
+      list($javascript, $js_scope_settings_array, $js_scope_array) = _advagg_build_js_arrays_for_rendering(TRUE);
 
-    // Get advagg hash.
-    $hooks_hash = advagg_get_current_hooks_hash();
-    if (advagg_file_aggregation_enabled('css')) {
-      // Generate css cache id.
-      $cids[] = $css_cache_id_full = 'advagg:css:full:' . $hooks_hash . ':' . drupal_hash_base64(serialize($full_css));
-    }
-    if (advagg_file_aggregation_enabled('js')) {
-      // Generate js cache id.
-      $cids[] = $js_cache_id_full = 'advagg:js:full:' . $hooks_hash . ':' . drupal_hash_base64(serialize($js_scope_array));
+      // Get the render cache.
+      list($css_cache, $js_cache, $css_cache_id_no_alter, $js_cache_id_no_alter) = advagg_get_render_cache($full_css, $js_scope_array);
     }
 
-    if (!empty($cids)) {
-      // Get the cached data.
-      $cached_data = cache_get_multiple($cids, 'cache_advagg_aggregates');
+    if ((empty($css_cache->data) || empty($js_cache->data)) && variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) >= 3) {
+      // Get all CSS & JS variables needed; running alters.
+      list($variables['css'], $full_css) = _advagg_build_css_arrays_for_rendering();
+      list($javascript, $js_scope_settings_array, $js_scope_array) = _advagg_build_js_arrays_for_rendering();
 
-      // Set variables from the cache,
-      if (isset($cached_data[$css_cache_id_full])) {
-        $css_cache = $cached_data[$css_cache_id_full];
-      }
-      if (isset($cached_data[$js_cache_id_full])) {
-        $js_cache = $cached_data[$js_cache_id_full];
-      }
-    }
-
-    // Special handling if the css is loaded via JS.
-    if ( advagg_css_in_js()
-      && !empty($css_cache)
-      && empty($js_cache)
-      ) {
-      // If CSS is being loaded via JavaScript and the css cache is set but the
-      // js cache is not set; then unset the css cache as well.
-      unset($css_cache);
+      // Get the render cache.
+      list($css_cache, $js_cache, $css_cache_id, $js_cache_id) = advagg_get_render_cache($full_css, $js_scope_array);
     }
   }
 
@@ -1257,11 +1317,19 @@ function _advagg_process_html(&$variables) {
     $variables['styles'] = $css_cache->data;
   }
   else {
+    // Get the css if we have not done so.
+    if (empty($full_css)) {
+      list($variables['css'], $full_css) = _advagg_build_css_arrays_for_rendering();
+    }
     // Render the CSS.
     $variables['styles'] = drupal_render($full_css);
-    if (!empty($css_cache_id_full)) {
+    if (!empty($css_cache_id)) {
       // Save to the cache.
-      cache_set($css_cache_id_full, $variables['styles'], 'cache_advagg_aggregates', CACHE_TEMPORARY);
+      cache_set($css_cache_id, $variables['styles'], 'cache_advagg_aggregates', CACHE_TEMPORARY);
+    }
+    if (!empty($css_cache_id_no_alter)) {
+      // Save to the cache.
+      cache_set($css_cache_id_no_alter, $variables['styles'], 'cache_advagg_aggregates', CACHE_TEMPORARY);
     }
   }
 
@@ -1284,6 +1352,14 @@ function _advagg_process_html(&$variables) {
     $add_to_variables = array();
     // Replace cached settings with current ones.
     $js_settings_used = array();
+
+    if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) >= 5) {
+      if (!empty($js_scope_settings_array['header']) && empty($js_scope_settings_array['footer'])) {
+        // Copy header settings into the footer.
+        $js_scope_settings_array['footer'] = $js_scope_settings_array['header'];
+      }
+    }
+
     foreach ($js_cache->data as $scope => $value) {
       $scope_settings = $scope;
       if ($scope_settings === 'scripts') {
@@ -1318,7 +1394,8 @@ function _advagg_process_html(&$variables) {
 
     if ($use_cache) {
       $all_used = array_diff(array_keys($js_scope_settings_array), array_keys($js_settings_used));
-      if (!empty($all_used)) {
+      // Ignore this check if the cache level is less than 5.
+      if (!empty($all_used) && variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) < 5 && !empty($js_settings_used)) {
         // Some js settings did not make it into the output. Skip cache.
         $use_cache = FALSE;
       }
@@ -1347,8 +1424,9 @@ function _advagg_process_html(&$variables) {
     // Check if the js has changed.
     $new_js = drupal_add_js();
     $diff = array_diff(array_keys($new_js), array_keys($javascript));
-    if (!empty($diff)) {
-      // Get all JS variables needed again because js changed.
+    if (!empty($diff) || empty($javascript)) {
+      // Get all JS variables needed again because js changed; or because we
+      // never got them in the first place.
       list($javascript, $js_scope_settings_array, $js_scope_array) = _advagg_build_js_arrays_for_rendering();
     }
 
@@ -1394,8 +1472,11 @@ function _advagg_process_html(&$variables) {
         }
       }
 
-      if (!empty($js_cache_id_full) && !empty($js_cache)) {
-        cache_set($js_cache_id_full, $js_cache, 'cache_advagg_aggregates', CACHE_TEMPORARY);
+      if (!empty($js_cache_id) && !empty($js_cache)) {
+        cache_set($js_cache_id, $js_cache, 'cache_advagg_aggregates', CACHE_TEMPORARY);
+      }
+      if (!empty($js_cache_id_no_alter) && !empty($js_cache)) {
+        cache_set($js_cache_id_no_alter, $js_cache, 'cache_advagg_aggregates', CACHE_TEMPORARY);
       }
     }
   }
@@ -1570,10 +1651,8 @@ function advagg_get_full_js(array $javascript = array(), $skip_alter = FALSE) {
  * @param array $javascript
  *   (optional) An array with all JavaScript code. Defaults to the default
  *   JavaScript array for the given scope.
- * @param bool $skip_alter
- *   (optional) If set to TRUE, this function skips calling drupal_alter() on
- *   $javascript, useful when the calling function passes a $javascript array
- *   that has already been altered.
+ * @param bool $ajax
+ *   (optional) If set to TRUE, this function will not output Drupal.settings.
  *
  * @return array
  *   An array ready to be passed into drupal_render() containing all JavaScript
@@ -1583,7 +1662,7 @@ function advagg_get_full_js(array $javascript = array(), $skip_alter = FALSE) {
  * @see locale_js_alter()
  * @see drupal_js_defaults()
  */
-function advagg_get_js($scope = 'header', array $javascript = array(), $skip_alter = FALSE, $ajax = FALSE) {
+function advagg_get_js($scope = 'header', array $javascript = array(), $ajax = FALSE) {
   $javascript_settings_data = &drupal_static(__FUNCTION__, array());
   if (empty($javascript)) {
     return array();
@@ -3509,4 +3588,116 @@ function _advagg_load_stylesheet(array $matches) {
   // to normalize absolute paths here (i.e. remove folder/... segments) because
   // that will be done later.
   return preg_replace('%url\(\s*+([\'"]?+)(?![a-z]++:|/)([^\'")]+)([\'"]?+)\s*\)%i', 'url(\1' . $directory . '\2\3)', $file);
+}
+
+/**
+ * Check and see if the aggressive cache can safely be enabled.
+ *
+ * @return array
+ *   If there are no conflicts, this will return an empty array.
+ */
+function advagg_aggressive_cache_conflicts() {
+  $hooks = array('css_alter' => TRUE, 'js_alter' => TRUE);
+  foreach ($hooks as $hook => $values) {
+    $hooks[$hook] = module_implements($hook);
+
+    // Also check themes as drupal_alter() allows for themes to alter things.
+    $theme_keys = array_keys(list_themes());
+    if (!empty($theme_keys)) {
+      foreach ($theme_keys as $theme_key) {
+        $function = $theme_key . '_' . $hook;
+        if (function_exists($function)) {
+          $hooks[$hook][] = $theme_key;
+        }
+      }
+    }
+  }
+
+  $whitelist = array(
+    // Core.
+    //
+    // locale_js_directory variable; default: languages.
+    // javascript_parsed variable; default: array().
+    'locale',
+
+    // No control; same every time.
+    'simpletest',
+
+    // No control; same every time.
+    'seven',
+
+    // Popular contrib.
+    //
+    // ais_adaptive_styles variable; Default: array().
+    // ais_adaptive_styles_method; Default: 'both-max'.
+    'ais',
+
+    // No control; same every time.
+    'bluecheese',
+
+    // drupal_static('clientside_validation_settings') array.
+    'clientside_validation',
+
+    // _css_injector_load_rule() function.
+    // Changes the weight of all files added in init so no special handling.
+    'css_injector',
+
+    // disable_css_ . $theme . _all variable; default: FALSE.
+    // disable_css_ . $theme . _modules; default: array().
+    // disable_css_ . $theme . _files; default: array().
+    'disable_css',
+
+    // Empty call; commented code is same every time.
+    'elfinder',
+
+    // excluded_css_custom variable; Default: ''.
+    // excluded_javascript_custom variable; Default: ''.
+    'excluded',
+
+    // No control; same every time.
+    'fences',
+
+    // jqmulti_jquery_path() function.
+    // jqmulti_get_files() function.
+    // jqmulti_load_always variable; Default: FALSE.
+    'jqmulti',
+
+    // No control; same every time.
+    'jquery_dollar',
+
+    // labjs_suppress() function.
+    'labjs_js',
+
+    // Empty call.
+    'panopoly_core',
+
+    // speedy_js_production variable; Default: TRUE.
+    'speedy',
+
+    // logintoboggan_validating_id() function.
+    'logintoboggan',
+  );
+  // Allow other modules to modify the $whitelist.
+  // Call hook_advagg_aggressive_cache_conflicts_alter()
+  drupal_alter('advagg_aggressive_cache_conflicts', $whitelist);
+
+  $questionable_modules = array();
+  foreach ($hooks as $hook => $modules) {
+    foreach ($modules as $key => $module) {
+      // Anything from advagg is ok.
+      if (strpos($module, 'advagg') === 0) {
+        unset($modules[$key]);
+        continue;
+      }
+
+      // Remove known modules that should work with aggressive caching.
+      if (in_array($module, $whitelist)) {
+        unset($modules[$key]);
+      }
+      else {
+        $questionable_modules[$module] = $module;
+      }
+    }
+  }
+  return $questionable_modules;
 }

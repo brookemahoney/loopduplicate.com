@@ -769,10 +769,38 @@ function advagg_mod_advagg_current_hooks_hash_array_alter(&$aggregate_settings) 
   // JS Settings.
   $aggregate_settings['variables']['advagg_mod_js_async_shim'] = variable_get('advagg_mod_js_async_shim', ADVAGG_MOD_JS_ASYNC_SHIM);
 
+  // Make safe if using the aggressive cache.
+  if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) >= 5) {
+    $aggregate_settings['variables']['advagg_mod_js_preprocess'] = variable_get('advagg_mod_js_preprocess', ADVAGG_MOD_JS_PREPROCESS);
+    $aggregate_settings['variables']['advagg_mod_js_remove_unused'] = variable_get('advagg_mod_js_remove_unused', ADVAGG_MOD_JS_REMOVE_UNUSED);
+    $aggregate_settings['variables']['advagg_mod_js_head_extract'] = variable_get('advagg_mod_js_head_extract', ADVAGG_MOD_JS_HEAD_EXTRACT);
+    $aggregate_settings['variables']['advagg_mod_js_adjust_sort_external'] = variable_get('advagg_mod_js_adjust_sort_external', ADVAGG_MOD_JS_ADJUST_SORT_EXTERNAL);
+    $aggregate_settings['variables']['advagg_mod_js_adjust_sort_inline'] = variable_get('advagg_mod_js_adjust_sort_inline', ADVAGG_MOD_JS_ADJUST_SORT_INLINE);
+    $aggregate_settings['variables']['advagg_mod_js_adjust_sort_browsers'] = variable_get('advagg_mod_js_adjust_sort_browsers', ADVAGG_MOD_JS_ADJUST_SORT_BROWSERS);
+    $aggregate_settings['variables']['advagg_mod_ga_inline_to_file'] = variable_get('advagg_mod_ga_inline_to_file', ADVAGG_MOD_GA_INLINE_TO_FILE);
+    $aggregate_settings['variables']['advagg_mod_js_footer'] = variable_get('advagg_mod_js_footer', ADVAGG_MOD_JS_FOOTER);
+    $aggregate_settings['variables']['advagg_mod_js_defer'] = variable_get('advagg_mod_js_defer', ADVAGG_MOD_JS_DEFER);
+    $aggregate_settings['variables']['advagg_mod_js_footer_inline_alter'] = variable_get('advagg_mod_js_footer_inline_alter', ADVAGG_MOD_JS_FOOTER_INLINE_ALTER);
+    $aggregate_settings['variables']['advagg_mod_js_async'] = variable_get('advagg_mod_js_async', ADVAGG_MOD_JS_ASYNC);
+  }
+
   // CSS Settings.
   $aggregate_settings['variables']['advagg_mod_css_translate'] = variable_get('advagg_mod_css_translate', ADVAGG_MOD_CSS_TRANSLATE);
   if (variable_get('advagg_mod_css_translate', ADVAGG_MOD_CSS_TRANSLATE)) {
     $aggregate_settings['variables']['advagg_mod_css_translate_lang'] = isset($GLOBALS['language']->language) ? $GLOBALS['language']->language : 'en';
+  }
+
+  // Make safe if using the aggressive cache.
+  if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) >= 5) {
+    $aggregate_settings['variables']['advagg_mod_css_preprocess'] = variable_get('advagg_mod_css_preprocess', ADVAGG_MOD_CSS_PREPROCESS);
+    $aggregate_settings['variables']['advagg_mod_css_head_extract'] = variable_get('advagg_mod_css_head_extract', ADVAGG_MOD_CSS_HEAD_EXTRACT);
+    $aggregate_settings['variables']['advagg_mod_css_adjust_sort_external'] = variable_get('advagg_mod_css_adjust_sort_external', ADVAGG_MOD_CSS_ADJUST_SORT_EXTERNAL);
+    $aggregate_settings['variables']['advagg_mod_css_adjust_sort_inline'] = variable_get('advagg_mod_css_adjust_sort_inline', ADVAGG_MOD_CSS_ADJUST_SORT_INLINE);
+    $aggregate_settings['variables']['advagg_mod_css_adjust_sort_browsers'] = variable_get('advagg_mod_css_adjust_sort_browsers', ADVAGG_MOD_CSS_ADJUST_SORT_BROWSERS);
+    $aggregate_settings['variables']['advagg_mod_css_defer'] = variable_get('advagg_mod_css_defer', ADVAGG_MOD_CSS_DEFER);
+    $aggregate_settings['variables']['advagg_mod_css_defer_js_code'] = variable_get('advagg_mod_css_defer_js_code', ADVAGG_MOD_CSS_DEFER_JS_CODE);
+    $aggregate_settings['variables']['advagg_mod_inline_visibility'] = variable_get('advagg_mod_inline_visibility', ADVAGG_VISIBILITY_LISTED);
+    $aggregate_settings['variables']['advagg_mod_inline_pages'] = variable_get('advagg_mod_inline_pages', '');
   }
 }
 
