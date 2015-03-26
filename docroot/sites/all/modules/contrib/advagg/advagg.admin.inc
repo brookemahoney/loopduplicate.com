@@ -207,6 +207,12 @@ function advagg_admin_settings_form($form, $form_state) {
     '#description' => t('All aggregated files can be pre-compressed into a .gz file and
    served from Apache. This is faster then gzipping the file on each request.'),
   );
+  $form['global']['obscure']['advagg_ajax_render_alter'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Run advagg_ajax_render_alter()'),
+    '#default_value' => variable_get('advagg_ajax_render_alter', ADVAGG_AJAX_RENDER_ALTER),
+    '#description' => t('If disabled, AdvAgg will not alter the aggregates returned by ajax requests.'),
+  );
   $form['global']['obscure']['advagg_include_base_url'] = array(
     '#type' => 'checkbox',
     '#title' => t('Include the base_url variable in the hooks hash array.'),

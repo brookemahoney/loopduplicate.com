@@ -168,6 +168,11 @@ define('ADVAGG_FORCE_HTTPS_PATH', FALSE);
  */
 define('ADVAGG_CSS_IN_JS', FALSE);
 
+/**
+ * Set to FALSE to not alter the CSS/JS pushed out from AdvAgg.
+ */
+define('ADVAGG_AJAX_RENDER_ALTER', TRUE);
+
 // Core hook implementations.
 /**
  * Inbound URL rewrite helper.
@@ -615,6 +620,11 @@ function advagg_theme_registry_alter(&$theme_registry) {
 function advagg_ajax_render_alter(&$commands) {
   // Do not run hook if AdvAgg is disabled.
   if (!advagg_enabled()) {
+    return;
+  }
+
+  // Do not run hook if advagg_ajax_render_alter is FALSE.
+  if (!variable_get('advagg_ajax_render_alter', ADVAGG_AJAX_RENDER_ALTER)) {
     return;
   }
 
