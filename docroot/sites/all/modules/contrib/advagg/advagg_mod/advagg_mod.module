@@ -228,7 +228,20 @@ function advagg_mod_js_alter(&$js) {
       }
 
       // Do not move modernizr js to the footer.
-      if ($values['type'] !== 'inline' && $values['type'] !== 'setting' && stripos($values['data'], '/modernizr.') !== FALSE) {
+      if ( $values['type'] !== 'inline'
+        && $values['type'] !== 'setting'
+        && stripos($values['data'], '/modernizr.') !== FALSE
+      ) {
+        continue;
+      }
+
+      // Do not move html5shiv or html5shiv-printshiv js to the footer.
+      if ( $values['type'] !== 'inline'
+        && $values['type'] !== 'setting'
+        && ( stripos($values['data'], '/html5shiv.') !== FALSE
+          || stripos($values['data'], '/html5shiv-printshiv.') !== FALSE
+          )
+      ) {
         continue;
       }
 

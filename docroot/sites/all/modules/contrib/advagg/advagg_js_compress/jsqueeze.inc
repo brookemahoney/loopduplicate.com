@@ -873,7 +873,6 @@ class JSqueeze
             }
 
             foreach ($tree['local'] as $var => $root) $tree['local'][$var] = preg_replace("'^#'", '.', $tree['local'][$var]);
-
         }
         else
         {
@@ -925,7 +924,7 @@ class JSqueeze
             if (':' === substr($m, -1))
             {
                 $post = ':';
-                $m = '.' . substr($m, 1, -1);
+                $m = (' ' !== $m[0] ? '.' : '') . substr($m, 1, -1);
             }
             else $m = substr($m, 1);
         }
