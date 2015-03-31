@@ -277,6 +277,36 @@ function advagg_mod_js_alter(&$js) {
   if ( variable_get('advagg_mod_js_defer', ADVAGG_MOD_JS_DEFER)
     || variable_get('advagg_mod_js_async', ADVAGG_MOD_JS_ASYNC)
   ) {
+
+    if (module_exists('openlayers')) {
+      $has_openlayers = FALSE;
+      foreach ($js as $name => $values) {
+        if ($values['type'] === 'inline' || !is_string($values['data'])) {
+          continue;
+        }
+        if (stripos($values['data'], 'openlayers')) {
+          $has_openlayers = TRUE;
+          break;
+        }
+      }
+      if ($has_openlayers) {
+        // Openlayers fix; external scripts can not be loaded out of order.
+        $openlayers = array();
+        // Cloudmade.
+        $path = variable_get('openlayers_layers_cloudmade_js', '');
+        if (valid_url($path, TRUE)) {
+          $openlayers['openlayers_layers_cloudmade'] = $path;
+        }
+        // Google.
+        $mapdomain = variable_get('openlayers_layers_google_mapdomain', 'maps.google.com');
+        $openlayers['openlayers_layers_google'] = $mapdomain . '/maps';
+        // VirtualEarth.
+        $openlayers['openlayers_layers_virtualearth'] = 'dev.virtualearth.net/mapcontrol';
+        // Yahoo.
+        $openlayers['openlayers_layers_yahoo'] = 'api.maps.yahoo.com/ajaxymap';
+      }
+    }
+
     $use_on_error = FALSE;
     // If everything is async safe then we can use on error.
     // Only needed if the jquery_update javascript is loaded via async/defer.
@@ -378,6 +408,21 @@ function advagg_mod_js_alter(&$js) {
         }
         $matches[0] = $matches[2] = 'init_drupal_core_settings();';
         $values['onload'] .= advagg_mod_wrap_inline_js($matches, "typeof window.init_drupal_core_settings === 'function' && window.jQuery && window.Drupal", 20);
+      }
+
+      // Openlayers.
+      if (!empty($openlayers)) {
+        foreach ($openlayers as $search_string) {
+          if (strpos($name, $search_string) !== FALSE) {
+            // Do not defer/async the loading of OpenLayers.js
+            if (variable_get('advagg_mod_js_defer', ADVAGG_MOD_JS_DEFER)) {
+              $values['defer'] = FALSE;
+            }
+            if (variable_get('advagg_mod_js_async', ADVAGG_MOD_JS_ASYNC)) {
+              $values['async'] = FALSE;
+            }
+          }
+        }
       }
     }
   }
