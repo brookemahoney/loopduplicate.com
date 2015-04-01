@@ -923,6 +923,18 @@ function advagg_install_check_via_http(array &$requirements) {
             )),
           );
         }
+        elseif ($request->code == 401) {
+          $requirements['advagg_set_user_pass'] = array(
+            'title' => $t('Adv CSS/JS Agg - Set Basic Auth'),
+            'value' => $t('HTTP requests to advagg for @type files are not getting through.', array('@type' => $type)),
+            'severity' => REQUIREMENT_ERROR,
+            'description' => $t('Authorization is required when accessing your site. In order to test that the @type files are working you will need to add the following code in your settings.php file: <p><code>@code1</code><br><code>@code2</code></p> filling in the correct username and password needed to access this site.', array(
+              '@code1' => '$conf[\'advagg_auth_basic_user\'] = \'\'; ',
+              '@code2' => '$conf[\'advagg_auth_basic_pass\'] = \'\';',
+              '@type' => $type,
+            )),
+          );
+        }
         else {
           // Menu callback failed.
           $requirements['advagg_' . $type . '_generation'] = array(
@@ -1397,26 +1409,30 @@ function advagg_install_url_mod(&$url, array &$options, $mod_url = FALSE) {
   // Set referrer to current page.
   $options['headers']['Referer'] = $GLOBALS['base_root'] . request_uri();
 
+  $parts = @parse_url($url);
+  if (!is_array($parts)) {
+    return;
+  }
+
+  // Pass along user/pass in the URL.
+  $advagg_auth_basic_user = variable_get('advagg_auth_basic_user', ADVAGG_AUTH_BASIC_USER);
+  if (module_exists('shield')) {
+    $parts['user'] = variable_get('shield_user', '');
+    $parts['pass'] = variable_get('shield_pass', '');
+  }
+  elseif (isset($_SERVER['AUTH_TYPE']) && $_SERVER['AUTH_TYPE'] == 'Basic') {
+    $parts['user'] = $_SERVER['PHP_AUTH_USER'];
+    $parts['pass'] = $_SERVER['PHP_AUTH_PW'];
+  }
+  elseif (!empty($advagg_auth_basic_user)) {
+    $parts['user'] = $advagg_auth_basic_user;
+    $parts['pass'] = variable_get('advagg_auth_basic_pass', ADVAGG_AUTH_BASIC_PASS);
+  }
+
   if ($mod_url) {
-    $parts = @parse_url($url);
-    if (!is_array($parts)) {
-      return;
-    }
-
-    // Pass along user/pass in the URL.
-    if (module_exists('shield')) {
-      $parts['user'] = variable_get('shield_user', '');
-      $parts['pass'] = variable_get('shield_pass', '');
-    }
-    elseif (isset($_SERVER['AUTH_TYPE']) && $_SERVER['AUTH_TYPE'] == 'Basic') {
-      $parts['user'] = $_SERVER['PHP_AUTH_USER'];
-      $parts['pass'] = $_SERVER['PHP_AUTH_PW'];
-    }
-
     if (function_exists('httprl_build_url_self')) {
       // Remove the base_path from path.
-      $path = substr($parts['path'], strlen($GLOBALS['base_path']));
-      $new_url = httprl_build_url_self($path);
+      $parts = substr($parts['path'], strlen($GLOBALS['base_path']));
     }
     else {
       if (!empty($_SERVER['HTTP_HOST']) && $parts['host'] != $_SERVER['HTTP_HOST']) {
@@ -1431,10 +1447,11 @@ function advagg_install_url_mod(&$url, array &$options, $mod_url = FALSE) {
       else {
         $parts['host'] = '127.0.0.1';
       }
-      $new_url = advagg_install_glue_url($parts);
     }
-    $url = $new_url;
   }
+
+  $new_url = advagg_install_glue_url($parts);
+  $url = $new_url;
 }
 
 /**

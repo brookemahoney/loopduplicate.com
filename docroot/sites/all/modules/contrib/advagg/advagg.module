@@ -173,6 +173,16 @@ define('ADVAGG_CSS_IN_JS', FALSE);
  */
 define('ADVAGG_AJAX_RENDER_ALTER', TRUE);
 
+/**
+ * Workaroud for 401 errors.
+ */
+define('ADVAGG_AUTH_BASIC_USER', '');
+
+/**
+ * Workaroud for 401 errors.
+ */
+define('ADVAGG_AUTH_BASIC_PASS', '');
+
 // Core hook implementations.
 /**
  * Inbound URL rewrite helper.
@@ -1674,7 +1684,30 @@ function advagg_get_full_js(array $javascript = array(), $skip_alter = FALSE) {
  */
 function advagg_get_js($scope = 'header', array $javascript = array(), $ajax = FALSE) {
   $javascript_settings_data = &drupal_static(__FUNCTION__, array());
-  if (empty($javascript)) {
+
+  // Set the js_in_footer variable.
+  $js_in_footer = FALSE;
+  if ( module_exists('advagg_mod')
+    && variable_get('advagg_mod_js_footer', ADVAGG_MOD_JS_FOOTER) == 2
+  ) {
+    $js_in_footer = TRUE;
+  }
+
+  // Return an empty array if
+  // no javascript is used,
+  // only the settings array is used & scope is header,
+  // all js in the footer & only the settings array is used & scope is footer.
+  if (empty($javascript)
+    || (isset($javascript['settings'])
+      && count($javascript) == 1
+      && $scope == 'header'
+    )
+    || ($js_in_footer
+      && isset($javascript['settings'])
+      && count($javascript) == 1
+      && $scope == 'footer'
+    )
+  ) {
     return array();
   }
 
@@ -1688,15 +1721,6 @@ function advagg_get_js($scope = 'header', array $javascript = array(), $ajax = F
 
   // Sort the JavaScript so that it appears in the correct order.
   advagg_drupal_sort_css_js_stable($items);
-
-  // Set the js_in_footer variable.
-  // @ignore sniffer_whitespace_openbracketspacing_openingwhitespace:2
-  $js_in_footer = FALSE;
-  if ( module_exists('advagg_mod')
-    && variable_get('advagg_mod_js_footer', ADVAGG_MOD_JS_FOOTER) == 2
-  ) {
-    $js_in_footer = TRUE;
-  }
 
   // In Drupal 8, there's a JS_SETTING group for making setting variables
   // appear last after libraries have loaded. In Drupal 7, this is forced

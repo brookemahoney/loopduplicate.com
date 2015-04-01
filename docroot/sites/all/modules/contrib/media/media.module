@@ -707,6 +707,11 @@ function media_element_process($element, &$form_state, $form) {
   ctools_include('modal');
   ctools_include('ajax');
   ctools_modal_add_js();
+
+  // Append the '-upload' to the #id so the field label's 'for' attribute
+  // corresponds with the textfield element.
+  $original_id = $element['#id'];
+  $element['#id'] .= '-upload';
   $fid = isset($element['#value']['fid']) ? $element['#value']['fid'] : 0;
 
   // Set some default element properties.
@@ -715,7 +720,7 @@ function media_element_process($element, &$form_state, $form) {
 
   $ajax_settings = array(
     'path' => 'media/ajax/' . implode('/', $element['#array_parents']) . '/' . $form['form_build_id']['#value'],
-    'wrapper' => $element['#id'] . '-ajax-wrapper',
+    'wrapper' => $original_id . '-ajax-wrapper',
     'effect' => 'fade',
   );
 
@@ -820,7 +825,7 @@ function media_element_process($element, &$form_state, $form) {
   $element['#attached']['library'][] = array('media', 'media_browser_settings');
 
   // Prefix and suffix used for Ajax replacement.
-  $element['#prefix'] = '<div id="' . $element['#id'] . '-ajax-wrapper">';
+  $element['#prefix'] = '<div id="' . $original_id . '-ajax-wrapper">';
   $element['#suffix'] = '</div>';
 
   return $element;
