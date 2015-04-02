@@ -1279,6 +1279,50 @@ function advagg_get_render_cache(array $full_css, array $js_scope_array) {
  * Replacement for template_process_html().
  */
 function _advagg_process_html(&$variables) {
+  // Don't fail even if the menu router failed.
+  if (drupal_get_http_header('status') === '404 Not Found') {
+    // See if the URI contains advagg.
+    $uri = request_uri();
+    if (stripos($uri, '/advagg_') !== FALSE) {
+      $advagg_items = advagg_menu();
+
+      // Check css.
+      $css = reset($advagg_items);
+      $css_path = key($advagg_items);
+      $css_path = substr($css_path, 0, strlen($css_path)-1);
+      $css_start = strpos($uri, $css_path);
+      if ($css_start !== FALSE) {
+        $filename = substr($uri, $css_start + strlen($css_path) + 1);
+      }
+
+      // Check js.
+      if (empty($filename)) {
+        $js = next($advagg_items);
+        $js_path = key($advagg_items);
+        $js_path = substr($js_path, 0, strlen($js_path)-1);
+        $js_start = strpos($uri, $js_path);
+        if ($js_start !== FALSE) {
+          $filename = substr($uri, $js_start + strlen($js_path) + 1);
+        }
+      }
+
+      // If we have a filename call the page callback.
+      if (!empty($filename)) {
+        $router_item = $css;
+        if (isset($js)) {
+          $router_item = $js;
+        }
+
+        // Include the file if needed.
+        if ($router_item['file']) {
+          module_load_include($router_item['file'], 'advagg');
+        }
+        // Call the function.
+        call_user_func_array($router_item['page callback'], array($filename));
+      }
+    }
+  }
+
   if (!advagg_enabled()) {
     template_process_html($variables);
     return;
@@ -1631,8 +1675,14 @@ function advagg_get_full_js(array $javascript = array(), $skip_alter = FALSE) {
   if (empty($javascript)) {
     $javascript = drupal_add_js();
   }
-  if (empty($javascript)) {
-    return FALSE;
+
+  // Return an empty array if
+  // no javascript is used,
+  // only the settings array is used & scope is header,
+  if (  empty($javascript)
+    || (isset($javascript['settings']) && count($javascript) == 1 )
+  ) {
+    return array();
   }
 
   // Allow modules to alter the JavaScript.
@@ -1685,30 +1735,22 @@ function advagg_get_full_js(array $javascript = array(), $skip_alter = FALSE) {
 function advagg_get_js($scope = 'header', array $javascript = array(), $ajax = FALSE) {
   $javascript_settings_data = &drupal_static(__FUNCTION__, array());
 
+  // Add in javascript if none was passed in.
+  if (empty($javascript)) {
+    $javascript = advagg_get_full_js();
+  }
+
+  // Return an empty array if no javascript is used,
+  if (empty($javascript)) {
+    return array();
+  }
+
   // Set the js_in_footer variable.
   $js_in_footer = FALSE;
   if ( module_exists('advagg_mod')
     && variable_get('advagg_mod_js_footer', ADVAGG_MOD_JS_FOOTER) == 2
   ) {
     $js_in_footer = TRUE;
-  }
-
-  // Return an empty array if
-  // no javascript is used,
-  // only the settings array is used & scope is header,
-  // all js in the footer & only the settings array is used & scope is footer.
-  if (empty($javascript)
-    || (isset($javascript['settings'])
-      && count($javascript) == 1
-      && $scope == 'header'
-    )
-    || ($js_in_footer
-      && isset($javascript['settings'])
-      && count($javascript) == 1
-      && $scope == 'footer'
-    )
-  ) {
-    return array();
   }
 
   // Filter out elements of the given scope.
@@ -1831,8 +1873,11 @@ function advagg_get_js($scope = 'header', array $javascript = array(), $ajax = F
 
   // Aurora & Omega themes uses alter without checking previous value.
   if (variable_get('advagg_enforce_scripts_callback', TRUE)) {
-    $element_info = &drupal_static('element_info');
-    if (empty($element_info['scripts']) || $element_info['scripts']['#aggregate_callback'] !== '_advagg_aggregate_js') {
+    // Get the element_info for scripts.
+    $scripts = element_info('scripts');
+    if (empty($scripts) || $scripts['#aggregate_callback'] !== '_advagg_aggregate_js') {
+      // Directly alter the static.
+      $element_info = &drupal_static('element_info');
       advagg_element_info_alter($element_info);
     }
   }
@@ -1909,8 +1954,8 @@ function advagg_remove_short_keys($array_value) {
  */
 function advagg_get_js_scopes(array $javascript) {
   // Return if nothing given to us.
-  if (empty($javascript) || !is_array($javascript)) {
-    return FALSE;
+  if (empty($javascript)) {
+    return array();
   }
 
   // Filter out elements of the given scope.
@@ -2819,6 +2864,17 @@ function advagg_pre_render_scripts(array $elements) {
   return $elements;
 }
 
+/**
+ * Get the prefix and suffix for inline css.
+ *
+ * @return array
+ *   An array where the prefix is key 0 and suffix is key 1.
+ */
+function advagg_get_css_prefix_suffix() {
+  $embed_prefix = "\n/* <![CDATA[ */\n";
+  $embed_suffix = "\n/* ]]> */\n";
+  return array($embed_prefix, $embed_suffix);
+}
 
 /**
  * A #pre_render callback to add elements needed for CSS tags to be rendered.
@@ -2900,8 +2956,7 @@ function advagg_pre_render_styles(array $elements) {
   // wrapped in CDATA. To make that backwards compatible with HTML 4, we need to
   // comment out the CDATA-tag.
   // @see https://www.drupal.org/node/1021622
-  $embed_prefix = "\n/* <![CDATA[ */\n";
-  $embed_suffix = "\n/* ]]> */\n";
+  list($embed_prefix, $embed_suffix) = advagg_get_css_prefix_suffix();
 
   // Defaults for LINK and STYLE elements.
   $link_element_defaults = array(

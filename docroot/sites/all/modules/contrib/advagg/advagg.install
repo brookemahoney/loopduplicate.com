@@ -783,10 +783,7 @@ $base_url = str_replace("http://", "https://", $base_url);
 function advagg_install_check_via_http(array &$requirements) {
   // If other checks have not passed, do not test this.
   if (!empty($requirements)) {
-    // Still check if it's only that the CDN patch has not been applied.
-    if (count($requirements) != 1 || !array_key_exists('advagg_module_cdn_patch', $requirements)) {
-      return;
-    }
+    return;
   }
 
   // Ensure translations don't break at install time.
@@ -1432,7 +1429,8 @@ function advagg_install_url_mod(&$url, array &$options, $mod_url = FALSE) {
   if ($mod_url) {
     if (function_exists('httprl_build_url_self')) {
       // Remove the base_path from path.
-      $parts = substr($parts['path'], strlen($GLOBALS['base_path']));
+      $path = substr($parts['path'], strlen($GLOBALS['base_path']));
+      $new_url = httprl_build_url_self($path);
     }
     else {
       if (!empty($_SERVER['HTTP_HOST']) && $parts['host'] != $_SERVER['HTTP_HOST']) {
@@ -1450,7 +1448,9 @@ function advagg_install_url_mod(&$url, array &$options, $mod_url = FALSE) {
     }
   }
 
-  $new_url = advagg_install_glue_url($parts);
+  if (empty($new_url)) {
+    $new_url = advagg_install_glue_url($parts);
+  }
   $url = $new_url;
 }
 
