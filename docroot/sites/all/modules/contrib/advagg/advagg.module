@@ -648,10 +648,13 @@ function advagg_ajax_render_alter(&$commands) {
   list(, $core_scripts_header, $core_scripts_footer, $items, $settings) = advagg_build_ajax_js_css();
 
   // Get AdvAgg JS.
-  $scripts_footer = advagg_get_js('footer', $items['js'], TRUE);
-  $scripts_footer = drupal_render($scripts_footer);
-  $scripts_header = advagg_get_js('header', $items['js'], TRUE);
-  $scripts_header = drupal_render($scripts_header);
+  $scripts_header = $scripts_footer = '';
+  if (!empty($items['js'])) {
+    $scripts_footer_array = advagg_get_js('footer', $items['js'], TRUE);
+    $scripts_footer = drupal_render($scripts_footer_array);
+    $scripts_header_array = advagg_get_js('header', $items['js'], TRUE);
+    $scripts_header = drupal_render($scripts_header_array);
+  }
 
   // Remove core JS.
   foreach ($commands as $key => $values) {
@@ -1736,7 +1739,7 @@ function advagg_get_js($scope = 'header', array $javascript = array(), $ajax = F
   $javascript_settings_data = &drupal_static(__FUNCTION__, array());
 
   // Add in javascript if none was passed in.
-  if (empty($javascript)) {
+  if (empty($javascript) && !$ajax) {
     $javascript = advagg_get_full_js();
   }
 
@@ -2442,14 +2445,8 @@ function advagg_get_root_files_dir($reset = FALSE) {
     file_prepare_directory($js_paths[0], FILE_CREATE_DIRECTORY);
 
     // Set the URI of the directory.
-    $css_paths[1] = parse_url(file_create_url($css_paths[0]), PHP_URL_PATH);
-    if (substr($css_paths[1], 0, strlen($GLOBALS['base_path'])) == $GLOBALS['base_path']) {
-      $css_paths[1] = substr($css_paths[1], strlen($GLOBALS['base_path']));
-    }
-    $js_paths[1] = parse_url(file_create_url($js_paths[0]), PHP_URL_PATH);
-    if (substr($js_paths[1], 0, strlen($GLOBALS['base_path'])) == $GLOBALS['base_path']) {
-      $js_paths[1] = substr($js_paths[1], strlen($GLOBALS['base_path']));
-    }
+    $css_paths[1] = advagg_get_relative_path($css_paths[0]);
+    $js_paths[1] = advagg_get_relative_path($js_paths[0]);
 
     // Allow other modules to alter css and js paths.
     // Call hook_advagg_get_root_files_dir_alter()
@@ -2457,6 +2454,31 @@ function advagg_get_root_files_dir($reset = FALSE) {
   }
 
   return array($css_paths, $js_paths);
+}
+
+/**
+ * Given a uri, get the relative_path.
+ *
+ * @see https://www.drupal.org/node/837794#comment-9124435
+ *
+ * @param string $uri
+ *   The uri for the stream wrapper.
+ *
+ * @return string
+ *   The relative path of the uri.
+ */
+function advagg_get_relative_path($uri) {
+  $wrapper = file_stream_wrapper_get_instance_by_uri($uri);
+  if ($wrapper instanceof DrupalLocalStreamWrapper) {
+    $relative_path = $wrapper->getDirectoryPath() . '/' . file_uri_target($uri);
+  }
+  else {
+    $relative_path = parse_url(file_create_url($uri), PHP_URL_PATH);
+    if (substr($relative_path, 0, strlen($GLOBALS['base_path'])) == $GLOBALS['base_path']) {
+      $relative_path = substr($relative_path, strlen($GLOBALS['base_path']));
+    }
+  }
+  return $relative_path;
 }
 
 /**

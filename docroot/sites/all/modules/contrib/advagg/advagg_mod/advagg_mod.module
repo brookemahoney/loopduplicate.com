@@ -407,7 +407,7 @@ function advagg_mod_js_alter(&$js) {
           $values['onload'] = '';
         }
         $matches[0] = $matches[2] = 'init_drupal_core_settings();';
-        $values['onload'] .= advagg_mod_wrap_inline_js($matches, "typeof window.init_drupal_core_settings === 'function' && window.jQuery && window.Drupal", 20);
+        $values['onload'] .= advagg_mod_wrap_inline_js($matches, "window.init_drupal_core_settings && typeof window.init_drupal_core_settings === 'function' && window.jQuery && window.Drupal", 20);
       }
 
       // Openlayers.
@@ -782,7 +782,7 @@ function loadCSS(a,b,c,d){"use strict";var e=window.document.createElement("link
       // Make async work if it's being used.
       if ($type !== 'inline') {
         $matches[2] = $matches[0] = $inline;
-        $inline = advagg_mod_wrap_inline_js($matches, "typeof loadCSS === 'function'", 40);
+        $inline = advagg_mod_wrap_inline_js($matches, "loadCSS && typeof loadCSS === 'function'", 40);
       }
       // Add in script tags to load css via js.
       drupal_add_js($inline, $options);
@@ -810,14 +810,8 @@ function advagg_mod_advagg_get_root_files_dir_alter(&$css_paths, &$js_paths) {
   file_prepare_directory($js_paths[0], FILE_CREATE_DIRECTORY);
 
   // Set the URI of the directory.
-  $css_paths[1] = parse_url(file_create_url($css_paths[0]), PHP_URL_PATH);
-  if (substr($css_paths[1], 0, strlen($GLOBALS['base_path'])) == $GLOBALS['base_path']) {
-    $css_paths[1] = substr($css_paths[1], strlen($GLOBALS['base_path']));
-  }
-  $js_paths[1] = parse_url(file_create_url($js_paths[0]), PHP_URL_PATH);
-  if (substr($js_paths[1], 0, strlen($GLOBALS['base_path'])) == $GLOBALS['base_path']) {
-    $js_paths[1] = substr($js_paths[1], strlen($GLOBALS['base_path']));
-  }
+  $css_paths[1] = advagg_get_relative_path($css_paths[0]);
+  $js_paths[1] = advagg_get_relative_path($js_paths[0]);
 }
 
 /**
@@ -881,7 +875,7 @@ function advagg_mod_advagg_current_hooks_hash_array_alter(&$aggregate_settings) 
  */
 function advagg_mod_wrap_inline_js(array $matches, $check_string = NULL, $ms_wait = 250) {
   if (empty($check_string)) {
-    $check_string = "typeof window.Drupal !== 'undefined' && typeof window.Drupal.settings !== 'undefined' && typeof window.jQuery !== 'undefined'";
+    $check_string = "window.Drupal && typeof window.Drupal !== 'undefined' && window.Drupal.settings && typeof window.Drupal.settings !== 'undefined' && typeof window.jQuery !== 'undefined'";
   }
 
   // Get inline js skip list string and convert it to an array.
@@ -1401,7 +1395,7 @@ function advagg_mod_ga_inline_to_file(array &$js) {
       }
       // Strip loader string.
       $matches[2] = $matches[0] = substr($value['data'], 261 + $ga_script_len + 7);
-      $js[$key]['data'] = advagg_mod_wrap_inline_js($matches, "typeof ga === 'function'");
+      $js[$key]['data'] = advagg_mod_wrap_inline_js($matches, "ga && typeof ga === 'function'");
 
       // Add GA analytics.js file to the $js array.
       $js[$ga_script] = array(

@@ -177,14 +177,8 @@ function hook_advagg_get_root_files_dir(array &$css_paths, array &$js_paths) {
   file_prepare_directory($js_paths[0], FILE_CREATE_DIRECTORY);
 
   // Set the URI of the directory.
-  $css_paths[1] = parse_url(file_create_url($css_paths[0]), PHP_URL_PATH);
-  if (substr($css_paths[1], 0, strlen($GLOBALS['base_path'])) == $GLOBALS['base_path']) {
-    $css_paths[1] = substr($css_paths[1], strlen($GLOBALS['base_path']));
-  }
-  $js_paths[1] = parse_url(file_create_url($js_paths[0]), PHP_URL_PATH);
-  if (substr($js_paths[1], 0, strlen($GLOBALS['base_path'])) == $GLOBALS['base_path']) {
-    $js_paths[1] = substr($js_paths[1], strlen($GLOBALS['base_path']));
-  }
+  $css_paths[1] = advagg_get_relative_path($css_paths[0]);
+  $js_paths[1] = advagg_get_relative_path($js_paths[0]);
 }
 
 /**

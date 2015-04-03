@@ -994,10 +994,8 @@ function advagg_create_subfile($css, $overall_split, array $file_info) {
   }
 
   // Get the path from $file_info['data'].
-  $uri_path = parse_url(file_create_url($file_info['data']), PHP_URL_PATH);
-  if (substr($uri_path, 0, strlen($GLOBALS['base_path'])) == $GLOBALS['base_path']) {
-    $uri_path = substr($uri_path, strlen($GLOBALS['base_path']));
-  }
+  $uri_path = advagg_get_relative_path($file_info['data']);
+
   // Write the current chunk of the CSS into a file.
   $new_filename = str_ireplace('.css', '.' . $overall_split . '.css', $uri_path);
 

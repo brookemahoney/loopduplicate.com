@@ -821,11 +821,13 @@ function advagg_save_data($uri, $data, $overwrite = FALSE) {
     $parts = pathinfo($parts['filename']);
     $extension = '.' . $parts['extension'] . $extension;
   }
-  // Also move temp file into the advagg dir.
+  // Move temp file into the dest dir, if not in there.
+  // Add the extension on as well.
   $temporary_file = str_replace(substr($temporary_file, 0, strpos($temporary_file, 'file_advagg_')), $dir, $temporary_file) . $extension;
 
-  // Remove if rename failed.
+  // Preform the rename, adding the extension to the temp file.
   if (!@rename($temporary_file_copy, $temporary_file)) {
+    // Remove if rename failed.
     @unlink($temporary_file_copy);
   }
 
