@@ -83,5 +83,6 @@ function advagg_css_compress_advagg_modify_css_pre_render_alter(&$children, &$el
         advagg_css_compress_yui_cssmin($values['#value']);
       }
     }
+    unset($values);
   }
 }

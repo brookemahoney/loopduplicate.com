@@ -108,6 +108,7 @@ function advagg_validator_test_css_files($files, $options = array()) {
           }
         }
       }
+      unset($value);
     }
     if (!empty($output[$filename]['jigsaw.w3.org']['warnings'])) {
       foreach ($output[$filename]['jigsaw.w3.org']['warnings'] as &$value) {
@@ -118,6 +119,7 @@ function advagg_validator_test_css_files($files, $options = array()) {
           }
         }
       }
+      unset($value);
     }
 
     // Save data.

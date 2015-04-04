@@ -255,6 +255,7 @@ function advagg_mod_js_alter(&$js) {
       }
       $values['scope'] = 'footer';
     }
+    unset($values);
   }
 
   // Do not use preprocessing if JS is inlined.
@@ -270,6 +271,7 @@ function advagg_mod_js_alter(&$js) {
       $values['preprocess'] = TRUE;
       $values['cache'] = TRUE;
     }
+    unset($values);
   }
 
   // Add the defer or the async tag to all JS.
@@ -280,7 +282,7 @@ function advagg_mod_js_alter(&$js) {
 
     if (module_exists('openlayers')) {
       $has_openlayers = FALSE;
-      foreach ($js as $name => $values) {
+      foreach ($js as &$values) {
         if ($values['type'] === 'inline' || !is_string($values['data'])) {
           continue;
         }
@@ -289,6 +291,7 @@ function advagg_mod_js_alter(&$js) {
           break;
         }
       }
+      unset($values);
       if ($has_openlayers) {
         // Openlayers fix; external scripts can not be loaded out of order.
         $openlayers = array();
@@ -315,7 +318,7 @@ function advagg_mod_js_alter(&$js) {
       $jquery_update_ui_fallback = '';
       $inline_array = array();
       if (module_exists('jquery_update') && variable_get('jquery_update_jquery_cdn', 'none') !== 'none') {
-        foreach ($js as $name => $values) {
+        foreach ($js as $name => &$values) {
           if ($values['type'] !== 'inline') {
             continue;
           }
@@ -340,6 +343,7 @@ function advagg_mod_js_alter(&$js) {
             continue;
           }
         }
+        unset($values);
       }
       if (!empty($jquery_update_fallback) || !empty($jquery_update_ui_fallback)) {
         $inline_array['group'] = '-150';
@@ -424,7 +428,20 @@ function advagg_mod_js_alter(&$js) {
           }
         }
       }
+
+      // Wistia.
+      if (strpos($name, '//fast.wistia.') !== FALSE) {
+        // Do not defer/async the loading of any wistia js.
+        if (variable_get('advagg_mod_js_defer', ADVAGG_MOD_JS_DEFER)) {
+          $values['defer'] = FALSE;
+        }
+        if (variable_get('advagg_mod_js_async', ADVAGG_MOD_JS_ASYNC)) {
+          $values['async'] = FALSE;
+        }
+      }
+
     }
+    unset($values);
   }
 }
 
@@ -456,6 +473,7 @@ function advagg_mod_css_alter(&$css) {
     foreach ($css as &$values) {
       $values['preprocess'] = TRUE;
     }
+    unset($values);
   }
 }
 
@@ -682,6 +700,7 @@ function advagg_mod_advagg_modify_js_pre_render_alter(&$children, &$elements) {
         }
       }
     }
+    unset($values);
   }
 
   if (variable_get('advagg_mod_js_async_shim', ADVAGG_MOD_JS_ASYNC_SHIM)) {
@@ -707,6 +726,7 @@ function advagg_mod_advagg_modify_js_pre_render_alter(&$children, &$elements) {
         unset($values['#attributes']['src']);
       }
     }
+    unset($values);
   }
 }
 
@@ -792,6 +812,7 @@ function loadCSS(a,b,c,d){"use strict";var e=window.document.createElement("link
       }
     }
   }
+  unset($values);
 }
 
 /**
@@ -1196,6 +1217,7 @@ function advagg_mod_inline_js(array &$js) {
     $values['data'] = $contents;
     $values['type'] = 'inline';
   }
+  unset($values);
 }
 
 /**
@@ -1238,6 +1260,7 @@ function advagg_mod_inline_css(array &$css) {
       $values['type'] = 'inline';
     }
   }
+  unset($values);
 }
 
 /**
@@ -1452,6 +1475,7 @@ function advagg_remove_js_if_not_used(array &$js) {
 
     }
   }
+  unset($values);
   $files_info = advagg_get_info_on_files($files_info_filenames);
 
   // Look at each JavaScript entry & see if it uses jquery or drupal.
@@ -1482,6 +1506,7 @@ function advagg_remove_js_if_not_used(array &$js) {
       $include_jquery = TRUE;
     }
   }
+  unset($values);
 
   // Kill only drupal JavaScript.
   if (!$include_drupal) {
@@ -1492,6 +1517,7 @@ function advagg_remove_js_if_not_used(array &$js) {
         unset($js[$name]);
       }
     }
+    unset($values);
 
     // Kill all default JavaScript.
     if (!$include_jquery) {
@@ -1511,6 +1537,7 @@ function advagg_remove_js_if_not_used(array &$js) {
           }
         }
       }
+      unset($values);
     }
   }
 }

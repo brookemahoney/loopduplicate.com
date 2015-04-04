@@ -421,7 +421,9 @@ function hook_advagg_js_groups_alter(array &$js_groups, $preprocess_js) {
         break 2;
       }
     }
+    unset($values);
   }
+  unset($data);
 }
 
 /**
@@ -465,6 +467,7 @@ function hook_advagg_modify_css_pre_render_alter(array &$children, array &$eleme
         advagg_css_compress_yui_cssmin($values['#value']);
       }
     }
+    unset($values);
   }
 }
 
@@ -512,6 +515,7 @@ function hook_advagg_modify_js_pre_render_alter(array &$children, array &$elemen
       $values['#value'] = $contents;
     }
   }
+  unset($values);
 }
 
 /**
@@ -632,6 +636,7 @@ function hook_advagg_get_info_on_files_alter(array &$return, array $cached_data,
       $info['split'] = TRUE;
     }
   }
+  unset($info);
 }
 
 /**
@@ -667,6 +672,7 @@ function hook_advagg_bundler_analysis_alter(array &$analysis) {
       $data['group_hash'];
     }
   }
+  unset($data);
 }
 
 /**

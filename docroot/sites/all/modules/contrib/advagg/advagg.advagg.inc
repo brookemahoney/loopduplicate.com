@@ -239,4 +239,5 @@ function advagg_advagg_get_info_on_files_alter(&$return, $cached_data, $bypass_c
       advagg_split_css_file($info);
     }
   }
+  unset($info);
 }

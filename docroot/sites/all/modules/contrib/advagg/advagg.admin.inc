@@ -793,6 +793,7 @@ function advagg_admin_get_file_info($filename) {
     foreach ($data['files'] as $filename => &$info) {
       $files_info_filenames[] = $filename;
     }
+    unset($info);
 
     // Get filesystem data.
     $files_info = advagg_get_info_on_files($files_info_filenames);
@@ -804,6 +805,7 @@ function advagg_admin_get_file_info($filename) {
         $info['group_hash'] = $bundler['group_hash'];
       }
     }
+    unset($info);
     $output = $data;
   }
   else {

@@ -25,6 +25,7 @@ function advagg_mod_advagg_get_info_on_files_alter(&$return, $cached_data, $bypa
       $info['advagg_mod'] = advagg_mod_js_contains_jquery_drupal($info['data']);
     }
   }
+  unset($info);
 }
 
 /**

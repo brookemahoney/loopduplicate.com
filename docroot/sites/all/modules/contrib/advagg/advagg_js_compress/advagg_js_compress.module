@@ -125,6 +125,7 @@ function advagg_js_compress_advagg_modify_js_pre_render_alter(&$children, &$elem
       $values['#value'] = $contents;
     }
   }
+  unset($values);
 }
 
 /**

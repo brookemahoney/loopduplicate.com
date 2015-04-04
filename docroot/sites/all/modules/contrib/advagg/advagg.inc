@@ -8,10 +8,10 @@
  */
 
 // Database operations.
-// @ignore sniffer_commenting_functioncomment_shortsingleline:2
 /**
- * Insert/Update data in advagg_files, advagg_aggregates, &
- * advagg_aggregates_versions tables.
+ * Insert/Update data in advagg tables.
+ *
+ * Tables: advagg_files, advagg_aggregates, & advagg_aggregates_versions.
  *
  * @param array $files
  *   List of files in the aggregate as well as the aggregate name.
@@ -466,8 +466,7 @@ function advagg_get_info_on_files(array $files, $bypass_cache = FALSE, $run_alte
 
     if ($ext === 'css') {
       // Get the number of selectors.
-      // @ignore sniffer_files_linelength_toolong
-      // http://stackoverflow.com/questions/12567000/regex-matching-for-counting-css-selectors/12567381#12567381
+      // http://stackoverflow.com/a/12567381/125684
       $linecount = preg_match_all('/\{.+?\}|,/s', $file_contents, $matched);
     }
     else {
@@ -795,9 +794,8 @@ function advagg_split_css_file(array $file_info) {
   // Group media queries together.
   foreach ($media_blocks as $media_block) {
     $matched = array();
-    // @ignore sniffer_files_linelength_toolong:2
     // Get the number of selectors.
-    // http://stackoverflow.com/questions/12567000/regex-matching-for-counting-css-selectors/12567381#12567381
+    // http://stackoverflow.com/a/12567381/125684
     $selector_count = preg_match_all('/\{.+?\}|,/s', $media_block, $matched);
     $part_selector_count += $selector_count;
 

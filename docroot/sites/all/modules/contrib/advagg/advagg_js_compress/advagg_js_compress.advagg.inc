@@ -44,6 +44,7 @@ function advagg_js_compress_advagg_get_info_on_files_alter(&$return, $cached_dat
       }
     }
   }
+  unset($info);
 
   // If no cache ids are found bail out.
   if (empty($cache_ids)) {
@@ -754,6 +755,7 @@ function advagg_js_compress_run_mutiple_tests(array $filenames_info, array $comp
         }
       }
     }
+    unset($results);
   }
 
   return $return;
