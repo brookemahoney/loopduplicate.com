@@ -174,12 +174,12 @@ define('ADVAGG_CSS_IN_JS', FALSE);
 define('ADVAGG_AJAX_RENDER_ALTER', TRUE);
 
 /**
- * Workaroud for 401 errors.
+ * Workaround for 401 errors.
  */
 define('ADVAGG_AUTH_BASIC_USER', '');
 
 /**
- * Workaroud for 401 errors.
+ * Workaround for 401 errors.
  */
 define('ADVAGG_AUTH_BASIC_PASS', '');
 
@@ -1323,10 +1323,32 @@ function _advagg_process_html(&$variables) {
 
         // Include the file if needed.
         if ($router_item['file']) {
-          module_load_include($router_item['file'], 'advagg');
+          $included = module_load_include($router_item['file'], 'advagg');
+          if (!$included && !function_exists($router_item['page callback'])) {
+            $file = DRUPAL_ROOT . '/' . drupal_get_path('module', 'advagg') . '/' . $router_item['file'];
+            if (is_file($file)) {
+              require_once $file;
+            }
+          }
         }
+
         // Call the function.
-        call_user_func_array($router_item['page callback'], array($filename));
+        if (function_exists($router_item['page callback'])) {
+          // Report issue to watchdog.
+          watchdog('advagg', 'You need to flush your menu cache. This can be done at the top of the <a href="@performance">performance page</a>. The advagg callback did not use the normal menu route while generating this file: @uri', array(
+            '@performance' => url('admin/config/development/performance'),
+            '@uri' => $uri,
+          ), WATCHDOG_WARNING);
+          // Generate the file.
+          call_user_func_array($router_item['page callback'], array($filename));
+        }
+        else {
+          // Report the bigger issue to watchdog.
+          watchdog('advagg', 'You need to flush your menu cache. This can be done at the top of the <a href="@performance">performance page</a>. The advagg callback failed while trying to generate this file: @uri', array(
+            '@performance' => url('admin/config/development/performance'),
+            '@uri' => $uri,
+          ), WATCHDOG_CRITICAL);
+        }
       }
     }
   }
@@ -2266,7 +2288,7 @@ function advagg_current_hooks_hash_array() {
 
   // CDN module settings.
   // Patch in https://www.drupal.org/node/1942230#comment-7927171 is fine
-  // on a technical level but I got fustrated with all the reports about it not
+  // on a technical level but I got frustrated with all the reports about it not
   // working with no good reason as to why it doesn't work.
   if (!function_exists('cdn_advagg_current_hooks_hash_array_alter') && module_exists('cdn')) {
     $aggregate_settings['variables'][CDN_MODE_VARIABLE] = variable_get(CDN_MODE_VARIABLE, CDN_MODE_BASIC);
@@ -3502,6 +3524,22 @@ function advagg_convert_abs_to_protocol($path) {
 function advagg_force_https_path($path) {
   if (strpos($path, 'http://') === 0) {
     $path = 'https://' . substr($path, 7);
+  }
+  return $path;
+}
+
+/**
+ * Convert https:// to http://.
+ *
+ * @param string $path
+ *   Path to check.
+ *
+ * @return string
+ *   The path.
+ */
+function advagg_force_http_path($path) {
+  if (strpos($path, 'https://') === 0) {
+    $path = 'http://' . substr($path, 8);
   }
   return $path;
 }

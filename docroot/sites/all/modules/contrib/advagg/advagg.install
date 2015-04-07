@@ -843,6 +843,12 @@ function advagg_install_check_via_http(array &$requirements) {
         }
       }
 
+      // Try request without https.
+      if ($request->code == 0 && stripos($request->error, 'Error opening socket ssl://')) {
+        $url = advagg_force_http_path($url);
+        $request = drupal_http_request($url, $options);
+      }
+
       // @ignore sniffer_commenting_inlinecomment_spacingbefore:5
       // Check response. Report an error if
       //  Not a 404 OR

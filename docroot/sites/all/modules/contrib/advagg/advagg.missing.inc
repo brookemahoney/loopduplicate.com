@@ -89,7 +89,7 @@ function advagg_missing_generate() {
   }
 
   if ($redirect_counter > 4) {
-    watchdog('advagg', 'One of the alter hooks failed when generating this file: %uri. Thus this file was created without any alter hooks.', array('%uri' => $uri), WATCHDOG_CRITICAL);
+    watchdog('advagg', 'One of the alter hooks failed when generating this file: %uri. Thus this file was created without any alter hooks.', array('%uri' => $uri), WATCHDOG_ERROR);
   }
 
   // Output file's contents if creating the file was successful.

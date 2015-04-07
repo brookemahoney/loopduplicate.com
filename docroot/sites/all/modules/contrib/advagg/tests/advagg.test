@@ -1084,7 +1084,8 @@ class AdvAggThemeTestCase extends AJAXTestCase {
         'preprocess' => TRUE,
         'data' => $expected['css'],
         'browsers' => array('IE' => TRUE, '!IE' => TRUE),
-    )), TRUE);
+      )
+    ), TRUE);
     $expected_css_html = drupal_render($expected_css_render_array);
     $expected_js_render_array = advagg_get_js('header', array($expected['js'] => drupal_js_defaults($expected['js'])), TRUE);
     $expected_js_html = drupal_render($expected_js_render_array);
