@@ -32,9 +32,9 @@ files[] = fieldable_panels_panes.info.inc
 ; Inline Entity Form integration.
 files[] = includes/FieldablePanelsPaneInlineEntityFormController.class.php
 
-; Information added by Drupal.org packaging script on 2015-02-16
-version = "7.x-1.6-beta1+2-dev"
+; Information added by Drupal.org packaging script on 2015-04-08
+version = "7.x-1.6-beta1+3-dev"
 core = "7.x"
 project = "fieldable_panels_panes"
-datestamp = "1424100363"
+datestamp = "1428487984"
 
