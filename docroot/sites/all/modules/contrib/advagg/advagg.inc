@@ -1310,17 +1310,28 @@ function _advagg_build_css_path(array $matches, $base = '', array $aggregate_set
   }
 
   // Prefix with base and remove '../' segments where possible.
-  $path = $_base . $matches[1];
+  $url = $_base . $matches[1];
   $last = '';
-  while ($path != $last) {
-    $last = $path;
-    $path = preg_replace('`(^|/)(?!\.\./)([^/]+)/\.\./`', '$1', $path);
+  while ($url != $last) {
+    $last = $url;
+    $url = preg_replace('`(^|/)(?!\.\./)([^/]+)/\.\./`', '$1', $url);
   }
 
-  $path = advagg_file_create_url($path, $_aggregate_settings);
-  // Decoding path because some browsers can not handle encoded urls inside of
-  // CSS. file_create_url() -> drupal_encode_path() -> rawurlencode().
-  $path = rawurldecode($path);
+  // Parse and build back the url without the query and fragment parts.
+  $parsed_url = parse_url($url);
+  $base_url  = advagg_glue_url($parsed_url, TRUE);
 
-  return 'url(' . $path . ')';
+  $query = isset($parsed_url['query']) ? $parsed_url['query'] : '';
+  // In the case of certain URLs, we may have simply a '?' character without
+  // further parameters. parse_url() misses this and leaves 'query' blank, so
+  // need to this back in.
+  // See http://www.fontspring.com/blog/the-new-bulletproof-font-face-syntax
+  // for more information.
+  if ($query != '' || strpos($url, $base_url . '?') === 0) {
+    $query = '?' . $query;
+  }
+  $fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
+
+  $url = advagg_file_create_url($base_url, $_aggregate_settings);
+  return 'url(' . $url . $query . $fragment . ')';
 }

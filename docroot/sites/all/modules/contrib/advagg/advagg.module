@@ -549,8 +549,10 @@ function advagg_cron($bypass_time_check = FALSE) {
  *
  * @param bool $all_bins
  *   TRUE: Get all advagg cache bins.
+ * @param bool $push_new_changes
+ *   FALSE: Do not scan for changes.
  */
-function advagg_flush_caches($all_bins = FALSE) {
+function advagg_flush_caches($all_bins = FALSE, $push_new_changes = TRUE) {
   // Send back a blank array if aav table doesn't exist.
   if (!db_table_exists('advagg_aggregates_versions')) {
     return array();
@@ -558,7 +560,9 @@ function advagg_flush_caches($all_bins = FALSE) {
 
   // Scan for & push new changes.
   module_load_include('inc', 'advagg', 'advagg.cache');
-  advagg_push_new_changes();
+  if ($push_new_changes) {
+    advagg_push_new_changes();
+  }
 
   // Get list of cache bins to clear.
   $bins = array('cache_advagg_aggregates');
@@ -3857,4 +3861,34 @@ function advagg_aggressive_cache_conflicts() {
     }
   }
   return $questionable_modules;
+}
+
+/**
+ * Alt to http_build_url().
+ *
+ * @param array $parsed
+ *   Array from parse_url().
+ * @param bool $strip_query_and_fragment
+ *   If set to TRUE the query & fragemnt will be removed from the output.
+ *
+ * @return string
+ *   URI is returned.
+ *
+ * @see http://php.net/parse-url#85963
+ */
+function advagg_glue_url(array $parsed, $strip_query_and_fragment = FALSE) {
+  $uri = isset($parsed['scheme']) ? $parsed['scheme'] . ':' . ((strtolower($parsed['scheme']) === 'mailto') ? '' : '//') : '';
+  $uri .= isset($parsed['user']) ? $parsed['user'] . (isset($parsed['pass']) ? ':' . $parsed['pass'] : '') . '@' : '';
+  $uri .= isset($parsed['host']) ? $parsed['host'] : '';
+  $uri .= !empty($parsed['port']) ? ':' . $parsed['port'] : '';
+
+  if (isset($parsed['path'])) {
+    $uri .= (substr($parsed['path'], 0, 1) === '/') ? $parsed['path'] : ((!empty($uri) ? '/' : '') . $parsed['path']);
+  }
+
+  if (!$strip_query_and_fragment) {
+    $uri .= isset($parsed['query']) ? '?' . $parsed['query'] : '';
+    $uri .= isset($parsed['fragment']) ? '#' . $parsed['fragment'] : '';
+  }
+  return $uri;
 }

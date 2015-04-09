@@ -1455,34 +1455,7 @@ function advagg_install_url_mod(&$url, array &$options, $mod_url = FALSE) {
   }
 
   if (empty($new_url)) {
-    $new_url = advagg_install_glue_url($parts);
+    $new_url = advagg_glue_url($parts);
   }
   $url = $new_url;
-}
-
-/**
- * Alt to http_build_url().
- *
- * @param array $parsed
- *   Array from parse_url().
- *
- * @return string
- *   URI is returned.
- *
- * @see http://php.net/parse-url#85963
- */
-function advagg_install_glue_url(array $parsed) {
-  $uri = isset($parsed['scheme']) ? $parsed['scheme'] . ':' . ((strtolower($parsed['scheme']) === 'mailto') ? '' : '//') : '';
-  $uri .= isset($parsed['user']) ? $parsed['user'] . (isset($parsed['pass']) ? ':' . $parsed['pass'] : '') . '@' : '';
-  $uri .= isset($parsed['host']) ? $parsed['host'] : '';
-  $uri .= !empty($parsed['port']) ? ':' . $parsed['port'] : '';
-
-  if (isset($parsed['path'])) {
-    $uri .= (substr($parsed['path'], 0, 1) === '/') ? $parsed['path'] : ((!empty($uri) ? '/' : '') . $parsed['path']);
-  }
-
-  $uri .= isset($parsed['query']) ? '?' . $parsed['query'] : '';
-  $uri .= isset($parsed['fragment']) ? '#' . $parsed['fragment'] : '';
-
-  return $uri;
 }

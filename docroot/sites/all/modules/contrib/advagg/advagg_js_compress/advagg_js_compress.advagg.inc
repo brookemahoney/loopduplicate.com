@@ -371,9 +371,14 @@ function advagg_js_compress_prep(&$contents, $filename, array $aggregate_setting
   }
 
   if ($test_ratios) {
+    $aggregate_settings['variables']['advagg_js_compress_max_ratio'] = isset($aggregate_settings['variables']['advagg_js_compress_max_ratio']) ? $aggregate_settings['variables']['advagg_js_compress_max_ratio'] : variable_get('advagg_js_compress_max_ratio', ADVAGG_JS_COMPRESS_MAX_RATIO);
     // Make sure the returned string is not empty or has a VERY high
     // compression ratio.
-    if (empty($contents) || empty($ratio) || $ratio > $aggregate_settings['variables']['advagg_js_compress_max_ratio'] || $ratio < 0) {
+    if ( empty($contents)
+      || empty($ratio)
+      || $ratio < 0
+      || $ratio > $aggregate_settings['variables']['advagg_js_compress_max_ratio']
+    ) {
       $contents = $contents_before;
     }
     elseif ($add_licensing && variable_get('advagg_js_compress_add_license', ADVAGG_JS_COMPRESS_ADD_LICENSE)) {

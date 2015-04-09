@@ -379,7 +379,7 @@ function advagg_admin_operations_form($form, $form_state) {
   );
   $form['#attached']['js'][] = drupal_get_path('module', 'advagg') . '/advagg.admin.js';
 
-  // Smart flushing.
+  // Tasks run by cron.
   $form['cron'] = array(
     '#type' => 'fieldset',
     '#title' => t('Cron Maintenance Tasks'),
@@ -874,6 +874,9 @@ function advagg_admin_clear_all_caches_button() {
 
   // Report back the results.
   drupal_set_message(t('All AdvAgg cache bins have been cleared.'));
+  // Clear it again at the end of the request to be sure.
+  drupal_register_shutdown_function('advagg_flush_all_cache_bins', FALSE);
+  drupal_register_shutdown_function('advagg_push_new_changes');
 }
 
 /**

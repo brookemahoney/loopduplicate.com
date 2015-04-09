@@ -86,6 +86,12 @@ function advagg_scan_for_changes() {
  *   Array of files that have changed and caches flushed.
  */
 function advagg_push_new_changes() {
+  // Clear some static caches
+  drupal_static_reset('advagg_get_info_on_file');
+  drupal_static_reset('advagg_drupal_hash_base64');
+  drupal_static_reset('advagg_current_hooks_hash_array');
+  drupal_static_reset('advagg_get_current_hooks_hash');
+
   // Scan the file system for changes to CSS/JS files.
   $files = advagg_scan_for_changes();
   $results = array();
@@ -260,9 +266,12 @@ function advagg_delete_files_if_stale(array $files) {
 
 /**
  * Perform a cache_clear_all on all bins returned by advagg_flush_caches(TRUE).
+ *
+ * @param bool $push_new_changes
+ *   FALSE: Do not scan for changes.
  */
-function advagg_flush_all_cache_bins() {
-  $bins = advagg_flush_caches(TRUE);
+function advagg_flush_all_cache_bins($push_new_changes = TRUE) {
+  $bins = advagg_flush_caches(TRUE, $push_new_changes);
   foreach ($bins as $bin) {
     cache_clear_all('*', $bin, TRUE);
   }
