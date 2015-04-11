@@ -10,12 +10,12 @@
 /**
  * Menu Callback; generates a missing CSS/JS file.
  */
-function advagg_missing_aggregate() {
+function advagg_missing_aggregate($input) {
   // Do not stop processing this request.
   ignore_user_abort(TRUE);
 
   // Generate missing file.
-  $msg = advagg_missing_generate();
+  $msg = advagg_missing_generate($input);
 
   // If here send out fast 404.
   advagg_missing_fast404($msg);
@@ -27,7 +27,7 @@ function advagg_missing_aggregate() {
  * @return string
  *   text if bundle couldn't be generated.
  */
-function advagg_missing_generate() {
+function advagg_missing_generate($input) {
   // Make sure we are not in a redirect loop.
   $redirect_counter = isset($_GET['redirect_counter']) ? intval($_GET['redirect_counter']) : 0;
   if ($redirect_counter > 5) {
@@ -44,7 +44,30 @@ function advagg_missing_generate() {
   // Quit ASAP if filename does not match the AdvAgg pattern.
   $data = advagg_get_hashes_from_filename($filename);
   if (is_string($data) || !is_array($data)) {
-    return $data;
+    // Try again with the function input.
+    $filename = $input;
+    $data = advagg_get_hashes_from_filename($filename);
+    if (is_string($data) || !is_array($data)) {
+      return $data;
+    }
+  }
+
+  // Check to see if the file exists.
+  list($css_path, $js_path) = advagg_get_root_files_dir();
+  if ($data[0] === 'css') {
+    $uri = $css_path[0] . '/' . $filename;
+  }
+  elseif ($data[0] === 'js') {
+    $uri = $js_path[0] . '/' . $filename;
+  }
+
+  if (file_exists($uri) && filesize($uri) >= 0) {
+    // File does exist and filesize is bigger than zero, 307 to it.
+    $uri = advagg_generate_location_uri($filename, $data[0], $data[3]);
+    ++$redirect_counter;
+    $uri .= '?redirect_counter=' . $redirect_counter;
+    header('Location: ' . $uri, TRUE, 307);
+    exit();
   }
 
   // Get lock so only one process will do the work.

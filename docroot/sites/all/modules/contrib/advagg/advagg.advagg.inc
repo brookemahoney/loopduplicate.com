@@ -246,6 +246,7 @@ function advagg_advagg_get_info_on_files_alter(&$return, $cached_data, $bypass_c
  * Implements hook_advagg_changed_files().
  *
  * If the color module is enabled regenerate color module css when it changes.
+ * If a responsive file inside an adaptive theme has changed, regenerate it.
  *
  * @param array $files
  *   List of files that have changed.
@@ -253,22 +254,40 @@ function advagg_advagg_get_info_on_files_alter(&$return, $cached_data, $bypass_c
  *   Array with the css and or the js key.
  */
 function advagg_advagg_changed_files(array $files, array $types) {
-  // Skip if no css changed; or color module is not enabled.
-  if (empty($types['css']) || !module_exists('color')) {
+  // Keep track of what themes have been done.
+  static $themes_done;
+  if (!isset($themes_done)) {
+    $themes_done = array();
+  }
+
+  // Skip if no css changed.
+  if (empty($types['css'])) {
     return;
+  }
+
+  $return = array();
+  foreach ($files as $filename => $meta_data) {
+    // Only care about css files.
+    $ext = pathinfo($filename, PATHINFO_EXTENSION);
+    if ($ext != 'css') {
+      continue;
+    }
+    $return[$filename] = advagg_advagg_scan_for_changes($filename, TRUE);
   }
 
   // Save error states & clear them.
   $errors_before = drupal_static('form_set_error', array());
   form_clear_error();
 
-  // See if the css file is used by the color module in the theme.
+  // See if the css file is used the theme.
   $themes = list_themes();
   $changed_files = array_keys($files);
-  $themes_done = array();
+
+  $submit_ran = FALSE;
   foreach ($themes as $theme_name => $theme_values) {
+    $files_in_theme = array();
     foreach ($changed_files as $css_file) {
-      // Skip if we already did a form submit.
+      // Skip if we already did a form submit for this theme.
       if (!empty($themes_done[$theme_name])) {
         continue;
       }
@@ -278,46 +297,75 @@ function advagg_advagg_changed_files(array $files, array $types) {
       if (strpos($css_file, $theme_path) !== 0) {
         continue;
       }
+      $files_in_theme[] = $css_file;
+    }
 
-      // Get the form for this theme.
-      $router_item = menu_get_item('admin/appearance/settings/' . $theme_name);
-      if ($router_item ['include_file']) {
-        require_once DRUPAL_ROOT . '/' . $router_item ['include_file'];
-      }
-      $form = drupal_get_form('system_theme_settings', $theme_name);
+    // Skip the theme if none of the changed files live in here.
+    if (empty($files_in_theme)) {
+      continue;
+    }
 
-      // Skip if color module is not enabled.
-      if (!isset($form['color'])) {
-        continue;
-      }
+    // Get the form for this theme.
+    $router_item = menu_get_item('admin/appearance/settings/' . $theme_name);
+    if ($router_item ['include_file']) {
+      require_once DRUPAL_ROOT . '/' . $router_item ['include_file'];
+    }
+    $form = drupal_get_form('system_theme_settings', $theme_name);
+    // Get the form defaults.
+    $defaults = array();
+    advagg_get_defaults_from_form($defaults, $form);
 
-      // Skip if the file that was changed is not a color module file.
-      $hit = FALSE;
-      foreach ($form['color']['info']['#value']['css'] as $theme_file) {
-        if ($theme_path . '/' . $theme_file === $css_file) {
-          $hit = TRUE;
+    $rebuild = FALSE;
+    if (isset($defaults['atcore_version_test'])) {
+      // Rebuild if the theme is an adaptive theme.
+      $rebuild = TRUE;
+    }
+    if (!$rebuild && module_exists('color')) {
+      foreach ($files_in_theme as $css_file) {
+        if (isset($form['color'])) {
+          // Rebuild if the file that was changed is a color module file.
+          foreach ($defaults['info']['css'] as $theme_file) {
+            if ($theme_path . '/' . $theme_file === $css_file) {
+              $rebuild = TRUE;
+              break 2;
+            }
+          }
         }
       }
-      if (empty($hit)) {
-        continue;
-      }
+    }
 
-      // Build the palette.
-      $palette = array();
+    // Skip if themes css does not need to be generated dynamically.
+    if (empty($rebuild)) {
+      continue;
+    }
+
+    // Build the palette value.
+    $palette = array();
+    if (isset($form['color'])) {
       foreach (element_children($form['color']['palette']) as $key) {
         $palette[$key] = $form['color']['palette'][$key]['#value'];
       }
+    }
 
-      // Build the form state array from already saved defaults.
-      $form_state = array(
-        'values' => array(
-          'theme' => $theme_name,
-          'info' => $form['color']['info']['#value'],
-          'palette' => $palette,
-          'scheme' => $form['color']['scheme']['#value'],
-        ),
-      );
+    // Build the form state array.
+    $form_state = array(
+      'values' => array('palette' => $palette),
+      'build_info' => array('args' => array(0 => $theme_name)),
+    );
+    $form_state['values'] += $defaults;
 
+    if (isset($defaults['atcore_version_test'])) {
+      // Validate form.
+      at_core_settings_validate($form, $form_state);
+      $errors = form_set_error();
+      if (empty($errors)) {
+        // Only submit if no errors.
+        at_core_settings_submit($form, $form_state);
+        $themes_done[$theme_name] = TRUE;
+        $submit_ran = TRUE;
+      }
+    }
+    elseif (isset($form['color'])) {
       // Validate form.
       color_scheme_form_validate($form, $form_state);
       $errors = form_set_error();
@@ -325,17 +373,116 @@ function advagg_advagg_changed_files(array $files, array $types) {
         // Only submit if no errors.
         color_scheme_form_submit($form, $form_state);
         $themes_done[$theme_name] = TRUE;
+        $submit_ran = TRUE;
       }
-      // Reset form errors.
-      form_clear_error();
     }
+    // Reset form errors.
+    form_clear_error();
   }
   // Save error states back.
   $form_set_error = &drupal_static('form_set_error', array());
   $form_set_error = $errors_before;
 
   // Rescan again as the submit will generate new files in the css dir.
-  if (!empty($themes_done)) {
+  if ($submit_ran) {
     advagg_push_new_changes();
+  }
+}
+
+/**
+ * Implements hook_advagg_scan_for_changes().
+ *
+ * Used to see if the responsive files inside an adaptive theme has changed.
+ */
+function advagg_advagg_scan_for_changes($filename, $save_changes = FALSE) {
+  // Skip if this file is not a css file.
+  $ext = pathinfo($filename, PATHINFO_EXTENSION);
+  if ($ext !== 'css') {
+    return FALSE;
+  }
+
+  // Skip if the file is not in an adaptive theme.
+  $adaptivethemes = array();
+  $themes = list_themes();
+  foreach ($themes as $theme_name => $theme_values) {
+    $path = variable_get('theme_' . $theme_name . '_files_directory', '');
+    if (!empty($path) && strpos($filename, $path) !== FALSE) {
+      $adaptivethemes[$theme_name] = $path;
+    }
+  }
+  if (empty($adaptivethemes)) {
+    return;
+  }
+
+  $this_file_changed = FALSE;
+  foreach ($adaptivethemes as $theme_name => $path) {
+    // Set up some paths we use to get and save files
+    $path_to_responsive_css = drupal_get_path('theme', $theme_name) . '/css/';
+    $path_to_panels_css = drupal_get_path('theme', 'adaptivetheme') . '/layouts/css/';
+
+    // Map files to generated file names.
+    $file_map = array(
+      "$path/$theme_name.responsive.styles.css" => array(
+        $path_to_responsive_css . 'responsive.custom.css',
+        $path_to_responsive_css . 'responsive.smalltouch.portrait.css',
+        $path_to_responsive_css . 'responsive.smartphone.portrait.css',
+        $path_to_responsive_css . 'responsive.smalltouch.landscape.css',
+        $path_to_responsive_css . 'responsive.smartphone.landscape.css',
+        $path_to_responsive_css . 'responsive.tablet.portrait.css',
+        $path_to_responsive_css . 'responsive.tablet.landscape.css',
+        $path_to_responsive_css . 'responsive.desktop.css',
+      ),
+      "$path/$theme_name.lt-ie8.layout.css" => array(
+        $path_to_panels_css . 'ie_defaults.css',
+      ),
+    );
+    if (!isset($file_map[$filename])) {
+      continue;
+    }
+
+    // See if anything has changed.
+    if (advagg_detect_subfile_changes($filename, $file_map[$filename], 'adaptivetheme', $save_changes)) {
+      $this_file_changed = TRUE;
+    }
+  }
+
+  return $this_file_changed;
+}
+
+/**
+ * Given a form get the default values from it.
+ *
+ * @param array $defaults
+ *   An empty array used to populate the default values.
+ * @param array $form
+ *   The form returned from drupal_get_form().
+ * @param string $parent_key
+ *   The key name of the parent.
+ */
+function advagg_get_defaults_from_form(array &$defaults, array $form, $parent_key = '') {
+  foreach (element_children($form) as $key) {
+    $values = $form[$key];
+    if (isset($values['#value'])) {
+      // Grab defaults at this level.
+      if (!isset($defaults[$key])) {
+        $defaults[$key] = $values['#value'];
+      }
+      else {
+        $defaults[$parent_key . '-' . $key] = $values['#value'];
+      }
+    }
+    elseif (isset($values['#default_value'])) {
+      // Grab defaults at this level.
+      if (!isset($defaults[$key])) {
+        $defaults[$key] = $values['#default_value'];
+      }
+      else {
+        $defaults[$parent_key . '-' . $key] = $values['#default_value'];
+      }
+    }
+    elseif (is_array($values)) {
+      // Go deeper if needed.
+      advagg_get_defaults_from_form($defaults, $values, $key);
+    }
   }
 }

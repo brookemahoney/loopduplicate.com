@@ -1304,7 +1304,7 @@ function _advagg_process_html(&$variables) {
       $css_path = substr($css_path, 0, strlen($css_path) - 1);
       $css_start = strpos($uri, $css_path);
       if ($css_start !== FALSE) {
-        $filename = substr($uri, $css_start + strlen($css_path) + 1);
+        $filename = substr($uri, $css_start + strlen($css_path));
       }
 
       // Check js.
@@ -1314,7 +1314,7 @@ function _advagg_process_html(&$variables) {
         $js_path = substr($js_path, 0, strlen($js_path) - 1);
         $js_start = strpos($uri, $js_path);
         if ($js_start !== FALSE) {
-          $filename = substr($uri, $js_start + strlen($js_path) + 1);
+          $filename = substr($uri, $js_start + strlen($js_path));
         }
       }
 
@@ -1338,11 +1338,13 @@ function _advagg_process_html(&$variables) {
 
         // Call the function.
         if (function_exists($router_item['page callback'])) {
-          // Report issue to watchdog.
-          watchdog('advagg', 'You need to flush your menu cache. This can be done at the top of the <a href="@performance">performance page</a>. The advagg callback did not use the normal menu route while generating this file: @uri', array(
-            '@performance' => url('admin/config/development/performance'),
-            '@uri' => $uri,
-          ), WATCHDOG_WARNING);
+          // Strip query and fragment form the filename.
+          if ($pos = strpos($filename, '?')) {
+            $filename = substr($filename, 0, $pos);
+          }
+          if ($pos = strpos($filename, '#')) {
+            $filename = substr($filename, 0, $pos);
+          }
           // Generate the file.
           call_user_func_array($router_item['page callback'], array($filename));
         }

@@ -589,3 +589,71 @@ function advagg_cleanup_semaphore_table() {
     ->execute();
   return $results;
 }
+
+/**
+ * See if any of the subfiles has changed.
+ *
+ * @param string $filename
+ *   Name of the file that is related to teh subfiles.
+ * @param array $subfiles
+ *   An array of files to check for changes.
+ * @param string $keyname
+ *   Under what key to save the info on the files.
+ * @param bool $save_changes
+ *   If TRUE then the changes will be updated in the cache.
+ *
+ * @return bool
+ *   TRUE if one of the subfiles has changed.
+ */
+function advagg_detect_subfile_changes($filename, array $subfiles, $keyname, $save_changes = FALSE) {
+  // Get the info on this file from the cache.
+  module_load_include('inc', 'advagg', 'advagg');
+  $info = advagg_get_info_on_file($filename);
+  $hash_id = 'advagg:subfiles:' . $keyname . ':' . $info['filename_hash'];
+  if (!isset($info[$keyname])) {
+    // Pull up the info from the database if missing from the cache.
+    $info[$keyname] = advagg_get_hash_settings($hash_id);
+  }
+
+  $subfile_changed = FALSE;
+  // Check every subfile seeing if they have changed.
+  foreach ($subfiles as $subfile) {
+    $current_file_info = $defaults = array('hash' => '', 'size' => 0, 'mtime' => 0);
+
+    // Get the currently saved info on this file.
+    $saved_file_info = isset($info[$keyname][$subfile]) ? $info[$keyname][$subfile] : array();
+    $saved_file_info += $defaults;
+
+    // Get the current info on the file.
+    if (file_exists($subfile)) {
+      $current_file_info = array(
+        'hash' => drupal_hash_base64(file_get_contents($subfile)),
+        'size' => filesize($subfile),
+        'mtime' => filemtime($subfile),
+      );
+    }
+
+    // Set the info incase a save happens.
+    $info[$keyname][$subfile] = $current_file_info;
+
+    // Check for any differences.
+    $diff = array_diff_assoc($saved_file_info, $current_file_info);
+    if (!empty($diff)) {
+      $subfile_changed = TRUE;
+    }
+  }
+  if ($subfile_changed && $save_changes) {
+    $cache_id = 'advagg:file:' . $info['filename_hash'];
+
+    // Set static cache.
+    $filename_hashes = &drupal_static('advagg_get_info_on_file');
+    $filename_hashes[$cache_id] = $info;
+
+    // Set drupal cache.
+    cache_set($cache_id, $info, 'cache_advagg_info', CACHE_PERMANENT);
+
+    // Save to database.
+    advagg_set_hash_settings($hash_id, $info[$keyname]);
+  }
+  return $subfile_changed;
+}
