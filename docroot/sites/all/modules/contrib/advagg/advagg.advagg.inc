@@ -307,8 +307,8 @@ function advagg_advagg_changed_files(array $files, array $types) {
 
     // Get the form for this theme.
     $router_item = menu_get_item('admin/appearance/settings/' . $theme_name);
-    if ($router_item ['include_file']) {
-      require_once DRUPAL_ROOT . '/' . $router_item ['include_file'];
+    if ($router_item['include_file']) {
+      require_once DRUPAL_ROOT . '/' . $router_item['include_file'];
     }
     $form = drupal_get_form('system_theme_settings', $theme_name);
     // Get the form defaults.
@@ -416,7 +416,7 @@ function advagg_advagg_scan_for_changes($filename, $save_changes = FALSE) {
 
   $this_file_changed = FALSE;
   foreach ($adaptivethemes as $theme_name => $path) {
-    // Set up some paths we use to get and save files
+    // Set up some paths we use to get and save files.
     $path_to_responsive_css = drupal_get_path('theme', $theme_name) . '/css/';
     $path_to_panels_css = drupal_get_path('theme', 'adaptivetheme') . '/layouts/css/';
 

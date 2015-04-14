@@ -310,6 +310,12 @@ function advagg_module_implements_alter(&$implementations, $hook) {
     $implementations['advagg'] = $item;
   }
 
+  if ($hook === 'js_alter' && array_key_exists('locale', $implementations)) {
+    // Replace locale with _advagg_locale.
+    unset($implementations['locale']);
+    $implementations['_advagg_locale'] = FALSE;
+  }
+
   if ($hook === 'js_alter' && array_key_exists('advagg', $implementations)) {
     if (variable_get('advagg_run_alter_after_theme', ADVAGG_RUN_ALTER_AFTER_THEME)) {
       // Remove advagg & advagg_mod; runs after drupal_alter('js', $js).
@@ -358,6 +364,31 @@ function advagg_module_implements_alter(&$implementations, $hook) {
     unset($implementations['advagg']);
     $implementations['advagg'] = $item;
   }
+}
+
+/**
+ * Implements hook_js_alter().
+ *
+ * This is a locking wrapper for locale_js_alter().
+ */
+function _advagg_locale_js_alter(&$js) {
+  $count = 0;
+  while (!lock_acquire('locale_js_alter', 5)) {
+    ++$count;
+    // If we've waited over 5 times then skip.
+    if ($count > 5) {
+      lock_release('locale_js_alter');
+      return;
+    }
+
+    // Wait for the lock to be available.
+    lock_wait('locale_js_alter');
+  }
+
+  // Run the alter and return.
+  $return = locale_js_alter($js);
+  lock_release('locale_js_alter');
+  return $return;
 }
 
 /**
@@ -3793,29 +3824,29 @@ function advagg_aggressive_cache_conflicts() {
     //
     // ais_adaptive_styles variable; Default: array().
     // ais_adaptive_styles_method; Default: 'both-max'.
-    'ais',
+//     'ais',
 
     // No control; same every time.
     'bluecheese',
 
     // drupal_static('clientside_validation_settings') array.
-    'clientside_validation',
+//     'clientside_validation',
 
     // _css_injector_load_rule() function.
     // Changes the weight of all files added in init so no special handling.
-    'css_injector',
+//     'css_injector',
 
     // disable_css_ . $theme . _all variable; default: FALSE.
     // disable_css_ . $theme . _modules; default: array().
     // disable_css_ . $theme . _files; default: array().
-    'disable_css',
+//     'disable_css',
 
     // Empty call; commented code is same every time.
     'elfinder',
 
     // excluded_css_custom variable; Default: ''.
     // excluded_javascript_custom variable; Default: ''.
-    'excluded',
+//     'excluded',
 
     // No control; same every time.
     'fences',
@@ -3823,7 +3854,7 @@ function advagg_aggressive_cache_conflicts() {
     // jqmulti_jquery_path() function.
     // jqmulti_get_files() function.
     // jqmulti_load_always variable; Default: FALSE.
-    'jqmulti',
+//     'jqmulti',
 
     // No control; same every time.
     'jquery_dollar',
@@ -3848,7 +3879,7 @@ function advagg_aggressive_cache_conflicts() {
   foreach ($hooks as $hook => $modules) {
     foreach ($modules as $key => $module) {
       // Anything from advagg is ok.
-      if (strpos($module, 'advagg') === 0) {
+      if (strpos($module, 'advagg') === 0 || strpos($module, '_advagg') === 0) {
         unset($modules[$key]);
         continue;
       }

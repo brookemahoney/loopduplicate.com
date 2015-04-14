@@ -48,27 +48,27 @@ function advagg_admin_settings_form($form, $form_state) {
   );
 
   $aggressive_cache_conflicts = advagg_aggressive_cache_conflicts();
-//   if (empty($aggressive_cache_conflicts)) {
-//     $description = t('It appears that there are no incompatible modules, so you should be able to safely use the Aggressive cache.');
-//   }
-//   else {
-//     $description = t('It appears that there might be some incompatible modules. I would test these out before setting the cache to aggressive: %modules', array('%modules' => implode(', ', $aggressive_cache_conflicts)));
-//   }
+  if (empty($aggressive_cache_conflicts)) {
+    $description = t('It appears that there are no incompatible modules, so you should be able to safely use the Aggressive cache.');
+  }
+  else {
+    $description = t('It appears that there might be some incompatible modules. I would test these out before setting the cache to aggressive: %modules', array('%modules' => implode(', ', $aggressive_cache_conflicts)));
+  }
   $options = array(
     -1 => t('Development ~ 300ms'),
-    1 => t('Normal ~ 60ms'),
-    3 => t('Aggressive ~ 12ms'),
+    3 => t('Normal ~ 30ms'),
+    5 => t('Aggressive ~ 10ms'),
   );
   $form['global']['advagg_cache_level'] = array(
     '#type' => 'radios',
     '#title' => t('AdvAgg Cache Settings'),
     '#default_value' => variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL),
     '#options' => $options,
-    '#description' => t("As a reference, core takes about 25 ms to run. Development will scan all files for a change on every page load. Normal is fine for all use cases. Aggressive should be fine in almost all use cases; if your inline css/js changes based off of a variable then the aggressive cache hit ratio will be low; if that is the case consider using Drupal.settings for a better cache hit ratio.", array(
+    '#description' => t("As a reference, core takes about 25 ms to run. Development will scan all files for a change on every page load. Normal is fine for all use cases. Aggressive should be fine for most use cases. If your inline css/js changes based off of a variable then the cache hit ratio will be low; if that is the case consider using Drupal.settings for a better cache hit ratio.", array(
       '@information' => url($config_path . '/advagg/info', array(
         'fragment' => 'edit-hooks-implemented',
       )),
-    )),
+    )) . ' ' . $description,
   );
 
   $form['global']['dev_container'] = array(

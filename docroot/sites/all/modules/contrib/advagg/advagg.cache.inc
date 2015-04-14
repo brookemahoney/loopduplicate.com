@@ -86,7 +86,7 @@ function advagg_scan_for_changes() {
  *   Array of files that have changed and caches flushed.
  */
 function advagg_push_new_changes() {
-  // Clear some static caches
+  // Clear some static caches.
   drupal_static_reset('advagg_get_info_on_file');
   drupal_static_reset('advagg_drupal_hash_base64');
   drupal_static_reset('advagg_current_hooks_hash_array');
@@ -618,7 +618,11 @@ function advagg_detect_subfile_changes($filename, array $subfiles, $keyname, $sa
   $subfile_changed = FALSE;
   // Check every subfile seeing if they have changed.
   foreach ($subfiles as $subfile) {
-    $current_file_info = $defaults = array('hash' => '', 'size' => 0, 'mtime' => 0);
+    $current_file_info = $defaults = array(
+      'hash' => '',
+      'size' => 0,
+      'mtime' => 0,
+    );
 
     // Get the currently saved info on this file.
     $saved_file_info = isset($info[$keyname][$subfile]) ? $info[$keyname][$subfile] : array();

@@ -749,18 +749,15 @@ $base_url = str_replace("http://", "https://", $base_url);
     if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) < 0) {
       $description .= ' ' . $t('Currently running in development mode.');
     }
-    if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) < 3) {
+    if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) < 5) {
       $aggressive_cache_conflicts = advagg_aggressive_cache_conflicts();
-//       if (empty($aggressive_cache_conflicts)) {
-//         $description .= ' ' . $t('It appears that there are no incompatible modules, so you should be able to safely use the Aggressive cache. To adjust this setting, go to the <a href="@config">AdvAgg: configuration page</a> and under "AdvAgg Cache Settings" select Aggressive and then save.', array(
-//           '@config' => url('admin/config/development/performance/advagg', array('fragment' => 'edit-advagg-cache-level')),
-//         ));
-//       }
-      $description .= ' ' . $t('You should use the Aggressive cache. To adjust this setting, go to the <a href="@config">AdvAgg: configuration page</a> and under "AdvAgg Cache Settings" select Aggressive and then save.', array(
-        '@config' => url('admin/config/development/performance/advagg', array(
-          'fragment' => 'edit-advagg-cache-level',
-        )),
-      ));
+      if (empty($aggressive_cache_conflicts)) {
+        $description .= ' ' . $t('It appears that there are no incompatible modules, so you should be able to safely use the Aggressive cache. To adjust this setting, go to the <a href="@config">AdvAgg: configuration page</a> and under "AdvAgg Cache Settings" select Aggressive and then save.', array(
+          '@config' => url('admin/config/development/performance/advagg', array(
+            'fragment' => 'edit-advagg-cache-level',
+          )),
+        ));
+      }
     }
 
     $requirements['advagg_ok'] = array(

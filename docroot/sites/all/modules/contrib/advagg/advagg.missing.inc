@@ -10,7 +10,7 @@
 /**
  * Menu Callback; generates a missing CSS/JS file.
  */
-function advagg_missing_aggregate($input) {
+function advagg_missing_aggregate($input = '') {
   // Do not stop processing this request.
   ignore_user_abort(TRUE);
 
@@ -27,7 +27,7 @@ function advagg_missing_aggregate($input) {
  * @return string
  *   text if bundle couldn't be generated.
  */
-function advagg_missing_generate($input) {
+function advagg_missing_generate($input = '') {
   // Make sure we are not in a redirect loop.
   $redirect_counter = isset($_GET['redirect_counter']) ? intval($_GET['redirect_counter']) : 0;
   if ($redirect_counter > 5) {
