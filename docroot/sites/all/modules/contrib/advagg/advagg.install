@@ -1306,33 +1306,30 @@ function advagg_install_chk_urls(array &$requirements, array $urls, array $optio
 /**
  * Given a advagg path this will return the first aggregate it can find.
  *
- * @param string $file_path
+ * @param string $directory
  *   Path to the advagg css/js dir.
  *
  * @return string
- *   Returns aggregate filename.
+ *   Returns aggregate filename or an empty string on failure.
  */
-function advagg_install_get_first_advagg_file($file_path) {
+function advagg_install_get_first_advagg_file($directory) {
   module_load_include('inc', 'advagg', 'advagg.missing');
   $filename = '';
 
-  // Open the advagg directory.
-  $handle = opendir($file_path);
-  // Bailout here if the advagg directory can not be opened.
-  if (empty($handle)) {
+  // Get contents of the advagg directory.
+  $scanned_directory = @scandir($directory);
+  // Bailout here if the advagg directory is empty.
+  if (empty($scanned_directory)) {
     return $filename;
   }
-  while (FALSE !== ($filename = readdir($handle))) {
-    // Skip over . and ..
-    if ($filename === '.' || $filename === '..') {
-      continue;
-    }
+  // Filter list.
+  $blacklist = array('..', '.', '.htaccess', 'parts');
+  $scanned_directory = array_diff($scanned_directory, $blacklist);
 
-    // Skip if filename is empty.
-    if (empty($filename)) {
-      continue;
-    }
+  // Make the last file empty.
+  $scanned_directory[] = '';
 
+  foreach ($scanned_directory as $key => $filename) {
     // Skip if filename is not long enough,
     $len = strlen($filename);
     if ($len < 91 + strlen(ADVAGG_SPACE) * 3) {
@@ -1348,7 +1345,7 @@ function advagg_install_get_first_advagg_file($file_path) {
       }
     }
 
-    $gzip_filename = readdir($handle);
+    $gzip_filename = $scanned_directory[$key+1];
     if (variable_get('advagg_gzip', ADVAGG_GZIP)) {
       // Skip if the next file is not a .gz file.
       if (strcmp($filename . '.gz', $gzip_filename) !== 0) {
