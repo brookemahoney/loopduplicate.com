@@ -1330,6 +1330,9 @@ function media_load_all_exports($module, $directory, $extension, $name = NULL) {
 /**
  * Returns metadata describing Media browser plugins.
  *
+ * @return
+ *   An associative array of plugin information, keyed by plugin.
+ *
  * @see hook_media_browser_plugin_info()
  * @see hook_media_browser_plugin_info_alter()
  */
@@ -1337,15 +1340,8 @@ function media_get_browser_plugin_info() {
   $info = &drupal_static(__FUNCTION__);
 
   if (!isset($info)) {
-    $cid = 'media:browser:plugin:info:' . $GLOBALS['language']->language;
-    if ($cache = cache_get($cid)) {
-      $info = $cache->data;
-    }
-    else {
-      $info = module_invoke_all('media_browser_plugin_info');
-      drupal_alter('media_browser_plugin_info', $info);
-      cache_set($cid, $info);
-    }
+    $info = module_invoke_all('media_browser_plugin_info');
+    drupal_alter('media_browser_plugin_info', $info);
   }
 
   return $info;

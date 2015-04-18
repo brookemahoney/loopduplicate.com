@@ -126,6 +126,5 @@ function template_preprocess_media_views_view_media_browser(&$vars) {
  * Implements hook_views_invalidate_cache().
  */
 function media_views_invalidate_cache() {
-  cache_clear_all('media:browser:plugin', 'cache', TRUE);
   drupal_static_reset('media_get_browser_plugin_info');
 }
