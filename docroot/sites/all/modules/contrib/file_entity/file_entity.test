@@ -416,43 +416,225 @@ class FileEntityEditTestCase extends FileEntityTestHelper {
 /**
  * Tests creating new file entities through the file upload wizard.
  */
-class FileEntityCreationTestCase extends FileEntityTestHelper {
+class FileEntityUploadWizardTestCase extends FileEntityTestHelper {
   public static function getInfo() {
     return array(
-      'name' => 'File entity creation',
-      'description' => 'Create a file and test saving it.',
+      'name' => 'File entity upload wizard',
+      'description' => 'Upload a file using the multi-step wizard.',
       'group' => 'File entity',
+      'dependencies' => array('token'),
     );
   }
 
   function setUp() {
-    parent::setUp();
+    parent::setUp('token');
 
-    $web_user = $this->drupalCreateUser(array('create files'));
+    // Disable the private file system which is automatically enabled by
+    // DrupalTestCase so we can test the upload wizard correctly.
+    variable_del('file_private_path');
+
+    $web_user = $this->drupalCreateUser(array('create files', 'view own private files'));
     $this->drupalLogin($web_user);
   }
 
   /**
-   * Create a "document" file and verify its consistency in the database.
+   * Test the basic file upload wizard functionality.
    */
-  function testFileEntityCreation() {
+  function testFileEntityUploadWizardBasic() {
     $test_file = $this->getTestFile('text');
-    // Create a file.
+
+    // Step 1: Upload a basic document file.
     $edit = array();
     $edit['files[upload]'] = drupal_realpath($test_file->uri);
     $this->drupalPost('file/add', $edit, t('Next'));
 
-    // Step 2: Scheme selection
-    if ($this->xpath('//input[@name="scheme"]')) {
-      $this->drupalPost(NULL, array(), t('Next'));
-    }
+    // Check that the file exists in the database.
+    $fid = $this->getLastFileId();
+    $file = file_load($fid);
+    $this->assertTrue($file, t('File found in database.'));
 
     // Check that the document file has been uploaded.
-    $this->assertRaw(t('!type %name was uploaded.', array('!type' => 'Document', '%name' => $test_file->filename)), t('Document file uploaded.'));
+    $this->assertRaw(t('!type %name was uploaded.', array('!type' => 'Document', '%name' => $file->filename)), t('Document file uploaded.'));
+  }
+
+  /**
+   * Test the file upload wizard type step.
+   */
+  function testFileEntityUploadWizardTypes() {
+    $test_file = $this->getTestFile('text');
+
+    // Create multiple file types with the same mime types.
+    $this->createFileType(array('type' => 'document1', 'label' => 'Document 1', 'mimetypes' => array('text/plain')));
+    $this->createFileType(array('type' => 'document2', 'label' => 'Document 2', 'mimetypes' => array('text/plain')));
+
+    // Step 1: Upload a basic document file.
+    $edit = array();
+    $edit['files[upload]'] = drupal_realpath($test_file->uri);
+    $this->drupalPost('file/add', $edit, t('Next'));
+
+    // Step 2: File type selection.
+    $edit = array();
+    $edit['type'] = 'document2';
+    $this->drupalPost(NULL, $edit, t('Next'));
 
     // Check that the file exists in the database.
-    $file = $this->getFileByFilename($test_file->filename);
+    $fid = $this->getLastFileId();
+    $file = file_load($fid);
     $this->assertTrue($file, t('File found in database.'));
+
+    // Check that the document file has been uploaded.
+    $this->assertRaw(t('!type %name was uploaded.', array('!type' => 'Document 2', '%name' => $file->filename)), t('Document 2 file uploaded.'));
+  }
+
+  /**
+   * Test the file upload wizard scheme step.
+   */
+  function testFileEntityUploadWizardSchemes() {
+    $test_file = $this->getTestFile('text');
+
+    // Enable the private file system.
+    variable_set('file_private_path', $this->private_files_directory);
+
+    // Step 1: Upload a basic document file.
+    $edit = array();
+    $edit['files[upload]'] = drupal_realpath($test_file->uri);
+    $this->drupalPost('file/add', $edit, t('Next'));
+
+    // Step 3: Scheme selection.
+    $edit = array();
+    $edit['scheme'] = 'private';
+    $this->drupalPost(NULL, $edit, t('Next'));
+
+    // Check that the file exists in the database.
+    $fid = $this->getLastFileId();
+    $file = file_load($fid);
+    $this->assertTrue($file, t('File found in database.'));
+
+    // Check that the document file has been uploaded.
+    $this->assertRaw(t('!type %name was uploaded.', array('!type' => 'Document', '%name' => $file->filename)), t('Document file uploaded.'));
+  }
+
+  /**
+   * Test the file upload wizard field step.
+   */
+  function testFileEntityUploadWizardFields() {
+    $test_file = $this->getTestFile('image');
+    $filename = $this->randomName();
+    $alt = $this->randomName();
+    $title = $this->randomName();
+
+    // Step 1: Upload a basic image file.
+    $edit = array();
+    $edit['files[upload]'] = drupal_realpath($test_file->uri);
+    $this->drupalPost('file/add', $edit, t('Next'));
+
+    // Step 4: Attached fields.
+    $edit = array();
+    $edit['filename'] = $filename;
+    $edit['field_file_image_alt_text[' . LANGUAGE_NONE . '][0][value]'] = $alt;
+    $edit['field_file_image_title_text[' . LANGUAGE_NONE . '][0][value]'] = $title;
+    $this->drupalPost(NULL, $edit, t('Save'));
+
+    // Check that the file exists in the database.
+    $fid = $this->getLastFileId();
+    $file = file_load($fid);
+    $this->assertTrue($file, t('File found in database.'));
+
+    // Check that the image file has been uploaded.
+    $this->assertRaw(t('!type %name was uploaded.', array('!type' => 'Image', '%name' => $filename)), t('Image file uploaded.'));
+
+    // Check that the alt and title text was loaded from the fields.
+    $this->assertEqual($file->alt, $alt, t('Alt text was stored as file metadata.'));
+    $this->assertEqual($file->title, $title, t('Title text was stored as file metadata.'));
+  }
+
+  /**
+   * Test skipping each of the file upload wizard steps.
+   */
+  function testFileEntityUploadWizardStepSkipping() {
+    $test_file = $this->getTestFile('image');
+    $filename = $this->randomName();
+
+    // Ensure that the file is affected by every step.
+    variable_set('file_private_path', $this->private_files_directory);
+
+    $this->createFileType(array('type' => 'image1', 'label' => 'Image 1', 'mimetypes' => array('image/jpeg', 'image/gif', 'image/png', 'image/tiff')));
+    $this->createFileType(array('type' => 'image2', 'label' => 'Image 2', 'mimetypes' => array('image/jpeg', 'image/gif', 'image/png', 'image/tiff')));
+
+    $field_name = drupal_strtolower($this->randomName() . '_field_name');
+    $field = array('field_name' => $field_name, 'type' => 'text');
+    field_create_field($field);
+    $instance = array(
+      'field_name' => $field_name,
+      'entity_type' => 'file',
+      'bundle' => 'image2',
+      'label' => $this->randomName() . '_label',
+    );
+    field_create_instance($instance);
+
+    // Test skipping each upload wizard step.
+    foreach (array('types', 'schemes', 'fields') as $step) {
+      // Step to skip.
+      switch ($step) {
+        case 'types':
+          variable_set('file_entity_file_upload_wizard_skip_file_type', TRUE);
+          break;
+        case 'schemes':
+          variable_set('file_entity_file_upload_wizard_skip_scheme', TRUE);
+          break;
+        case 'fields':
+          variable_set('file_entity_file_upload_wizard_skip_fields', TRUE);
+          break;
+      }
+
+      // Step 1: Upload a basic image file.
+      $edit = array();
+      $edit['files[upload]'] = drupal_realpath($test_file->uri);
+      $this->drupalPost('file/add', $edit, t('Next'));
+
+      // Step 2: File type selection.
+      if ($step != 'types') {
+        $edit = array();
+        $edit['type'] = 'image2';
+        $this->drupalPost(NULL, $edit, t('Next'));
+      }
+
+      // Step 3: Scheme selection.
+      if ($step != 'schemes') {
+        $edit = array();
+        $edit['scheme'] = 'private';
+        $this->drupalPost(NULL, $edit, t('Next'));
+      }
+
+      // Step 4: Attached fields.
+      if ($step != 'fields') {
+        // Skipping file type selection essentially skips this step as well
+        // because the file will not be assigned a type so no fields will be
+        // available.
+        if ($step != 'types') {
+          $edit = array();
+          $edit['filename'] = $filename;
+          $edit[$field_name . '[' . LANGUAGE_NONE . '][0][value]'] = $this->randomName();
+          $this->drupalPost(NULL, $edit, t('Save'));
+        }
+      }
+
+      // Check that the file exists in the database.
+      $fid = $this->getLastFileId();
+      $file = file_load($fid);
+      $this->assertTrue($file, t('File found in database.'));
+
+      // Determine the file's file type.
+      $type = file_type_load($file->type);
+
+      // Check that the image file has been uploaded.
+      $this->assertRaw(t('!type %name was uploaded.', array('!type' => $type->label, '%name' => $file->filename)), t('Image file uploaded.'));
+
+      // Reset 'skip' variables.
+      variable_del('file_entity_file_upload_wizard_skip_file_type');
+      variable_del('file_entity_file_upload_wizard_skip_scheme');
+      variable_del('file_entity_file_upload_wizard_skip_fields');
+    }
   }
 }
 
@@ -975,148 +1157,6 @@ class FileEntityTypeTestCase extends FileEntityTestHelper {
     $type = $this->createFileType(array('type' => $type_machine_type, 'label' => $type_machine_label));
     $loaded_type = file_type_load($type_machine_type);
     $this->assertEqual($loaded_type->label, $type_machine_label, "Was able to create a type and retreive it.");
-  }
-
-
-  /**
-   * Ensures that the weight is respected when types are created.
-   * @return unknown_type
-   */
-  function testOrder() {
-//    $type = $this->createFileType(array('name' => 'last', 'label' => 'Last', 'weight' => 100));
-//    $type = $this->createFileType(array('name' => 'first', 'label' => 'First'));
-//    $types = media_type_get_types();
-//    $keys = array_keys($types);
-//    $this->assertTrue(isset($types['last']) && isset($types['first']), "Both types saved");
-//    $this->assertTrue(array_search('last', $keys) > array_search('first', $keys), 'Type which was supposed to be first came first');
-  }
-
-  /**
-   * Test view mode assignment.  Currently fails, don't know why.
-   * @return unknown_type
-   */
-  function testViewModesAssigned() {
-  }
-
-  /**
-   * Make sure candidates are presented in the case of multiple
-   * file types.
-   */
-  function testTypeWithCandidates() {
-    // Create multiple file types with the same mime types.
-    $types = array(
-      'image1' => $this->createFileType(array('type' => 'image1', 'label' => 'Image 1')),
-      'image2' => $this->createFileType(array('type' => 'image2', 'label' => 'Image 2'))
-    );
-
-    // Attach a text field to one of the file types.
-    $field = array(
-      'field_name' => drupal_strtolower($this->randomName()),
-      'type' => 'text',
-      'settings' => array(
-        'max_length' => 255,
-      )
-    );
-    field_create_field($field);
-    $instance = array(
-      'field_name' => $field['field_name'],
-      'entity_type' => 'file',
-      'bundle' => 'image2',
-      'widget' => array(
-        'type' => 'text_textfield',
-      ),
-      'display' => array(
-        'default' => array(
-          'type' => 'text_default',
-        ),
-      ),
-    );
-    field_create_instance($instance);
-
-    // Create a user with file creation access.
-    $user = $this->drupalCreateUser(array('create files'));
-    $this->drupalLogin($user);
-
-    // Step 1: Upload file
-    $file = $this->getTestFile('image');
-    $edit = array();
-    $edit['files[upload]'] = drupal_realpath($file->uri);
-    $this->drupalPost('file/add', $edit, t('Next'));
-
-    // Step 2: Select file type candidate
-    $this->assertText('Image 1', 'File type candidate list item found.');
-    $this->assertText('Image 2', 'File type candidate list item found.');
-    $edit = array();
-    $edit['type'] = 'image2';
-    $this->drupalPost(NULL, $edit, t('Next'));
-
-    // Step 3: Select file scheme candidate
-    $this->assertText('Public local files served by the webserver.', 'File scheme candidate list item found.');
-    $this->assertText('Private local files served by Drupal.', 'File scheme candidate list item found.');
-    $edit = array();
-    $edit['scheme'] = 'public';
-    $this->drupalPost(NULL, $edit, t('Next'));
-
-    // Step 4: Complete field widgets
-    $langcode = LANGUAGE_NONE;
-    $edit = array();
-    $edit["{$field['field_name']}[$langcode][0][value]"] = $this->randomName();
-    $this->drupalPost(NULL, $edit, t('Save'));
-    $this->assertRaw(t('!type %name was uploaded.', array('!type' => 'Image 2', '%name' => $file->filename)), t('Image 2 file updated.'));
-    $this->assertText($field['field_name'], 'File text field was found.');
-  }
-
-  /**
-   * Make sure no candidates appear when only one mime type is available.
-   * NOTE: Depends on file_entity.module default 'image' type.
-   */
-  function testTypeWithoutCandidates() {
-    // Attach a text field to the default image file type.
-    $field = array(
-      'field_name' => drupal_strtolower($this->randomName()),
-      'type' => 'text',
-      'settings' => array(
-        'max_length' => 255,
-      )
-    );
-    field_create_field($field);
-    $instance = array(
-      'field_name' => $field['field_name'],
-      'entity_type' => 'file',
-      'bundle' => 'image',
-      'widget' => array(
-        'type' => 'text_textfield',
-      ),
-      'display' => array(
-        'default' => array(
-          'type' => 'text_default',
-        ),
-      ),
-    );
-    field_create_instance($instance);
-
-    // Create a user with file creation access.
-    $user = $this->drupalCreateUser(array('create files'));
-    $this->drupalLogin($user);
-
-    // Step 1: Upload file
-    $file = $this->getTestFile('image');
-    $edit = array();
-    $edit['files[upload]'] = drupal_realpath($file->uri);
-    $this->drupalPost('file/add', $edit, t('Next'));
-
-    // Step 2: Scheme selection
-    if ($this->xpath('//input[@name="scheme"]')) {
-      $this->drupalPost(NULL, array(), t('Next'));
-    }
-
-    // Step 3: Complete field widgets
-    $langcode = LANGUAGE_NONE;
-    $edit = array();
-    $edit["{$field['field_name']}[$langcode][0][value]"] = $this->randomName();
-    $this->drupalPost(NULL, $edit, t('Save'));
-    $this->assertRaw(t('!type %name was uploaded.', array('!type' => 'Image', '%name' => $file->filename)), t('Image file uploaded.'));
-    $this->assertText($field['field_name'], 'File text field was found.');
   }
 
   /**
