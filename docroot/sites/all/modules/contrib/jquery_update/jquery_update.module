@@ -68,6 +68,7 @@ function jquery_update_library() {
     ),
     'version' => '2.1.2',
   );
+
   return $libraries;
 }
 
@@ -76,14 +77,29 @@ function jquery_update_library() {
  */
 function jquery_update_library_alter(&$javascript, $module) {
   $path = drupal_get_path('module', 'jquery_update');
+  $min = variable_get('jquery_update_compression_type', 'min') == 'none' ? '' : '.min';
   $version = variable_get('jquery_update_jquery_version', '1.10');
 
+  // Replace jQuery with the alternative version.
+  $admin_version = variable_get('jquery_update_jquery_admin_version', '');
+
+  if (!empty($admin_version) && path_is_admin(current_path())) {
+    if (version_compare($version, $admin_version, '!=')) {
+      $version = $admin_version;
+    }
+  }
+  // If the ajax version is set then that one always win.
+  if (!empty($_POST['ajax_page_state']['jquery_version'])) {
+    $ajax_version = $_POST['ajax_page_state']['jquery_version'];
+    if (in_array($ajax_version, array('default', '1.5', '1.6', '1.7', '1.8', '1.9', '1.10'))) {
+      $version = $ajax_version;
+    }
+  }
 
   // Modified System Library.
   if ($module === 'system') {
 
     // Make sure we inject either the minified or uncompressed version as desired.
-    $min = variable_get('jquery_update_compression_type', 'min') == 'none' ? '' : '.min';
     $cdn = variable_get('jquery_update_jquery_cdn', 'none');
 
     // Replace jQuery with the alternative version.
@@ -121,6 +137,11 @@ function jquery_update_library_alter(&$javascript, $module) {
       jquery_update_jqueryui_replace($javascript, $cdn, $path, $min);
     }
 
+    // Load and configure the jQuery Migrate plugin.
+    if (variable_get('jquery_update_jquery_migrate_enable', FALSE) && version_compare($version, '1.9', '>=')) {
+      $javascript['jquery']['dependencies'][] = array('jquery_update', 'jquery.migrate');
+    }
+
     // Replace the jQuery Cookie plugin.
     $javascript['cookie']['js']['misc/jquery.cookie.js']['data'] = $path . '/replace/ui/external/jquery.cookie.js';
     // Noting the version based on git commit as no version number is available.
@@ -131,13 +152,18 @@ function jquery_update_library_alter(&$javascript, $module) {
     $javascript['jquery.form']['version'] = '2.69';
 
     // Replace files for Jquery 1.9 and up
+    // @todo Figure out if this is needed if jQuery Migrate is enabled.
     if (version_compare($version, '1.9', '>=')) {
       $javascript['jquery.bbq']['js']['misc/jquery.ba-bbq.js']['data'] = $path . '/replace/misc/1.9/jquery.ba-bbq' . $min . '.js';
     }
   }
 
-  if ($module == 'overlay') {
-    if (version_compare($version, '1.9', '>=')) {
+  if (version_compare($version, '1.9', '>=')) {
+    if ($module === 'jquery_update') {
+      jquery_update_jquery_migrate_replace($javascript, $path, $min);
+    }
+    // @todo Figure out if this is needed if jQuery Migrate is enabled.
+    if ($module == 'overlay') {
       $javascript['parent']['js']['modules/overlay/overlay-parent.js']['data'] = $path . '/replace/misc/1.9/overlay-parent.js';
     }
   }
@@ -286,6 +312,58 @@ function jquery_update_settings_form() {
     ),
     '#default_value' => variable_get('jquery_update_jquery_cdn', 'none'),
     '#description' => t('Use jQuery and jQuery UI from a CDN. If the CDN is not available the local version of jQuery and jQuery UI will be used.'),
+  );
+
+  $form['jquery_migrate'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('jQuery Migrate'),
+  );
+
+  $form['jquery_migrate']['jquery_update_jquery_migrate_enable'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable jQuery Migrate Plugin'),
+    '#default_value' => variable_get('jquery_update_jquery_migrate_enable', FALSE),
+    '#description' => t('Use the <a href="!url">jQuery Migrate</a> plugin for enhanced compatibility. jQuery Migrate can be used to detect and restore jQuery APIs or features that have been deprecated and removed as of jQuery version 1.9 or higher.<br /><strong>Note:</strong> Even if jQuery Migrate is enabled, it will not be loaded if the current page\'s jQuery version is lower than 1.9.', array(
+      '!url' => 'http://github.com/jquery/jquery-migrate/#readme',
+    )),
+  );
+
+  $jquery_migrate_states = array(
+    'visible' => array(
+      ':input[name="jquery_update_jquery_migrate_enable"]' => array('checked' => TRUE),
+    ),
+  );
+  $form['jquery_migrate']['jquery_update_jquery_migrate_cdn'] = array(
+    '#type' => 'select',
+    '#title' => t('jQuery Migrate CDN'),
+    '#options' => array(
+      'none' => t('None'),
+      'jquery' => t('jQuery'),
+    ),
+    '#default_value' => variable_get('jquery_update_jquery_migrate_cdn', 'none'),
+    '#description' => t('Load the jQuery Migrate plugin using a CDN. If the CDN is not available the local module version of the plugin will be used instead.'),
+    '#states' => $jquery_migrate_states,
+  );
+
+  $jquery_migrate_api_url = 'https://github.com/jquery/jquery-migrate/#migrate-plugin-api';
+  $form['jquery_migrate']['jquery_update_jquery_migrate_warnings'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable console warnings'),
+    '#default_value' => variable_get('jquery_update_jquery_migrate_warnings', FALSE),
+    '#description' => t('Toggle the <a href="!url">generation of console warnings</a> when using the debug version of jQuery Migrate.', array(
+      '!url' => $jquery_migrate_api_url,
+    )),
+    '#states' => $jquery_migrate_states,
+  );
+
+  $form['jquery_migrate']['jquery_update_jquery_migrate_trace'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable console trace'),
+    '#default_value' => variable_get('jquery_update_jquery_migrate_trace', FALSE),
+    '#description' => t('Toggle the <a href="!url">generation of console trace messages</a> when using the debug version of jQuery Migrate.', array(
+      '!url' => $jquery_migrate_api_url,
+    )),
+    '#states' => $jquery_migrate_states,
   );
 
   return system_settings_form($form);
@@ -448,6 +526,76 @@ function jquery_update_jquery_backup(&$javascript, $path, $min, $version) {
     'type' => 'inline',
     'group' => JS_LIBRARY,
     'weight' => -19.999999999,
+  );
+}
+
+/**
+ * Enable and configure the jQuery Migrate Plugin
+ *
+ * @param array $javascript
+ *   The library definition array as seen in hook_library_alter().
+ * @param string $path
+ *   The path to the module where replacements can be found.
+ * @param string $min
+ *   The '.min' to include in the file name if we are requesting a minified
+ *   version.
+ */
+function jquery_update_jquery_migrate_replace(&$javascript, $path, $min) {
+  // Use a static version
+  $version = '1.2.1';
+
+  $jquery_migrate = $path . '/replace/jquery-migrate/' . $version . '/jquery-migrate' . $min . '.js';
+  $javascript['jquery.migrate'] = array(
+    'title' => 'jQuery Migrate',
+    'website' => 'http://plugins.jquery.com/migrate',
+    'version' => $version,
+    'js' => array(
+      $jquery_migrate => array(
+        'group' => JS_LIBRARY,
+        'weight' => -19.8,
+      ),
+    ),
+  );
+
+  // Configure the jQuery Migrate plugin.
+  // Note: This must be done after jQuery has loaded, but before the jQuery
+  // migrate plugin has loaded.
+  $data = 'jQuery.migrateMute=' . (variable_get('jquery_update_jquery_migrate_warnings', FALSE) ? 'false' : 'true') . ';';
+  $data .= 'jQuery.migrateTrace=' . (variable_get('jquery_update_jquery_migrate_trace', FALSE) ? 'true' : 'false') . ';';
+  $javascript['jquery.migrate']['js'][] = array(
+    'data' => $data,
+    'type' => 'inline',
+    'group' => JS_LIBRARY,
+    'weight' => -19.899999999,
+  );
+
+  // Check for CDN support.
+  if (variable_get('jquery_update_jquery_migrate_cdn', 'none') === 'jquery') {
+    $javascript['jquery.migrate']['js'][$jquery_migrate]['data'] = '//code.jquery.com/jquery-migrate-' . $version . $min . '.js';
+    $javascript['jquery.migrate']['js'][$jquery_migrate]['type'] = 'external';
+    jquery_update_jquery_migrate_backup($javascript, $path, $min, $version);
+  }
+}
+
+/**
+ * Add the local fallback in case the jQuery Migrate Plugin from the CDN is unavailable.
+ *
+ * @param array $javascript
+ *   The $libraries array as seen in hook_library_alter()
+ * @param string $path
+ *   The path to the module where replacements can be found.
+ * @param string $min
+ *   The '.min' to include in the file name if we are requesting a minified
+ *   version.
+ * @param string $version
+ *   The version of the jQuery Migrate Plugin to use.
+ */
+function jquery_update_jquery_migrate_backup(&$javascript, $path, $min, $version) {
+  $javascript['jquery.migrate']['js'][] = array(
+    'data' => 'window.jQuery && window.jQuery.migrateWarnings || document.write("<script src=\'' . base_path() . $path . '/replace/jquery-migrate/' . $version . '/jquery-migrate' . $min . '.js\'>\x3C/script>")',
+    'type' => 'inline',
+    'group' => JS_LIBRARY,
+    'weight' => -19.7999999999,
   );
 }
 

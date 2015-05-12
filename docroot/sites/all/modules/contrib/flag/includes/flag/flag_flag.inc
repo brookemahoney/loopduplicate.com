@@ -1008,7 +1008,10 @@ class flag_flag {
     $uid = $this->global ? 0 : (!isset($uid) ? $GLOBALS['user']->uid : $uid);
     $sid = $this->global ? 0 : (!isset($sid) ? flag_get_sid($uid) : $sid);
 
-    // flag_get_user_flags() does caching.
+    // Get all the flaggings for this user on the entity from
+    // flag_get_user_flags(), which will statically cache them. This means that
+    // when this method is called multiple times for all the flags on an entity,
+    // only the first call incurs a database query.
     $user_flags = flag_get_user_flags($this->entity_type, $entity_id, $uid, $sid);
     return isset($user_flags[$this->name]) ? $user_flags[$this->name] : NULL;
   }
