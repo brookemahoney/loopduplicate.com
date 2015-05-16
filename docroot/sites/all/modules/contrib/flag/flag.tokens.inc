@@ -201,7 +201,7 @@ function flag_tokens($type, $tokens, array $data = array(), array $options = arr
 /**
  * Returns HTML for a tokens browser.
  *
- * @param $variables
+ * @param array $variables
  *   An associative array containing:
  *   - types: An array naming the types of tokens to show.
  *   - global_types: Whether to show global tokens.

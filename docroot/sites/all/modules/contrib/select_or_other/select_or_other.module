@@ -170,12 +170,12 @@ function select_or_other_element_process($element, &$form_state) {
   // Add in the 'other' option.
   $element['select']['#options']['select_or_other'] = $element['#other'];
 
-  // Create the 'other' textfield.
+  // Create the 'other' textfield without the required attribute, if any.
   $element['other'] = array(
     '#type' => 'textfield',
     '#weight' => 20,
     '#default_value' => $other_default_string,
-    '#attributes' => $element['#attributes'],
+    '#attributes' => array_diff_key($element['#attributes'], array('required' => NULL)),
   );
 
   // Populate properties set specifically as #select_property or #other_property
