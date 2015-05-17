@@ -60,6 +60,7 @@ class LoopDUtils {
       'search_krumo',
       'devel',
       'simplehtmldom',
+      'update',
       
       // @todo Enable Stage File Proxy once there is a production site URI.
       // 'stage_file_proxy',
