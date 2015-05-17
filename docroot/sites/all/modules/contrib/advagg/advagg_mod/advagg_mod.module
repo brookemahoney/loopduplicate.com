@@ -751,7 +751,8 @@ function advagg_mod_advagg_modify_css_pre_render_alter(&$children, &$elements) {
 
   // Make advagg_mod_loadStyleSheet() available.
   $type = 'external';
-  $data = '//rawgit.com/filamentgroup/loadCSS/master/loadCSS.js';
+  // https://github.com/filamentgroup/loadCSS.
+  $data = '//cdn.rawgit.com/filamentgroup/loadCSS/master/loadCSS.js';
   $min = '';
   if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) >= 0) {
     $min = '.min';

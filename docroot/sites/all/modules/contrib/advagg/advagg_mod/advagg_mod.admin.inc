@@ -268,7 +268,7 @@ function advagg_mod_admin_settings_form() {
     '#options' => array(
       0 => t('Inline javascript loader library (If enabled this is recommended)'),
       2 => t('Local file included in aggregate'),
-      // 4 => t('Externally load the latest from github (SLOW! Not a CDN!!!)'),
+      4 => t('Externally load the latest from github'),
     ),
     '#description' => t('The <a href="@link">loadCSS</a> library can be included in various ways.', array(
       '@link' => 'https://github.com/filamentgroup/loadCSS',

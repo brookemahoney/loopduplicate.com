@@ -5,6 +5,11 @@
  * Advanced CSS/JS aggregation js compression module.
  */
 
+if (defined('PHP_VERSION_ID') & PHP_VERSION_ID >= 50300) {
+  // Include functions that use namespaces.
+  module_load_include('inc', 'advagg_js_compress', 'advagg_js_compress.php53');
+}
+
 /**
  * Implements hook_advagg_get_info_on_files_alter().
  *
@@ -307,6 +312,18 @@ function advagg_js_compress_prep(&$contents, $filename, array $aggregate_setting
   if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) < 0) {
     return;
   }
+  // Do nothing if the file is already minified.
+  $semicolon_count = substr_count($contents, ';');
+  if ( $compressor != 2
+    && $semicolon_count > 10
+    && $semicolon_count > (substr_count($contents, "\n", strpos($contents, ';')) * 5)
+  ) {
+    if ($add_licensing && variable_get('advagg_js_compress_add_license', ADVAGG_JS_COMPRESS_ADD_LICENSE)) {
+      $url = url($filename, array('absolute' => TRUE));
+      $contents = "/* Source and licensing information for the line(s) below can be found at $url. */\n" . $contents . ";\n/* Source and licensing information for the above line(s) can be found at $url. */\n";
+    }
+    return;
+  }
 
   // Get the JS string length before the compression operation.
   $contents_before = $contents;
@@ -420,92 +437,6 @@ function advagg_js_compress_jsminplus(&$contents, $log_errors = TRUE) {
   }
   catch (Exception $e) {
     // Log the exception thrown by JSMin+ and roll back to uncompressed content.
-    if ($log_errors) {
-      watchdog('advagg_js_compress', $e->getMessage() . '<pre>' . $contents_before . '</pre>', NULL, WATCHDOG_WARNING);
-    }
-    $contents = $contents_before;
-  }
-  ob_end_clean();
-}
-
-/**
- * Compress a JS string using jshrink.
- *
- * @param string $contents
- *   Javascript string.
- * @param bool $log_errors
- *   FALSE to disable logging to watchdog on failure.
- */
-function advagg_js_compress_jshrink(&$contents, $log_errors = TRUE) {
-  $contents_before = $contents;
-
-  // Only include jshrink.inc if the JShrink\Minifier class doesn't exist.
-  if (!class_exists('JShrink\Minifier')) {
-    include drupal_get_path('module', 'advagg_js_compress') . '/jshrink.inc';
-    $nesting_level = ini_get('xdebug.max_nesting_level');
-    if (!empty($nesting_level) && $nesting_level < 200) {
-      ini_set('xdebug.max_nesting_level', 200);
-    }
-  }
-  ob_start();
-  try {
-    // JShrink the contents of the aggregated file.
-    $contents = JShrink\Minifier::minify($contents, array('flaggedComments' => FALSE));
-
-    // Capture any output from JShrink.
-    $error = trim(ob_get_contents());
-    if (!empty($error)) {
-      throw new Exception($error);
-    }
-  }
-  catch (Exception $e) {
-    // Log the exception thrown by JShrink & roll back to uncompressed content.
-    if ($log_errors) {
-      watchdog('advagg_js_compress', $e->getMessage() . '<pre>' . $contents_before . '</pre>', NULL, WATCHDOG_WARNING);
-    }
-    $contents = $contents_before;
-  }
-  ob_end_clean();
-}
-
-/**
- * Compress a JS string using jsqueeze.
- *
- * @param string $contents
- *   Javascript string.
- * @param bool $log_errors
- *   FALSE to disable logging to watchdog on failure.
- */
-function advagg_js_compress_jsqueeze(&$contents, $log_errors = TRUE) {
-  $contents_before = $contents;
-
-  // Only include jshrink.inc if the Patchwork\JSqueeze class doesn't exist.
-  if (!class_exists('Patchwork\JSqueeze')) {
-    include drupal_get_path('module', 'advagg_js_compress') . '/jsqueeze.inc';
-    $nesting_level = ini_get('xdebug.max_nesting_level');
-    if (!empty($nesting_level) && $nesting_level < 200) {
-      ini_set('xdebug.max_nesting_level', 200);
-    }
-  }
-  ob_start();
-  try {
-    // Minify the contents of the aggregated file.
-    $jz = new Patchwork\JSqueeze();
-    $contents = $jz->squeeze(
-      $contents,
-      TRUE,
-      !variable_get('advagg_js_compress_add_license', ADVAGG_JS_COMPRESS_ADD_LICENSE),
-      FALSE
-    );
-
-    // Capture any output from JSqueeze.
-    $error = trim(ob_get_contents());
-    if (!empty($error)) {
-      throw new Exception($error);
-    }
-  }
-  catch (Exception $e) {
-    // Log the exception thrown by JSqueeze & roll back to uncompressed content.
     if ($log_errors) {
       watchdog('advagg_js_compress', $e->getMessage() . '<pre>' . $contents_before . '</pre>', NULL, WATCHDOG_WARNING);
     }

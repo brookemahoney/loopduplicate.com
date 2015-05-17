@@ -243,6 +243,8 @@ current defaults are shown.
     // Value for the compression ratio test.
     $conf['advagg_js_compress_ratio'] = 0.1;
 
+    // Skip far future check on status page.
+    $conf['advagg_skip_far_future_check'] = FALSE;
 
 JSMIN PHP EXTENSION
 -------------------

@@ -152,7 +152,33 @@ function advagg_bundler_analysis($filename = '', $force = FALSE) {
     }
 
     if ($force || empty($cache->data)) {
-      // "Magic Query"; only needs to run once.
+      // "Magic Query"; only needs to run once. Results are cached.
+      //
+      // This is what the raw SQL looks like:
+      //
+      // SELECT
+      //  af.filename AS filename,
+      //  af.filesize AS filesize,
+      //  af.mtime AS mtime,
+      //  af.changes AS changes,
+      //  af.linecount AS linecount,
+      //  af.filename_hash AS filename_hash,
+      //  aa.counter AS counter,
+      //  aa.hashlist AS hashlist
+      // FROM advagg_files af
+      // INNER JOIN (
+      //  SELECT
+      //   aa.filename_hash AS filename_hash,
+      //   LPAD(CAST(COUNT(aav.aggregate_filenames_hash) AS char(8)), 8, '0') AS counter,
+      //   HEX(SHA1(GROUP_CONCAT(DISTINCT aa.aggregate_filenames_hash ORDER BY aa.aggregate_filenames_hash ASC))) AS hashlist
+      //  FROM advagg_aggregates aa
+      //  INNER JOIN advagg_aggregates_versions aav
+      //   ON aav.aggregate_filenames_hash = aa.aggregate_filenames_hash
+      //   AND aav.root = 1
+      //   AND aav.atime > (UNIX_TIMESTAMP() - 1209600)
+      //  GROUP BY aa.filename_hash
+      // ) aa ON af.filename_hash = aa.filename_hash
+      //
       // Return a count of how many root bundles all files are used in. Count is
       // padded with eight zeros so the count can be key sorted as a string
       // without worrying about it getting put in the wrong order.
@@ -172,15 +198,25 @@ function advagg_bundler_analysis($filename = '', $force = FALSE) {
         // MS SQL does not support LPAD.
         $subquery_aggregates->addExpression("RIGHT(REPLICATE('0',8) + CAST(COUNT(aav.aggregate_filenames_hash) AS char(8)),8)", 'counter');
       }
+      elseif ($db_type === 'sqlite') {
+        // SQLite does not support LPAD.
+        $subquery_aggregates->addExpression("substr('00000000' || CAST(COUNT(aav.aggregate_filenames_hash) AS char(8)), -8, 8)", 'counter');
+      }
       else {
         $subquery_aggregates->addExpression("LPAD(CAST(COUNT(aav.aggregate_filenames_hash) AS char(8)), 8, '0')", 'counter');
       }
 
       $fields = array('counter');
-      if ($db_type === 'mysql') {
-        db_query('SET SESSION group_concat_max_len = 65535');
+      if ($db_type === 'mysql' || $db_type === 'sqlite') {
         $fields = array('counter', 'hashlist');
-        $subquery_aggregates->addExpression('GROUP_CONCAT(DISTINCT aa.aggregate_filenames_hash ORDER BY aa.aggregate_filenames_hash ASC)', 'hashlist');
+        if ($db_type === 'mysql') {
+          db_query('SET SESSION group_concat_max_len = 65535');
+          $subquery_aggregates->addExpression('HEX(SHA1(GROUP_CONCAT(DISTINCT aa.aggregate_filenames_hash ORDER BY aa.aggregate_filenames_hash ASC)))', 'hashlist');
+        }
+        else {
+          $subquery_aggregates->addExpression('GROUP_CONCAT(DISTINCT aa.aggregate_filenames_hash)', 'hashlist');
+          $subquery_aggregates->orderBy("aa.aggregate_filenames_hash", "ASC");
+        }
       }
 
       // Create join for the advagg_aggregates_versions table.
@@ -230,8 +266,9 @@ function advagg_bundler_analysis($filename = '', $force = FALSE) {
           $row->hashlist = implode(',', $aa_rows);
         }
 
+        $row->hashlist = drupal_hash_base64($row->hashlist);
         $analysis[$row->filename] = array(
-          'group_hash' => $row->counter . ' ' . drupal_hash_base64($row->hashlist),
+          'group_hash' => $row->counter . ' ' . $row->hashlist,
           'mtime' => $row->mtime,
           'filesize' => $row->filesize,
           'linecount' => $row->linecount,

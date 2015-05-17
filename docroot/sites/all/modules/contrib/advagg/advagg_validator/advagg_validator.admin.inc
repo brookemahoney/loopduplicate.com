@@ -37,7 +37,8 @@ function advagg_validator_admin_css_lint_form() {
   $form = advagg_validator_admin_form_generator('css', TRUE);
 
   $form['#attached']['js'][] = array(
-    'data' => '//rawgithub.com/stubbornella/csslint/master/release/csslint.js',
+    // https://github.com/CSSLint/csslint.
+    'data' => '//cdn.rawgit.com/stubbornella/csslint/master/release/csslint.js',
     'type' => 'external',
   );
   $form['#attached']['js'][] = array(
@@ -60,7 +61,8 @@ function advagg_validator_admin_js_hint_form() {
   $form = advagg_validator_admin_form_generator('js', TRUE);
 
   $form['#attached']['js'][] = array(
-    'data' => '//rawgithub.com/jshint/jshint/master/dist/jshint.js',
+    // https://github.com/jshint/jshint.
+    'data' => '//cdn.rawgit.com/jshint/jshint/master/dist/jshint.js',
     'type' => 'external',
   );
   $form['#attached']['js'][] = array(

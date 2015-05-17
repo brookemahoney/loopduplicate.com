@@ -117,13 +117,12 @@ function advagg_advagg_context_alter(&$original, $aggregate_settings, $mode) {
     $GLOBALS['is_https'] = $aggregate_settings['variables']['is_https'];
     if ($aggregate_settings['variables']['is_https']) {
       $GLOBALS['base_root'] = str_replace('http://', 'https://', $GLOBALS['base_root']);
-      $GLOBALS['base_url'] = str_replace('http://', 'https://', $GLOBALS['base_url']);
     }
     else {
       $GLOBALS['base_root'] = str_replace('https://', 'http://', $GLOBALS['base_root']);
-      $GLOBALS['base_url'] = str_replace('https://', 'http://', $GLOBALS['base_url']);
     }
     $GLOBALS['base_path'] = $aggregate_settings['variables']['base_path'];
+    $GLOBALS['base_url'] = rtrim($GLOBALS['base_root'] . $GLOBALS['base_path'], '/');
 
     if (isset($aggregate_settings['variables']['language'])) {
       $languages = language_list();
@@ -265,14 +264,13 @@ function advagg_advagg_changed_files(array $files, array $types) {
     return;
   }
 
-  $return = array();
   foreach ($files as $filename => $meta_data) {
     // Only care about css files.
     $ext = pathinfo($filename, PATHINFO_EXTENSION);
     if ($ext != 'css') {
       continue;
     }
-    $return[$filename] = advagg_advagg_scan_for_changes($filename, TRUE);
+    advagg_advagg_scan_for_changes($filename, TRUE);
   }
 
   // Save error states & clear them.

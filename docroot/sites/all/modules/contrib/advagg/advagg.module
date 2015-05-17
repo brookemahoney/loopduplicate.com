@@ -183,6 +183,11 @@ define('ADVAGG_AUTH_BASIC_USER', '');
  */
 define('ADVAGG_AUTH_BASIC_PASS', '');
 
+/**
+ * Skip far future check on status page.
+ */
+define('ADVAGG_SKIP_FAR_FUTURE_CHECK', FALSE);
+
 // Core hook implementations.
 /**
  * Inbound URL rewrite helper.
@@ -373,10 +378,10 @@ function advagg_module_implements_alter(&$implementations, $hook) {
  */
 function _advagg_locale_js_alter(&$js) {
   $count = 0;
-  while (!lock_acquire('locale_js_alter', 5)) {
+  while (!lock_acquire('locale_js_alter', 10)) {
     ++$count;
-    // If we've waited over 5 times then skip.
-    if ($count > 5) {
+    // If we've waited over 3 times then skip.
+    if ($count > 3) {
       lock_release('locale_js_alter');
       return;
     }
@@ -385,10 +390,24 @@ function _advagg_locale_js_alter(&$js) {
     lock_wait('locale_js_alter');
   }
 
-  // Run the alter and return.
-  $return = locale_js_alter($js);
+  try {
+    // If the variable is empty then get the latest variable from the database.
+    $name = 'javascript_parsed';
+    $parsed = variable_get($name, array());
+    if (empty($parsed)) {
+      $variables = array_map('unserialize', db_query('SELECT name, value FROM {variable} WHERE name = :name', array(':name' => $name))->fetchAllKeyed());
+      if (!empty($variables[$name])) {
+        $GLOBALS['conf'][$name] = $variables[$name];
+      }
+    }
+    // Run the alter.
+    locale_js_alter($js);
+  }
+  catch (PDOException $e) {
+    // If it fails we don't care, javascript_parsed is either already written or
+    // it will happen again on the next request.
+  }
   lock_release('locale_js_alter');
-  return $return;
 }
 
 /**
@@ -1230,7 +1249,7 @@ function _advagg_build_js_arrays_for_rendering($skip_alter = FALSE) {
       // Get the js settings.
       $js_scope_settings_array[$scope]['settings'] = $scripts['#items']['settings'];
       // Exclude JS Settings from the array; we'll add it back later.
-      unset($scripts['#items']['settings']);
+      $scripts['#items']['settings'] = array();
     }
     $js_scope_array[$scope] = $scripts;
   }
@@ -1517,7 +1536,7 @@ function _advagg_process_html(&$variables) {
           // Record that this is being used.
           $js_settings_used[$scope_settings] = TRUE;
           // Replace Drupal.settings json.
-          $value = substr($value, 0, $start + 30) . $json_data . substr($value, strpos($value, '});', $start) + 1);
+          $value = substr($value, 0, $start + 30) . $json_data . substr($value, strripos($value, '});', $start) + 1);
         }
       }
       $add_to_variables[$scope] = $value;
@@ -2800,9 +2819,11 @@ function advagg_admin_flush_cache() {
 function advagg_pre_render_scripts(array $elements) {
   // Group and aggregate the items.
   if (isset($elements['#group_callback'])) {
+    // Call advagg_group_js().
     $elements['#groups'] = $elements['#group_callback']($elements['#items']);
   }
   if (isset($elements['#aggregate_callback'])) {
+    // Call _advagg_aggregate_js().
     $elements['#aggregate_callback']($elements['#groups']);
   }
 
@@ -3026,9 +3047,11 @@ function advagg_get_css_prefix_suffix() {
 function advagg_pre_render_styles(array $elements) {
   // Group and aggregate the items.
   if (isset($elements['#group_callback'])) {
+    // Call drupal_group_css().
     $elements['#groups'] = $elements['#group_callback']($elements['#items']);
   }
   if (isset($elements['#aggregate_callback'])) {
+    // Call _advagg_aggregate_css().
     $elements['#aggregate_callback']($elements['#groups']);
   }
 
@@ -3525,7 +3548,12 @@ function advagg_match_file_pattern($filename) {
  */
 function advagg_convert_abs_to_rel($path) {
   if (strpos($path, $GLOBALS['base_url']) === 0) {
-    $path = str_replace($GLOBALS['base_url'] . '/', $GLOBALS['base_path'], $path);
+    $base_url = $GLOBALS['base_url'];
+    // Add a slash if none is found.
+    if (stripos(strrev($base_url), '/') !== 0) {
+      $base_url .= '/';
+    }
+    $path = str_replace($base_url, $GLOBALS['base_path'], $path);
   }
   return $path;
 }
@@ -3700,10 +3728,6 @@ function advagg_load_stylesheet($file, $optimize = FALSE, $reset_basepath = TRUE
  * @see drupal_load_stylesheet_content()
  */
 function advagg_load_stylesheet_content($contents, $optimize = FALSE) {
-  // Remove multiple charset declarations for standards compliance (and fixing
-  // Safari problems).
-  $contents = preg_replace('/^@charset\s+[\'"](\S*?)\b[\'"];/i', '', $contents);
-
   if ($optimize) {
     // Perform some safe CSS optimizations.
     // Regexp to match comment blocks.
@@ -3746,6 +3770,10 @@ function advagg_load_stylesheet_content($contents, $optimize = FALSE) {
     $contents = trim($contents);
     $contents .= "\n";
   }
+
+  // Remove multiple charset declarations for standards compliance (and fixing
+  // Safari problems).
+  $contents = preg_replace('/^@charset\s+[\'"](\S*?)\b[\'"];/i', '', $contents);
 
   // Replaces @import commands with the actual stylesheet content.
   // This happens recursively but omits external files.
@@ -3824,38 +3852,38 @@ function advagg_aggressive_cache_conflicts() {
     //
     // ais_adaptive_styles variable; Default: array().
     // ais_adaptive_styles_method; Default: 'both-max'.
-//     'ais',
-
+    // 'ais',
+    //
     // No control; same every time.
     'bluecheese',
 
     // drupal_static('clientside_validation_settings') array.
-//     'clientside_validation',
-
+    // 'clientside_validation',
+    //
     // _css_injector_load_rule() function.
     // Changes the weight of all files added in init so no special handling.
-//     'css_injector',
-
+    // 'css_injector',
+    //
     // disable_css_ . $theme . _all variable; default: FALSE.
     // disable_css_ . $theme . _modules; default: array().
     // disable_css_ . $theme . _files; default: array().
-//     'disable_css',
-
+    // 'disable_css',
+    //
     // Empty call; commented code is same every time.
     'elfinder',
 
     // excluded_css_custom variable; Default: ''.
     // excluded_javascript_custom variable; Default: ''.
-//     'excluded',
-
+    // 'excluded',
+    //
     // No control; same every time.
     'fences',
 
     // jqmulti_jquery_path() function.
     // jqmulti_get_files() function.
     // jqmulti_load_always variable; Default: FALSE.
-//     'jqmulti',
-
+    // 'jqmulti',
+    //
     // No control; same every time.
     'jquery_dollar',
 

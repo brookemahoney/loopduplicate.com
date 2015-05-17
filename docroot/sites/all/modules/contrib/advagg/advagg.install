@@ -565,6 +565,8 @@ function advagg_requirements($phase) {
   if ($phase !== 'runtime') {
     return $requirements;
   }
+  // Make sure the advagg default values for variable_get are available.
+  drupal_load('module', 'advagg');
 
   // Do the following checks only at runtime.
   list($css_path, $js_path) = advagg_get_root_files_dir();
@@ -1189,48 +1191,53 @@ function advagg_install_chk_urls(array &$requirements, array $urls, array $optio
 
       // Test far future headers.
       $apache_module_missing = FALSE;
-      // Make sure the expires header is at least set to 1 month
-      // (2628000 seconds) in the future.
-      if ( !empty($request->headers['expires'])
-        && strtotime($request->headers['expires']) < time() + 2628000
-      ) {
-        // Recommend servers configuration be adjusted.
-        if (function_exists('apache_get_modules') && !in_array('mod_headers', $modules)) {
-          $apache_module_missing = TRUE;
+      if (!variable_get('advagg_skip_far_future_check', ADVAGG_SKIP_FAR_FUTURE_CHECK)) {
+        // Make sure the expires header is at least set to 1 month
+        // (2628000 seconds) in the future.
+        if ( !empty($request->headers['expires'])
+          && strtotime($request->headers['expires']) < time() + 2628000
+        ) {
+          // Recommend servers configuration be adjusted.
+          if (function_exists('apache_get_modules') && !in_array('mod_headers', $modules)) {
+            $apache_module_missing = TRUE;
+          }
+          else {
+            $requirements['advagg_' . $type . '_expires' . $key] = array(
+              'title' => $t('Adv CSS/JS Agg - Expires'),
+              'severity' => REQUIREMENT_WARNING,
+              'value' => $t('The expires header being sent by your web server is not at least 1 month in the future.', array('%type' => $type)),
+              'description' => $t('The web servers configuration should be adjusted only for AdvAgg files. Was looking for a second counter over 2,628,000 (1 month), actually got <code>@received</code>. You can turn this warning off if you can not adjust this value (Pantheon) by adding this to your settings.php file: <code>@skipcode</code>', array(
+                '@received' => isset($request->headers['expires']) ? number_format(strtotime($request->headers['expires'])) : 'NULL',
+                '@skipcode' => '$conf[\'advagg_skip_far_future_check\'] = FALSE;',
+              )),
+            );
+          }
         }
-        else {
-          $requirements['advagg_' . $type . '_expires' . $key] = array(
-            'title' => $t('Adv CSS/JS Agg - Expires'),
-            'severity' => REQUIREMENT_WARNING,
-            'value' => $t('The expires header being sent by your web server is not at least 1 month in the future.', array('%type' => $type)),
-            'description' => $t('The web servers configuration should be adjusted only for AdvAgg files. Was looking for a second counter over 2,628,000 (1 month), actually got <code>@received</code>.', array(
-              '@received' => isset($request->headers['expires']) ? number_format(strtotime($request->headers['expires'])) : 'NULL',
-            )),
-          );
+        // Make sure the cache-control header max age value is at least set to
+        // 1 month (2628000 seconds) in the future.
+        $matches = array();
+        if ( empty($request->headers['cache-control'])
+          || !preg_match('/max-age=(\\d+)/is', $request->headers['cache-control'], $matches)
+          || $matches[1] < 2628000
+        ) {
+          // Recommend servers configuration be adjusted.
+          if (function_exists('apache_get_modules') && (!in_array('mod_headers', $modules))) {
+            $apache_module_missing = TRUE;
+          }
+          else {
+            $requirements['advagg_' . $type . '_cache_control' . $key] = array(
+              'title' => $t('Adv CSS/JS Agg - Cache-Control'),
+              'severity' => REQUIREMENT_WARNING,
+              'value' => $t("The cache-control's max-age header being sent by your web server is not at least 1 month in the future.", array('%type' => $type)),
+              'description' => $t('The web servers configuration should be adjusted only for AdvAgg files. Was looking that the max-age second counter is over 2,628,000 (1 month), actually got <code>@received</code>. You can turn this warning off if you can not adjust this value (Pantheon) by adding this to your settings.php file: <code>@skipcode</code>', array(
+                '@received' => isset($request->headers['cache-control']) ? $request->headers['cache-control'] : 'NULL',
+                '@skipcode' => '$conf[\'advagg_skip_far_future_check\'] = FALSE;',
+              )),
+            );
+          }
         }
       }
-      // Make sure the cache-control header max age value is at least set to
-      // 1 month (2628000 seconds) in the future.
-      $matches = array();
-      if ( empty($request->headers['cache-control'])
-        || !preg_match('/max-age=(\\d+)/is', $request->headers['cache-control'], $matches)
-        || $matches[1] < 2628000
-      ) {
-        // Recommend servers configuration be adjusted.
-        if (function_exists('apache_get_modules') && (!in_array('mod_headers', $modules))) {
-          $apache_module_missing = TRUE;
-        }
-        else {
-          $requirements['advagg_' . $type . '_cache_control' . $key] = array(
-            'title' => $t('Adv CSS/JS Agg - Cache-Control'),
-            'severity' => REQUIREMENT_WARNING,
-            'value' => $t("The cache-control's max-age header being sent by your web server is not at least 1 month in the future.", array('%type' => $type)),
-            'description' => $t('The web servers configuration should be adjusted only for AdvAgg files. Was looking that the max-age second counter is over 2,628,000 (1 month), actually got <code>@received</code>.', array(
-              '@received' => isset($request->headers['cache-control']) ? $request->headers['cache-control'] : 'NULL',
-            )),
-          );
-        }
-      }
+
       // Handle missing apache modules.
       if ($apache_module_missing && !in_array('mod_headers', $modules)) {
         $requirements['advagg_mod_headers_far_future' . $key] = array(
@@ -1345,7 +1352,7 @@ function advagg_install_get_first_advagg_file($directory) {
       }
     }
 
-    $gzip_filename = $scanned_directory[$key+1];
+    $gzip_filename = $scanned_directory[$key + 1];
     if (variable_get('advagg_gzip', ADVAGG_GZIP)) {
       // Skip if the next file is not a .gz file.
       if (strcmp($filename . '.gz', $gzip_filename) !== 0) {

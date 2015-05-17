@@ -594,7 +594,7 @@ function advagg_cleanup_semaphore_table() {
  * See if any of the subfiles has changed.
  *
  * @param string $filename
- *   Name of the file that is related to teh subfiles.
+ *   Name of the file that is related to the subfiles.
  * @param array $subfiles
  *   An array of files to check for changes.
  * @param string $keyname

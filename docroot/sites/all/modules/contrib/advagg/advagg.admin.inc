@@ -56,15 +56,16 @@ function advagg_admin_settings_form($form, $form_state) {
   }
   $options = array(
     -1 => t('Development ~ 300ms'),
-    3 => t('Normal ~ 30ms'),
-    5 => t('Aggressive ~ 10ms'),
+    1 => t('Normal ~ 60ms'),
+    3 => t('Render Cache ~ 30ms'),
+    5 => t('Aggressive Render Cache ~ 10ms'),
   );
   $form['global']['advagg_cache_level'] = array(
     '#type' => 'radios',
     '#title' => t('AdvAgg Cache Settings'),
     '#default_value' => variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL),
     '#options' => $options,
-    '#description' => t("As a reference, core takes about 25 ms to run. Development will scan all files for a change on every page load. Normal is fine for all use cases. Aggressive should be fine for most use cases. If your inline css/js changes based off of a variable then the cache hit ratio will be low; if that is the case consider using Drupal.settings for a better cache hit ratio.", array(
+    '#description' => t("As a reference, core takes about 25 ms to run. Development will scan all files for a change on every page load. Normal & the render cache is fine for all use cases. Aggressive should be fine for most use cases. If your inline css/js changes based off of a variable then the cache hit ratio will be low; if that is the case consider using Drupal.settings for a better cache hit ratio when using the render cache. The aggressive render cache will cache the output from js_alter & css_alter.", array(
       '@information' => url($config_path . '/advagg/info', array(
         'fragment' => 'edit-hooks-implemented',
       )),
@@ -504,15 +505,46 @@ function advagg_admin_info_form($form, $form_state) {
   list(, $js_path) = advagg_get_root_files_dir();
 
   // Output html process functions hooks.
-  $form['info'] = array(
+  $form['theme_info'] = array(
     '#type' => 'fieldset',
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,
     '#title' => t('Hook Theme Info'),
   );
   $data = implode("\n", $core_hooks['html']['process functions']);
-  $form['info']['advagg_debug_info'] = array(
+  $form['theme_info']['advagg_theme_info'] = array(
     '#markup' => '<pre>' . $data . '</pre>',
+  );
+
+  $form['render_info'] = array(
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#title' => t('Hook Render Info'),
+  );
+  $element_info = array();
+  $element_info['scripts'] = element_info('scripts');
+  $element_info['styles'] = element_info('styles');
+  $output = '';
+  foreach ($element_info as $type => &$values) {
+    $output .= $type . ":\n";
+    foreach ($values as $key => &$value) {
+      if ($key === '#items' || $key === '#type') {
+        continue;
+      }
+      if (empty($value)) {
+        $output .= '  ' . $key . ' - ' . str_replace(array("\r", "\n"), '', (string) var_export($value, TRUE)) . "\n";
+      }
+      elseif (is_array($value)) {
+        $output .= '  ' . $key . ' - ' . implode(', ', $value) . "\n";
+      }
+      else {
+        $output .= '  ' . $key . ' - ' . print_r($value, TRUE) . "\n";
+      }
+    }
+  }
+  $form['render_info']['advagg_render_info'] = array(
+    '#markup' => '<pre>' . $output . '</pre>',
   );
 
   // Get all parent css and js files.
