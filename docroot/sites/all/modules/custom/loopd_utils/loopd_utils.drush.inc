@@ -33,6 +33,8 @@ function loopd_utils_drush_command() {
 function drush_loopd_utils_loopd_devmode_on() {
   $module_list = LoopDUtils::getDevModules();
   LoopDUtils::enable($module_list);
+  variable_set('advagg_cache_level', -1);
+  cache_clear_all();
   drupal_set_message(t('Dev Mode Enabled.'));
 }
 
