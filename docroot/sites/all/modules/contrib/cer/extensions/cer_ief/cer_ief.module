@@ -68,7 +68,6 @@ function cer_ief_field_widget_form_alter(array &$element, array &$form_state, ar
       // that has the IEF field on it, and the right chain is for the entity *in* the IEF.
       $left_chain = $ief_field_instance['entity_type'] . ':' . $ief_field_instance['bundle'] . ':' . $ief_field_instance['field_name'];
       $right_chain = $context['instance']['entity_type'] . ':' . $context['instance']['bundle'] . ':' . $context['instance']['field_name'];
-s
       // Ensure that both fields are CER fields. If they're not, bail out.
       if (! isset($plugins[$left_chain], $plugins[$right_chain])) {
         return;

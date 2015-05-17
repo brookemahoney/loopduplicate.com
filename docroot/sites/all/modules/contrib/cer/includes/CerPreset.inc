@@ -11,7 +11,7 @@ class CerPreset extends Entity {
    * @var integer
    * The preset's numeric ID in the database.
    */
-  public $pid;
+  public $pid = 0;
 
   /**
    * @var string

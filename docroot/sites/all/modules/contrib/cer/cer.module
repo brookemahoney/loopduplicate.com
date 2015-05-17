@@ -207,7 +207,7 @@ function cer_processing_entity($op, $entity, $entity_type = NULL, array &$contex
       $entity = entity_object_load($entity, $entity_type);
     }
 
-    if (is_object($entity)) {
+    if (is_object($entity) && empty($entity->cer_processed)) {
       cer_processing_entity($op, new EntityDrupalWrapper($entity_type, $entity), NULL, $context);
     }
   }

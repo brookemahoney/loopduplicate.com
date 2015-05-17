@@ -48,12 +48,14 @@ function cer_schema() {
  * Implements hook_install().
  */
 function cer_install() {
+  $fields = _cer_field_definitions();
+  array_walk($fields, 'field_create_field');
+  $instances = _cer_field_instance_definitions();
+  array_walk($instances, 'field_create_instance');
+
   if (module_exists('corresponding_node_references')) {
     _cer_hijack_cnr();
   }
-
-  array_map('field_create_field', _cer_field_definitions());
-  array_map('field_create_instance', _cer_field_instance_definitions());
 }
 
 /**

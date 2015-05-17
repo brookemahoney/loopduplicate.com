@@ -14,3 +14,16 @@ function field_object_field_schema(array $field) {
     ),
   );
 }
+
+/**
+ * Fixes issue #2331553, and probably others.
+ */
+function field_object_update_7001() {
+  db_update('field_config')
+    ->fields(array(
+      'type' => 'field_object',
+      'module' => 'field_object',
+    ))
+    ->condition('field_name', array('cer_left', 'cer_right'))
+    ->execute();
+}
