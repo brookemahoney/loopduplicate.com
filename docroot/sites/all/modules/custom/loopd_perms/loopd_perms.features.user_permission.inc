@@ -336,15 +336,6 @@ function loopd_perms_user_default_permissions() {
     'module' => 'menu',
   );
 
-  // Exported permission: 'administer message types'.
-  $permissions['administer message types'] = array(
-    'name' => 'administer message types',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'message',
-  );
-
   // Exported permission: 'administer module filter'.
   $permissions['administer module filter'] = array(
     'name' => 'administer module filter',
@@ -618,15 +609,6 @@ function loopd_perms_user_default_permissions() {
       'administrator' => 'administrator',
     ),
     'module' => 'file_entity',
-  );
-
-  // Exported permission: 'create messages'.
-  $permissions['create messages'] = array(
-    'name' => 'create messages',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'message',
   );
 
   // Exported permission: 'create url aliases'.
@@ -1060,15 +1042,6 @@ function loopd_perms_user_default_permissions() {
       'administrator' => 'administrator',
     ),
     'module' => 'node',
-  );
-
-  // Exported permission: 'save draft'.
-  $permissions['save draft'] = array(
-    'name' => 'save draft',
-    'roles' => array(
-      'administrator' => 'administrator',
-    ),
-    'module' => 'save_draft',
   );
 
   // Exported permission: 'select account cancellation method'.
