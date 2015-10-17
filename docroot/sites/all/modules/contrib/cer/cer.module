@@ -188,6 +188,18 @@ function cer_processing_entity($op, $entity, $entity_type = NULL, array &$contex
   }
 
   if ($entity instanceof EntityDrupalWrapper) {
+    // Under certain circumstances, the cer struct may not be known to Entity
+    // API. So check for that before doing any actual processing. If it's not
+    // known yet, rebuild the property info cache and re-instantiate the
+    // wrapper with all the latest property definitions.
+    try {
+      $entity->getPropertyInfo('cer');
+    }
+    catch (EntityMetadataWrapperException $e) {
+      entity_property_info_cache_clear();
+      $entity = new EntityDrupalWrapper($entity->type(), $entity->value());
+    }
+
     $finder = new CerPresetFinder($entity);
 
     foreach ($finder->execute() as $preset) {
@@ -272,6 +284,24 @@ function cer_weight_options() {
   }
 
   return $options;
+}
+
+/**
+ * Implements hook_features_ignore().
+ */
+function cer_features_ignore($component) {
+  $ignores = array();
+  if ($component == 'cer') {
+    $ignores['wrapper'] = 0;
+  }
+  return $ignores;
+}
+
+/**
+ * Implements hook_features_override_ignore().
+ */
+function cer_features_override_ignore($component) {
+  return cer_features_ignore($component);
 }
 
 /**

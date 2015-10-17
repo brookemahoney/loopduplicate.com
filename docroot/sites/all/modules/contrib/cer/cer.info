@@ -30,9 +30,9 @@ files[] = includes/fields/user_reference.inc
 
 files[] = tests/CerBasicTestCase.test
 
-; Information added by Drupal.org packaging script on 2015-05-06
-version = "7.x-3.0-alpha7+17-dev"
+; Information added by Drupal.org packaging script on 2015-07-13
+version = "7.x-3.0-alpha7+20-dev"
 core = "7.x"
 project = "cer"
-datestamp = "1430915311"
+datestamp = "1436790843"
 
