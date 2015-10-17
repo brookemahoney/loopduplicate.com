@@ -33,7 +33,7 @@ function loopd_utils_drush_command() {
 function drush_loopd_utils_loopd_devmode_on() {
   $module_list = LoopDUtils::getDevModules();
   LoopDUtils::enable($module_list);
-  variable_set('advagg_cache_level', -1);
+  variable_set('advagg_cache_level', '-1');
   cache_clear_all();
   drupal_set_message(t('Dev Mode Enabled.'));
 }
@@ -44,6 +44,7 @@ function drush_loopd_utils_loopd_devmode_on() {
 function drush_loopd_utils_loopd_devmode_off() {
   $module_list = LoopDUtils::getDevModules();
   LoopDUtils::uninstall($module_list);
+  variable_set('advagg_cache_level', '5');
   cache_clear_all();
   drupal_set_message(t('Dev Mode Disabled.'));
 }
