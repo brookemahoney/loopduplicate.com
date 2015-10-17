@@ -46,6 +46,17 @@ function advagg_validator_admin_css_lint_form() {
     'type' => 'file',
   );
 
+  // Comma separated code.
+  // https://github.com/CSSLint/csslint/wiki/Command-line-interface#--ignore
+  $ignore_list = variable_get('advagg_validator_csslint_ignore', ADVAGG_VALIDATOR_CSSLINT_IGNORE);
+  if (is_array($ignore_list)) {
+    $ignore_list = implode(',', $ignore_list);
+  }
+  $form['#attached']['js'][] = array(
+    'data' => array('csslint' => array('ignore' => $ignore_list)),
+    'type' => 'setting',
+  );
+
   return $form;
 }
 
@@ -95,6 +106,15 @@ function advagg_validator_admin_js_hint_form() {
       'CKEDITOR' => FALSE,
     ),
   );
+
+  // Comma separated code.
+  // https://jslinterrors.com/
+  $ignore_list = variable_get('advagg_validator_jshint_ignore', ADVAGG_VALIDATOR_JSHINT_IGNORE);
+  if (is_array($ignore_list)) {
+    $ignore_list = implode(',', $ignore_list);
+  }
+  $settings['ignore'] = $ignore_list;
+
   $form['#attached']['js'][] = array(
     'data' => array('jshint' => $settings),
     'type' => 'setting',
@@ -242,6 +262,7 @@ function advagg_validator_admin_form_generator($type, $run_client_side) {
 function advagg_validator_admin_test_advagg_css_submit($form, &$form_state) {
   module_load_include('inc', 'advagg_validator', 'advagg_validator');
 
+  // @codingStandardsIgnoreLine
   if (!empty($form_state['input']['ajax_page_state'])) {
     return;
   }
@@ -284,6 +305,7 @@ function advagg_validator_admin_test_advagg_css_callback($form, &$form_state) {
  * Display file info in a drupal message.
  */
 function advagg_validator_admin_test_advagg_css_directory_submit($form, &$form_state) {
+  // @codingStandardsIgnoreLine
   if (!empty($form_state['input']['ajax_page_state']) || empty($form_state['values']['op']) || strpos($form_state['values']['op'], t('Check this Directory:')) !== 0) {
     return;
   }
@@ -358,6 +380,7 @@ function advagg_validator_admin_test_advagg_css_directory_callback($form, &$form
  * Display file info in a drupal message.
  */
 function advagg_validator_admin_test_advagg_css_subdirectory_submit($form, &$form_state) {
+  // @codingStandardsIgnoreLine
   if (!empty($form_state['input']['ajax_page_state']) || empty($form_state['values']['op']) || strpos($form_state['values']['op'], t('Check this Directory and all Subdirectories:')) !== 0) {
     return;
   }
@@ -432,6 +455,7 @@ function advagg_validator_admin_test_advagg_css_subdirectory_callback($form, &$f
 function advagg_validator_admin_test_all_css_submit($form, &$form_state) {
   module_load_include('inc', 'advagg_validator', 'advagg_validator');
 
+  // @codingStandardsIgnoreLine
   if (!empty($form_state['input']['ajax_page_state'])) {
     return;
   }
