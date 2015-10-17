@@ -214,9 +214,10 @@ function video_filter_codec_info() {
     'callback' => 'video_filter_youtube',
     'html5_callback' => 'video_filter_youtube_html5',
     'regexp' => array(
-      '/youtube\.com\/watch\?v=([a-z0-9\-_]+)/i',
+      '/youtube\.com\/watch\?.*?v=([a-z0-9\-_]+)/i',
       '/youtu.be\/([a-z0-9\-_]+)/i',
       '/youtube\.com\/v\/([a-z0-9\-_]+)/i',
+      '/youtube\.com\/embed\/([a-z0-9\-_]+)/i',
     ),
     'ratio' => 16 / 9,
     'control_bar_height' => 25,
@@ -574,6 +575,7 @@ function video_filter_youtube($video) {
  */
 function video_filter_youtube_html5($video) {
   $attributes = array(
+    'html5' => 'html5=1',
     'rel' => $video['related'] ? 'rel=1' : 'rel=0',
     'autoplay' => $video['autoplay'] ? 'autoplay=1' : 'autoplay=0',
     'wmode' => 'wmode=opaque',

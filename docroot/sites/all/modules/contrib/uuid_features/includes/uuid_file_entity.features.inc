@@ -18,7 +18,8 @@ function uuid_file_entity_features_export_options() {
       ->entityCondition('entity_type', 'file')
       ->propertyCondition('type', $enabled_types, 'IN')
       ->propertyOrderBy('filename')
-      ->propertyOrderBy('type');
+      ->propertyOrderBy('type')
+      ->addTag('uuid_file_entity_features_export_options');
 
     $result = $query->execute();
     if (!empty($result['file'])) {
@@ -78,6 +79,10 @@ function uuid_file_entity_features_export_render($module, $data) {
 
     case 'remote':
       $export_var = 'uuid_features_file_url';
+      break;
+
+    case 'packaged':
+      $export_var = 'uuid_features_packaged_file_path';
       break;
 
     default:
@@ -205,7 +210,7 @@ function uuid_file_entity_features_rebuild_files($files, $module, $max_nesting =
       drupal_alter('uuid_file_entity_features_rebuild', $file, $module);
 
       // Already calls file_save().
-      _uuid_features_file_field_import_file($file, 'file');
+      _uuid_features_file_field_import_file($file, $module);
     }
     catch (Exception $e) {
       $second_run_files[] = $data;

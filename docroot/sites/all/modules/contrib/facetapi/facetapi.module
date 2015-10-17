@@ -795,7 +795,7 @@ function facetapi_get_filters(array $facet) {
 }
 
 /**
- * Gets raw settings from the datbase, caches as a satic variable.
+ * Gets raw settings from the database, caches as a static variable.
  *
  * Avoid using this function directly as it will not load default settings. Use
  * the FacetapiAdapter::getFacetSettings*() method instead.

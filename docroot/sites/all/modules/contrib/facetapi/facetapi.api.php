@@ -511,7 +511,7 @@ function hook_facetapi_force_delta_mapping() {
     'my_searcher' => array(
       // The realm we are mapping, usually block.
       'block' => array(
-        // Machine readable names of facets whose mappping are being forced.
+        // Machine readable names of facets whose mapping are being forced.
         // Regardless of whether they are enabled via the Facet API interface,
         // their blocks will be available to enable and position via
         // admin/structure/block.

@@ -51,7 +51,7 @@ class FacetapiWidgetLinks extends FacetapiWidget {
   /**
    * Recursive function that sets each item's theme hook.
    *
-   * The indivual items will be rendered by different theme hooks depending on
+   * The individual items will be rendered by different theme hooks depending on
    * whether or not they are active.
    *
    * @param array &$build
@@ -152,7 +152,7 @@ class FacetapiWidgetLinks extends FacetapiWidget {
   /**
    * Gets the base class array for a facet item.
    *
-   * Classes that extend FacetapiWidgetLinks will often overide this method to
+   * Classes that extend FacetapiWidgetLinks will often override this method to
    * alter the link displays via CSS without having to touch the render array.
    *
    * @return array

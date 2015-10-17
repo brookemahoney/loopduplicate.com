@@ -310,7 +310,7 @@ function facetapi_get_settings_path($searcher, $realm_name, $facet_name, $op) {
 /**
  * Returns the widget plugin definitions available to the facet.
  *
- * All widget plugins are checked against their requirmenets. Only widgets that
+ * All widget plugins are checked against their requirements. Only widgets that
  * pass all requirements are returned by this function.
  *
  * @param array $realm
@@ -345,7 +345,7 @@ function facetapi_get_widgets(array $realm, array $facet) {
 /**
  * Returns the sorts available to the facet.
  *
- * All sorts are checked against their requirmenets. Only sorts that pass all
+ * All sorts are checked against their requirements. Only sorts that pass all
  * requirements are returned by this function.
  *
  * @param array $realm

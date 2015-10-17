@@ -167,7 +167,7 @@ abstract class FacetapiAdapter {
   abstract public function searchExecuted();
 
   /**
-   * Returns a boolean flagging whether facets in a realm shoud be displayed.
+   * Returns a boolean flagging whether facets in a realm should be displayed.
    *
    * Useful, for example, for suppressing sidebar blocks in some cases. Apache
    * Solr Search Integration used this method to prevent blocks from being
@@ -344,7 +344,7 @@ abstract class FacetapiAdapter {
    *
    * @return array
    *   An associative array keyed by facet name to FacetapiQueryTypeInterface
-   *   object, FALSE if the query type is not supported bu this searcher.
+   *   object, FALSE if the query type is not supported by this searcher.
    *
    * @see FacetapiAdapter::processActiveItems()
    */
@@ -978,7 +978,7 @@ abstract class FacetapiAdapter {
    *   An integer flagging whether the item is active or not.
    *
    * @return array
-   *   The query string vriables.
+   *   The query string variables.
    *
    * @see FacetapiUrlProcessor::getQueryString()
    */
@@ -1058,7 +1058,7 @@ abstract class FacetapiAdapter {
       return array();
     }
 
-    // Make sure facet builds are initialized and breakcrumb trail is set.
+    // Make sure facet builds are initialized and breadcrumb trail is set.
     $this->processFacets();
 
     // Add JavaScript, initializes the realm specific render array.
@@ -1118,7 +1118,7 @@ abstract class FacetapiAdapter {
 /**
  * Wrapper around the facet definition with methods that build render arrays.
  *
- * Thic class contain methods that assist in render array generation and stores
+ * This class contain methods that assist in render array generation and stores
  * additional context about how and what generated the render arrays for
  * consumption by the widget plugins. Objects can also be used as if they are
  * the facet definitions returned by facetapi_facet_load().
@@ -1421,7 +1421,7 @@ class FacetapiFacetProcessor {
    *   The index value of the item.
    *
    * @return array
-   *   The active item's childen.
+   *   The active item's children.
    */
   public function getActiveChildren($value) {
     return (isset($this->activeChildren[$value])) ? $this->activeChildren[$value] : array();

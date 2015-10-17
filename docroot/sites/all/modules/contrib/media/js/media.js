@@ -122,4 +122,3 @@ Drupal.media.disableFields = function (event) {
 };
 
 })(jQuery);
-

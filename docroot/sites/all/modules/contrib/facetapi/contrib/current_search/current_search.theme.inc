@@ -171,7 +171,7 @@ function theme_current_search_sort_settings_table($variables) {
     );
   }
 
-  // Builds table with drabble rows, returns output.
+  // Builds table with draggable rows, returns output.
   $table_id = 'current-search-sort-settings';
   drupal_add_tabledrag($table_id, 'order', 'sibling', 'current-search-sort-weight');
   $output .= drupal_render_children($variables['element']);

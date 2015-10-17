@@ -285,11 +285,11 @@ function theme_video_filter_flash($variables) {
   $classes = video_filter_get_classes($video);
 
   $attributes = '';
-  if ($video['attributes']) {
+  if (!empty($video['attributes'])) {
     $attributes = drupal_attributes($video['attributes']);
   }
 
-  $output .= '<object class="' . implode(' ', $classes) . '" type="application/x-shockwave-flash" ';
+  $output .= '<div class="video-filter"><object class="' . implode(' ', $classes) . '" type="application/x-shockwave-flash" ';
 
   $output .= 'width="' . $video['width'] . '" height="' . $video['height'] . '" data="' . $video['source'] . '" ' . $attributes . '>' . "\n";
 
@@ -305,7 +305,7 @@ function theme_video_filter_flash($variables) {
     $output .= '  <param name="' . $name . '" value="' . $value . '" />' . "\n";
   }
 
-  $output .= '</object>' . "\n";
+  $output .= '</object></div>' . "\n";
 
   return $output;
 }
@@ -323,7 +323,7 @@ function theme_video_filter_iframe($variables) {
     $attributes = drupal_attributes($video['attributes']);
   }
 
-  $output = '<iframe src="' . $video['source'] . '" width="' . $video['width'] . '" height="' . $video['height'] . '" class="' . implode(' ', $classes) . '" frameborder="0"' . $attributes . '></iframe>';
+  $output = '<div class="video-filter"><iframe src="' . $video['source'] . '" width="' . $video['width'] . '" height="' . $video['height'] . '" class="' . implode(' ', $classes) . '" frameborder="0"' . $attributes . '></iframe></div>';
 
   return $output;
 }
@@ -386,6 +386,15 @@ function video_filter_menu() {
     'theme callback' => '_video_filter_dashboard_theme',
   );
 
+  $items['video_filter/instructions'] = array(
+    'title' => 'Videofilter instructions',
+    'description' => 'instructions',
+    'page callback' => 'video_filter_instructions_page',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+    'theme callback' => '_video_filter_dashboard_theme',
+  );
+
   return $items;
 }
 
@@ -441,6 +450,17 @@ function video_filter_dashboard_page($editor) {
   }
 
   $form = drupal_get_form('_video_filter_form');
+  print theme('video_filter_dashboard', array('form' => render($form)));
+  exit();
+}
+
+/**
+ * Creates the instructions page.
+ */
+function video_filter_instructions_page() {
+  module_invoke('admin_menu', 'suppress');
+
+  $form = drupal_get_form('_video_filter_instructions_form');
   print theme('video_filter_dashboard', array('form' => render($form)));
   exit();
 }
@@ -501,6 +521,25 @@ function _video_filter_form() {
     '#weight' => 5,
   );
 
+  $form += _video_filter_instructions_form();
+
+  $form['cancel'] = array(
+    '#type' => 'button',
+    '#value' => t('Cancel'),
+    '#weight' => 98,
+  );
+
+  $form['insert'] = array(
+    '#type' => 'button',
+    '#value' => t('Insert'),
+    '#weight' => 99,
+  );
+
+  return $form;
+}
+
+function _video_filter_instructions_form() {
+
   $form['instructions'] = array(
     '#type' => 'fieldset',
     '#title' => t('Instructions'),
@@ -518,19 +557,26 @@ function _video_filter_form() {
     '#markup' => $text,
   );
 
-  $form['cancel'] = array(
-    '#type' => 'button',
-    '#value' => t('Cancel'),
-    '#weight' => 98,
-  );
-
-  $form['insert'] = array(
-    '#type' => 'button',
-    '#value' => t('Insert'),
-    '#weight' => 99,
-  );
-
   return $form;
+}
+
+/**
+ * Implements hook_ckeditor_plugin().
+ */
+function video_filter_ckeditor_plugin() {
+  $plugins = array();
+  $plugins['video_filter'] = array(
+    'name' => 'video_filter',
+    'desc' => t('Plugin to directly embed videos with the video filter module.'),
+    'path' => drupal_get_path('module', 'video_filter') . '/editors/ckeditor/',
+    'buttons' => array(
+      'video_filter' => array(
+        'label' => t('Video filter'),
+        'icon' => 'video_filter.png',
+      ),
+    ),
+  );
+  return $plugins;
 }
 
 function video_filter_wysiwyg_plugin($editor, $version) {
@@ -591,7 +637,10 @@ function _video_filter_add_settings($editor) {
 
     // Add popup url.
     $settings = array(
-      'video_filter' => array('url' => array($editor => url('video_filter/dashboard/' . $editor))),
+      'video_filter' => array(
+        'url' => array($editor => url('video_filter/dashboard/' . $editor)),
+        'instructions_url' => url('video_filter/instructions'),
+      ),
     );
     drupal_add_js($settings, 'setting');
   }
