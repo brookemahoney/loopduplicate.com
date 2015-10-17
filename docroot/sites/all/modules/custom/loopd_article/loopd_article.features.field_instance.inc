@@ -10,7 +10,7 @@
 function loopd_article_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'node-article-field_article_type'
+  // Exported field_instance: 'node-article-field_article_type'.
   $field_instances['node-article-field_article_type'] = array(
     'bundle' => 'article',
     'default_value' => array(
@@ -52,7 +52,7 @@ function loopd_article_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-article-field_body'
+  // Exported field_instance: 'node-article-field_body'.
   $field_instances['node-article-field_body'] = array(
     'bundle' => 'article',
     'default_value' => NULL,
@@ -97,7 +97,7 @@ function loopd_article_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-article-field_external_references'
+  // Exported field_instance: 'node-article-field_external_references'.
   $field_instances['node-article-field_external_references'] = array(
     'bundle' => 'article',
     'default_value' => NULL,
@@ -156,7 +156,7 @@ function loopd_article_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-article-field_featured_image'
+  // Exported field_instance: 'node-article-field_featured_image'.
   $field_instances['node-article-field_featured_image'] = array(
     'bundle' => 'article',
     'deleted' => 0,
@@ -235,7 +235,7 @@ function loopd_article_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-article-field_internal_references'
+  // Exported field_instance: 'node-article-field_internal_references'.
   $field_instances['node-article-field_internal_references'] = array(
     'bundle' => 'article',
     'default_value' => NULL,
@@ -280,7 +280,7 @@ function loopd_article_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-article-field_tags'
+  // Exported field_instance: 'node-article-field_tags'.
   $field_instances['node-article-field_tags'] = array(
     'bundle' => 'article',
     'default_value' => NULL,
@@ -320,7 +320,7 @@ function loopd_article_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-article-field_teaser'
+  // Exported field_instance: 'node-article-field_teaser'.
   $field_instances['node-article-field_teaser'] = array(
     'bundle' => 'article',
     'default_value' => NULL,

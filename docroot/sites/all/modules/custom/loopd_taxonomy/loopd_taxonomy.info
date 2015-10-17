@@ -43,6 +43,4 @@ features[variable][] = rh_taxonomy_term_redirect_article_types
 features[variable][] = rh_taxonomy_term_redirect_response_article_types
 features[variable][] = rh_taxonomy_term_redirect_response_tags
 features[variable][] = rh_taxonomy_term_redirect_tags
-features[variable][] = uuid_features_entity_taxonomy_term
-mtime = 1419812391
 project path = sites/all/modules/custom

@@ -10,7 +10,7 @@
 function loopd_article_field_default_field_bases() {
   $field_bases = array();
 
-  // Exported field_base: 'field_article_type'
+  // Exported field_base: 'field_article_type'.
   $field_bases['field_article_type'] = array(
     'active' => 1,
     'cardinality' => -1,
@@ -36,7 +36,7 @@ function loopd_article_field_default_field_bases() {
     'type' => 'taxonomy_term_reference',
   );
 
-  // Exported field_base: 'field_body'
+  // Exported field_base: 'field_body'.
   $field_bases['field_body'] = array(
     'active' => 1,
     'cardinality' => -1,
@@ -55,7 +55,7 @@ function loopd_article_field_default_field_bases() {
     'type' => 'text_long',
   );
 
-  // Exported field_base: 'field_external_references'
+  // Exported field_base: 'field_external_references'.
   $field_bases['field_external_references'] = array(
     'active' => 1,
     'cardinality' => -1,
@@ -84,7 +84,7 @@ function loopd_article_field_default_field_bases() {
     'type' => 'link_field',
   );
 
-  // Exported field_base: 'field_featured_image'
+  // Exported field_base: 'field_featured_image'.
   $field_bases['field_featured_image'] = array(
     'active' => 1,
     'cardinality' => 1,
@@ -106,7 +106,7 @@ function loopd_article_field_default_field_bases() {
     'type' => 'image',
   );
 
-  // Exported field_base: 'field_internal_references'
+  // Exported field_base: 'field_internal_references'.
   $field_bases['field_internal_references'] = array(
     'active' => 1,
     'cardinality' => -1,
@@ -139,7 +139,7 @@ function loopd_article_field_default_field_bases() {
     'type' => 'entityreference',
   );
 
-  // Exported field_base: 'field_tags'
+  // Exported field_base: 'field_tags'.
   $field_bases['field_tags'] = array(
     'active' => 1,
     'cardinality' => -1,
@@ -165,7 +165,7 @@ function loopd_article_field_default_field_bases() {
     'type' => 'taxonomy_term_reference',
   );
 
-  // Exported field_base: 'field_teaser'
+  // Exported field_base: 'field_teaser'.
   $field_bases['field_teaser'] = array(
     'active' => 1,
     'cardinality' => 1,

@@ -73,15 +73,5 @@ function loopd_taxonomy_strongarm() {
   $strongarm->value = '?f[0]=field_tags%3A[term:tid]';
   $export['rh_taxonomy_term_redirect_tags'] = $strongarm;
 
-  $strongarm = new stdClass();
-  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
-  $strongarm->api_version = 1;
-  $strongarm->name = 'uuid_features_entity_taxonomy_term';
-  $strongarm->value = array(
-    'tags' => 'tags',
-    'article_types' => 'article_types',
-  );
-  $export['uuid_features_entity_taxonomy_term'] = $strongarm;
-
   return $export;
 }

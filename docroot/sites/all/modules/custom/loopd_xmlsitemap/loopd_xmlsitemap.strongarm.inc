@@ -15,7 +15,8 @@ function loopd_xmlsitemap_strongarm() {
   $strongarm->api_version = 1;
   $strongarm->name = 'xmlsitemap_engines_engines';
   $strongarm->value = array(
-    0 => 'google',
+    0 => 'bing',
+    1 => 'google',
   );
   $export['xmlsitemap_engines_engines'] = $strongarm;
 
