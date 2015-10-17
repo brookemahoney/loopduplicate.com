@@ -6,9 +6,9 @@ package = Clean markup
 dependencies[] = block
 dependencies[] = clean_markup
 
-; Information added by Drupal.org packaging script on 2014-07-21
-version = "7.x-2.7"
+; Information added by Drupal.org packaging script on 2015-08-11
+version = "7.x-2.9"
 core = "7.x"
 project = "clean_markup"
-datestamp = "1405950528"
+datestamp = "1439294029"
 

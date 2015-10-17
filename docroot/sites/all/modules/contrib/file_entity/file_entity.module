@@ -878,6 +878,7 @@ function file_entity_theme() {
         'controls' => TRUE,
         'autoplay' => FALSE,
         'loop' => FALSE,
+        'preload' => NULL,
       ),
       'file' => 'file_entity.theme.inc',
     ),
@@ -890,6 +891,7 @@ function file_entity_theme() {
         'muted' => FALSE,
         'width' => NULL,
         'height' => NULL,
+        'preload' => NULL,
       ),
       'file' => 'file_entity.theme.inc',
     ),
@@ -958,7 +960,7 @@ function file_entity_entity_info_alter(&$entity_info) {
   // Ensure some of the Entity API callbacks are supported.
   $entity_info['file']['creation callback'] = 'entity_metadata_create_object';
   $entity_info['file']['view callback'] = 'file_entity_metadata_view_file';
-  $entity_info['file']['edit callback'] = 'file_entity_metadata_form_file';
+  $entity_info['file']['form callback'] = 'file_entity_metadata_form_file';
   $entity_info['file']['access callback'] = 'file_entity_access';
 
   // Add integration with the Title module for file name replacement support.
@@ -1392,7 +1394,8 @@ function file_entity_views_api() {
  *   A file object.
  */
 function file_entity_is_page($file) {
-  return (arg(0) == 'file' && arg(1) == ($file->fid));
+  $page_file = menu_get_object('file', 1);
+  return (!empty($page_file) ? $page_file->fid == $file->fid : FALSE);
 }
 
 /**

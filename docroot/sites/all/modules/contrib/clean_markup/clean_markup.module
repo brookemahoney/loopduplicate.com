@@ -25,41 +25,41 @@ function _clean_markup_get_html_wrapper_elements($show_no_wrapper = FALSE) {
   $answer = array();
 
   if ($show_no_wrapper) {
-    $answer[CLEAN_MARKUP_NO_ELEMENT] = '-- ' . t('No wrapper') . ' --';
+    $answer[CLEAN_MARKUP_NO_ELEMENT] = '-- ' . t('No wrapper', array('context' => 'CLEAN_MARKUP_NO_ELEMENT')) . ' --';
   }
 
-  $answer['address']    = t('@element — Contact information for a page or article element', array('@element' => 'address'));
-  $answer['article']    = t('@element — Self-contained syndicatable or reusable composition', array('@element' => 'article'));
-  $answer['aside']      = t('@element — Sidebar for tangentially related content', array('@element' => 'aside'));
-  $answer['blockquote'] = t('@element — A section quoted from another source', array('@element' => 'blockquote'));
-  $answer['caption']    = t('@element — Table caption', array('@element' => 'caption'));
-  $answer['details']    = t('@element — Disclosure control for hiding details', array('@element' => 'details'));
-  $answer['dd']         = t('@element — Content for corresponding dt element(s)', array('@element' => 'dd'));
-  $answer['dialog']     = t('@element — Dialog box or window', array('@element' => 'dialog'));
-  $answer['div']        = t('@element — Generic flow container', array('@element' => 'div'));
-  $answer['dl']         = t('@element — Association list consisting of zero or more name-value groups', array('@element' => 'dl'));
-  $answer['dt']         = t('@element — Legend for corresponding dd element(s)', array('@element' => 'dt'));
-  $answer['fieldset']   = t('@element — Group of form controls', array('@element' => 'fieldset'));
-  $answer['figcaption'] = t('@element — Figure caption', array('@element' => 'figcaption'));
-  $answer['figure']     = t('@element — Figure with optional caption', array('@element' => 'figure'));
-  $answer['footer']     = t('@element — Footer for a page or section', array('@element' => 'footer'));
-  $answer['h1']         = t('@element — First-level section heading', array('@element' => 'h1'));
-  $answer['h2']         = t('@element — Second-level section heading', array('@element' => 'h2'));
-  $answer['h3']         = t('@element — Third-level section heading', array('@element' => 'h3'));
-  $answer['h4']         = t('@element — Fourth-level section heading', array('@element' => 'h4'));
-  $answer['h5']         = t('@element — Fifth-level section heading', array('@element' => 'h5'));
-  $answer['h6']         = t('@element — Sixth-level section heading', array('@element' => 'h6'));
-  $answer['p']         = t('@element — Basic Paragraph', array('@element' => 'p'));
-  $answer['header']     = t('@element — Introductory or navigational aids for a page or section', array('@element' => 'header'));
-  $answer['li']         = t('@element — List item', array('@element' => 'li'));
-  $answer['menu']       = t('@element — Menu of commands', array('@element' => 'menu'));
-  $answer['nav']        = t('@element — Section with navigational links', array('@element' => 'nav'));
-  $answer['ol']         = t('@element — Ordered list', array('@element' => 'ol'));
-  $answer['section']    = t('@element — Generic document or application section', array('@element' => 'section'));
-  $answer['span']       = t('@element — Generic phrasing container', array('@element' => 'span'));
-  $answer['td']         = t('@element — Table cell', array('@element' => 'td'));
-  $answer['th']         = t('@element — Table header cell', array('@element' => 'th'));
-  $answer['ul']         = t('@element — List', array('@element' => 'ul'));
+  $answer['address']    = t('@element — Contact information for a page or article element', array('@element' => 'address'), array('context' => 'address html tag'));
+  $answer['article']    = t('@element — Self-contained syndicatable or reusable composition', array('@element' => 'article'), array('context' => 'article html tag'));
+  $answer['aside']      = t('@element — Sidebar for tangentially related content', array('@element' => 'aside'), array('context' => 'aside html tag'));
+  $answer['blockquote'] = t('@element — A section quoted from another source', array('@element' => 'blockquote'), array('context' => 'blockquote html tag'));
+  $answer['caption']    = t('@element — Table caption', array('@element' => 'caption'), array('context' => 'caption html tag'));
+  $answer['details']    = t('@element — Disclosure control for hiding details', array('@element' => 'details'), array('context' => 'details html tag'));
+  $answer['dd']         = t('@element — Content for corresponding dt element(s)', array('@element' => 'dd'), array('context' => 'dd html tag'));
+  $answer['dialog']     = t('@element — Dialog box or window', array('@element' => 'dialog'), array('context' => 'dialog html tag'));
+  $answer['div']        = t('@element — Generic flow container', array('@element' => 'div'), array('context' => 'div html tag'));
+  $answer['dl']         = t('@element — Association list consisting of zero or more name-value groups', array('@element' => 'dl'), array('context' => 'dl html tag'));
+  $answer['dt']         = t('@element — Legend for corresponding dd element(s)', array('@element' => 'dt'), array('context' => 'dt html tag'));
+  $answer['fieldset']   = t('@element — Group of form controls', array('@element' => 'fieldset'), array('context' => 'fieldset html tag'));
+  $answer['figcaption'] = t('@element — Figure caption', array('@element' => 'figcaption'), array('context' => 'figcaption html tag'));
+  $answer['figure']     = t('@element — Figure with optional caption', array('@element' => 'figure'), array('context' => 'figure html tag'));
+  $answer['footer']     = t('@element — Footer for a page or section', array('@element' => 'footer'), array('context' => 'footer html tag'));
+  $answer['h1']         = t('@element — First-level section heading', array('@element' => 'h1'), array('context' => 'h1 html tag'));
+  $answer['h2']         = t('@element — Second-level section heading', array('@element' => 'h2'), array('context' => 'h2 html tag'));
+  $answer['h3']         = t('@element — Third-level section heading', array('@element' => 'h3'), array('context' => 'h3 html tag'));
+  $answer['h4']         = t('@element — Fourth-level section heading', array('@element' => 'h4'), array('context' => 'h4 html tag'));
+  $answer['h5']         = t('@element — Fifth-level section heading', array('@element' => 'h5'), array('context' => 'h5 html tag'));
+  $answer['h6']         = t('@element — Sixth-level section heading', array('@element' => 'h6'), array('context' => 'h6 html tag'));
+  $answer['p']          = t('@element — Basic Paragraph', array('@element' => 'p'), array('context' => 'p html tag'));
+  $answer['header']     = t('@element — Introductory or navigational aids for a page or section', array('@element' => 'header'), array('context' => 'header html tag'));
+  $answer['li']         = t('@element — List item', array('@element' => 'li'), array('context' => 'li html tag'));
+  $answer['menu']       = t('@element — Menu of commands', array('@element' => 'menu'), array('context' => 'menu html tag'));
+  $answer['nav']        = t('@element — Section with navigational links', array('@element' => 'nav'), array('context' => 'nav html tag'));
+  $answer['ol']         = t('@element — Ordered list', array('@element' => 'ol'), array('context' => 'ol html tag'));
+  $answer['section']    = t('@element — Generic document or application section', array('@element' => 'section'), array('context' => 'section html tag'));
+  $answer['span']       = t('@element — Generic phrasing container', array('@element' => 'span'), array('context' => 'span html tag'));
+  $answer['td']         = t('@element — Table cell', array('@element' => 'td'), array('context' => 'td html tag'));
+  $answer['th']         = t('@element — Table header cell', array('@element' => 'th'), array('context' => 'th html tag'));
+  $answer['ul']         = t('@element — List', array('@element' => 'ul'), array('context' => 'ul html tag'));
 
   return $answer;
 }

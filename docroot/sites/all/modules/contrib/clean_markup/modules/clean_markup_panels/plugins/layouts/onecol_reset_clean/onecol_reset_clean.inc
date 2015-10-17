@@ -10,5 +10,5 @@ $plugin = array(
   'category' => t('Clean Markup'),
   'icon' => 'onecol_reset_clean.png',
   'theme' => 'panels_onecol_reset_clean',
-  'regions' => array('middle' => t('Middle column')),
+  'regions' => array('middle' => t('Middle column', array('context' => 'OneCol Reset: Region Middle Column'))),
 );

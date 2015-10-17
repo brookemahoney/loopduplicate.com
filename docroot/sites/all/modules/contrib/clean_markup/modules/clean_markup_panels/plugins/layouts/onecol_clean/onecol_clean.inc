@@ -10,7 +10,7 @@ $plugin = array(
   'category' => t('Clean Markup'),
   'icon' => 'onecol_clean.png',
   'theme' => 'panels_onecol_clean',
-  'regions' => array('middle' => t('Middle column')),
+  'regions' => array('middle' => t('Middle column', array('context' => 'OneCol Clean: Region Middle Column'))),
 );
 
 /**

@@ -114,8 +114,7 @@ function _fences_get_fences_suggestion_info(&$fences) {
 
   // Create a list of the default theme and its base themes.
   $theme_default = $GLOBALS['conf']['theme_default'];
-  // We can't use list_themes() here because of #761608.
-  $theme_data = _system_rebuild_theme_data();
+  $theme_data = list_themes();
   if (isset($theme_data[$theme_default]->base_themes)) {
     foreach (array_keys($theme_data[$theme_default]->base_themes) as $base_theme) {
       $themes[$base_theme] = 'base_theme_engine';
@@ -220,10 +219,13 @@ function _fences_get_fences_options($theme_hook) {
 function _fences_form_field_ui_field_edit_form_alter(&$form, &$form_state) {
   $suggestion = fences_get_suggestion($form['#instance']['entity_type'], $form['#instance']['bundle'], $form['#instance']['field_name']);
 
+  // Make the default markup selection match the Fences default markup setting.
+  $default_markup = variable_get('fences_default_markup', 0) ? 'div' : 'div_div_div';
+
   $form['instance']['fences_wrapper'] = array(
     '#type' => 'select',
     '#title' => t('Wrapper markup'),
-    '#default_value' => $suggestion ? $suggestion : 'div',
+    '#default_value' => $suggestion ? $suggestion : $default_markup,
     '#options' => fences_get_fences_options('field'),
     '#description' => t('Choose the HTML to use to wrap the field.'),
   );

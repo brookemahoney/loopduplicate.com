@@ -1,3 +1,9 @@
+Clean Markup 7.x-2.9, 2015-08-11
+--------------------------------
+
+#2210693 by cllamas, David Hernández: Add context to some of the translatable
+  strings
+
 Clean Markup 7.x-2.7, 2014-07-21
 --------------------------------
 

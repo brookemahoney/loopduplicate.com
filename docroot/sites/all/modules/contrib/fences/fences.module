@@ -164,17 +164,15 @@ function fences_preprocess_field(&$variables) {
   // Retrieve the configured suggestion.
   $suggestion = fences_get_suggestion($variables['element']['#entity_type'], $variables['element']['#bundle'], $variables['element']['#field_name']);
 
-  // Check if this is a ctools entity field with fence formatter.
-  if (isset($variables['element']['#fences_wrapper'])) {
-    $suggestion = $variables['element']['#fences_wrapper'];
-  }
-
   // Optionally, override core's default markup.
   if (empty($suggestion) && variable_get('fences_default_markup', 0)) {
     $suggestion = 'div';
   }
 
-  if ($suggestion) {
+  // Add a theme hook suggestion for the configured suggestion, unless the
+  // suggestion is "div_div_div", in which case we should use Drupal's default
+  // field markup instead of a theme hook suggestion.
+  if ($suggestion && $suggestion !== 'div_div_div') {
     // Make fences' suggestions low priority by placing them at the front of the queue.
     $suggestion = 'field__fences_' . $suggestion;
     if (count($variables['items']) > 1) {
@@ -242,19 +240,4 @@ function fences_preprocess_entity(&$variables) {
  */
 function theme_entity__fences_no_wrapper($variables) {
   return drupal_render($variables['content']);
-}
-
-/**
- * Implements hook_ctools_plugin_post_alter().
- */
-function fences_ctools_plugin_post_alter(&$plugin, $plugin_type_info) {
-  // Adjust content type plugin for entity fields to provide fences integration.
-  if ($plugin_type_info['module'] == 'ctools') {
-    if ($plugin_type_info['type'] == 'content_types' && $plugin['name'] == 'entity_field') {
-      $plugin['render callback'] = 'fences_ctools_entity_field_content_type_render';
-      $plugin['content type'] = 'fences_ctools_entity_field_content_type_content_type';
-      $plugin['path'] = drupal_get_path('module', 'fences');
-      $plugin['file'] = 'fences.ctools_entity_field.inc';
-    }
-  }
 }

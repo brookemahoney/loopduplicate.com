@@ -11,12 +11,12 @@ $plugin = array(
   'icon' => 'six_pack.png',
   'theme' => 'panels_six_pack',
   'regions' => array(
-    'first' => t('First'),
-    'second' => t('Second'),
-    'third' => t('Third'),
-    'fourth' => t('Fourth'),
-    'fifth' => t('Fifth'),
-    'sixth' => t('Sixth'),
+    'first' => t('First', array('context' => 'Six Pack: Region First')),
+    'second' => t('Second', array('context' => 'Six Pack: Region Second')),
+    'third' => t('Third', array('context' => 'Six Pack: Region Third')),
+    'fourth' => t('Fourth', array('context' => 'Six Pack: Region Fourth')),
+    'fifth' => t('Fifth', array('context' => 'Six Pack: Region Fifth')),
+    'sixth' => t('Sixth', array('context' => 'Six Pack: Region Sixth')),
   ),
 );
 
