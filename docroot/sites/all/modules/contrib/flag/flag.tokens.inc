@@ -83,6 +83,11 @@ function flag_token_info() {
   if (module_exists('token')) {
     $entity_info = entity_get_info();
     foreach (flag_get_types() as $flag_type) {
+      // If the flag type is not an entity type then skip.
+      if (!isset($entity_info[$flag_type])) {
+        continue;
+      }
+
       // The flag type is the entity type, but this is not necessarily the same
       // as the entity's token type.
       $token_type = $entity_info[$flag_type]['token type'];

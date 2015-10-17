@@ -46,6 +46,7 @@ function uuid_schema_alter(&$schema = array()) {
  */
 function uuid_install() {
   _uuid_install_uuid_fields();
+  module_load_include('inc', 'uuid');
   uuid_sync_all();
 }
 

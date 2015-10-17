@@ -43,5 +43,11 @@ function paranoia_drush_sql_sync_sanitize($site) {
   drush_sql_register_post_sync_op('users_blocked_roles',
     dt('Blocked users were deleted, now lets delete their associated roles.'),
     "DELETE users_roles FROM users_roles LEFT JOIN users ON users_roles.uid = users.uid WHERE users.uid IS NULL;");
+  drush_sql_register_post_sync_op('email-in-username',
+    dt('Sanitize email-based names in user table'),
+    "UPDATE users SET name = uid WHERE name LIKE '%@%';");
+  drush_sql_register_post_sync_op('cron-key',
+    dt('Reset cron key'),
+    "UPDATE variable SET value = NULL WHERE name = 'cron_key';");
   // @TODO truncate all cache* tables.
 }

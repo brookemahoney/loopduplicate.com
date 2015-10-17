@@ -10,6 +10,20 @@
  */
 
 /**
+ * Implements hook_menu_alter().
+ *
+ * Disable specific menu paths.
+ */
+function paranoia_menu_alter(&$items) {
+  $hidden_paths = module_invoke_all('paranoia_hide_paths');
+  foreach ($hidden_paths as $path) {
+    if (isset($items[$path])) {
+      $items[$path]['access callback'] = FALSE;
+    }
+  }
+}
+
+/**
  * Implements hook_form_FORM_ID_alter().
  *
  * Hide Paranoia and PHP modules from module admin form.
@@ -29,6 +43,27 @@ function paranoia_form_system_modules_alter(&$form, &$form_state) {
   }
   // Invoke custom validation function to disable banned modules on submit.
   $form['#validate'][] = 'paranoia_module_validate';
+}
+
+/**
+ * Custom validation function to make sure no banned modules were enabled.
+ */
+function paranoia_module_validate($form, &$form_state) {
+  paranoia_remove_disabled_modules();
+}
+
+/**
+ * Disables modules based on the list in hook_paranoia_disable_modules().
+ */
+function paranoia_remove_disabled_modules() {
+  $disabled_modules = module_invoke_all('paranoia_disable_modules');
+  foreach ($disabled_modules as $module) {
+    if (module_exists($module)) {
+      drupal_set_message(t('The module %module has been disabled as it is not allowed on this site.',
+        array('%module' => $module)));
+      module_disable(array($module));
+    }
+  }
 }
 
 /**
@@ -97,7 +132,6 @@ function paranoia_permissions_validate($form, &$form_state) {
       if (!empty($form_state['values'][2][$machine_name])) {
         form_set_error('2][' . $machine_name, t('The permission %name can affect site security and should not be granted to authenticated users.', array('%name' => $attributes['title'])));
       }
-
     }
   }
 }
@@ -128,6 +162,9 @@ function paranoia_permissions_submit($form, &$form_state) {
 function paranoia_paranoia_disable_modules() {
   return array(
     'php',
+    'ds_format',
+    'skinr_ui',
+    'skinr_context_ui',
   );
 }
 
@@ -151,15 +188,6 @@ function paranoia_paranoia_hide_modules() {
     'php' => 'Core',
     'paranoia' => 'Other',
   );
-}
-
-/**
- * Implements hook_paranoia_hide_permissions().
- *
- * On behalf of rules.module.
- */
-function rules_paranoia_hide_permissions() {
-  return array('bypass rules access');
 }
 
 /**
@@ -208,17 +236,21 @@ function auto_nodetitle_paranoia_hide_permissions() {
 }
 
 /**
- * Custom validation function to make sure php_filter can't be enabled.
+ * Implements hook_paranoia_hide_permissions().
+ *
+ * On behalf of service_links.module.
  */
-function paranoia_module_validate($form, &$form_state) {
-  $disabled_modules = module_invoke_all('paranoia_disable_modules');
-  foreach ($disabled_modules as $module) {
-    if (module_exists($module)) {
-      drupal_set_message(t('You attempted to enable %module which is not allowed on this site.',
-        array('%module' => $module)));
-      module_disable(array($module));
-    }
-  }
+function service_links_paranoia_hide_permissions() {
+  return array('use PHP for service visibility');
+}
+
+/**
+ * Implements hook_paranoia_hide_permissions().
+ *
+ * On behalf of auto_username.module.
+ */
+function auto_username_paranoia_hide_permissions() {
+  return array('use PHP for username patterns');
 }
 
 /**
@@ -237,4 +269,40 @@ function visual_website_optimizer_paranoia_hide_permissions() {
  */
 function live_person_paranoia_hide_permissions() {
   return array('use PHP for live person visibility');
+}
+
+/**
+ * Implements hook_paranoia_hide_permissions().
+ *
+ * On behalf of auto_entitylabel.module.
+ */
+function auto_entitylabel_paranoia_hide_permissions() {
+  return array('use PHP for label patterns');
+}
+
+/**
+ * Implements hook_paranoia_hide_permissions().
+ *
+ * On behalf of ctools.module.
+ */
+function ctools_paranoia_hide_permissions() {
+  return array('use ctools import');
+}
+
+/**
+ * Implements hook_paranoia_hide_paths().
+ *
+ * On behalf of devel.module
+ */
+function devel_paranoia_hide_paths() {
+  return array('devel/php');
+}
+
+/**
+ * Implements hook_paranoia_hide_paths().
+ *
+ * On behalf of views.module
+ */
+function views_paranoia_hide_paths() {
+  return array('admin/structure/views/import');
 }

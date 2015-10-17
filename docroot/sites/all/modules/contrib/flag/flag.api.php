@@ -247,7 +247,9 @@ function hook_flag_access($flag, $entity_id, $action, $account) {
  *
  * @return array
  *   An array whose keys are the object IDs and values are booleans indicating
- *   access.
+ *   access: TRUE to grant access, FALSE to deny it, and NULL to leave the core
+ *   access unchanged. If the implementation does not wish to override any
+ *   access, an empty array may be returned.
  *
  * @see hook_flag_access()
  * @see flag_flag:access_multiple()
@@ -325,7 +327,7 @@ function hook_flag_link_type_info_alter(&$link_types) {
  * @see hook_flag_link_type_info()
  * @see template_preprocess_flag()
  */
-function hook_flag_link() {
+function hook_flag_link($flag, $action, $entity_id) {
 
 }
 

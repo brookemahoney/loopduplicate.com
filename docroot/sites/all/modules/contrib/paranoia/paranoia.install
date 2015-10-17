@@ -11,11 +11,11 @@
  * Implements hook_enable().
  */
 function paranoia_enable() {
-  // Disable the php module if it is enabled.
-  if (module_exists('php')) {
-    module_disable(array('php'));
-    drupal_set_message(t('The Paranoia module has disabled the PHP module.'));
-  }
+  // Some day it should be possible to remove this require_once. Some day.
+  require_once dirname(__FILE__) . '/paranoia.module';
+
+  // Disable the risky modules.
+  paranoia_remove_disabled_modules();
 
   // Manually remove any enabled risky permissions.
   _paranoia_remove_risky_permissions();
@@ -41,4 +41,11 @@ function paranoia_requirements($phase) {
     }
   }
   return $requirements;
+}
+
+/**
+ * Implements hook_modules_enabled().
+ */
+function paranoia_modules_enabled($modules) {
+  _paranoia_remove_risky_permissions();
 }
