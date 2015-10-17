@@ -67,7 +67,7 @@ brew update && brew install phantomjs
 ### The rest of the setup steps must be run from the test folder.
 
 ```bash
-cd /Applications/MAMP/htdocs/loopduplicate/docroot/sites/default/behat-tests
+cd /Applications/MAMP/htdocs/loopduplicate/docroot/sites/default/tests/behat
 ```
 
 ### Composer

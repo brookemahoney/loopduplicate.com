@@ -13,4 +13,4 @@ Feature: Adminstrator
     When I am on "admin/reports/updates/update"
     Then I should see "All of your projects are up to date."
     When I am on "node/add"
-    Then I should see the link "Enable rich-text"
+    Then I should see "Generate automatic URL alias"
