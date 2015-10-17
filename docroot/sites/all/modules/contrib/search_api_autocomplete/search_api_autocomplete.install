@@ -35,6 +35,12 @@ function search_api_autocomplete_schema() {
         'length' => 50,
         'not null' => TRUE,
       ),
+      'suggester_id' => array(
+        'description' => 'The plugin ID of the suggester this search should use.',
+        'type' => 'varchar',
+        'length' => 50,
+        'not null' => TRUE,
+      ),
       'type' => array(
         'description' => 'The type of search, usually a module name.',
         'type' => 'varchar',
@@ -78,6 +84,14 @@ function search_api_autocomplete_schema() {
   );
 
   return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function search_api_autocomplete_uninstall() {
+  variable_del('search_api_autocomplete_delay');
+  variable_del('search_api_autocomplete_scripts');
 }
 
 /**
@@ -127,16 +141,17 @@ function search_api_autocomplete_update_7102() {
   if (!db_table_exists('search_api_page')) {
     return;
   }
-  try {
-    $tx = db_transaction();
 
+  $tx = db_transaction();
+
+  try {
     $pages = db_query('SELECT * FROM {search_api_page}')->fetchAllAssoc('id');
     $searches = db_query('SELECT * FROM {search_api_autocomplete_search} WHERE type = :type', array(':type' => 'search_api_page'));
     foreach ($searches as $search) {
       $page_id = (int) substr($search->machine_name, 16);
       if (isset($pages[$page_id])) {
         $machine_name = 'search_api_page_' . $pages[$page_id]->machine_name;
-        $options = unserialize($options);
+        $options = unserialize($search->options);
         $options['custom']['page_id'] = $pages[$page_id]->machine_name;
         db_update('search_api_autocomplete_search')
           ->fields(array(
@@ -152,4 +167,22 @@ function search_api_autocomplete_update_7102() {
     $tx->rollback();
     throw new DrupalUpdateException(t('A database error occurred during update: @msg', array('@msg' => $e->getMessage())));
   }
+}
+
+/**
+ * Add the {search_api_autocomplete_search}.suggester_id column.
+ */
+function search_api_autocomplete_update_7103() {
+  // Set "server" as the suggester for all existing searches, then remove the
+  // default again from the schema.
+  $spec = array(
+    'description' => 'The plugin ID of the suggester this search should use.',
+    'type' => 'varchar',
+    'length' => 50,
+    'not null' => TRUE,
+    'default' => 'server',
+  );
+  db_add_field('search_api_autocomplete_search', 'suggester_id', $spec);
+  unset($spec['default']);
+  db_change_field('search_api_autocomplete_search', 'suggester_id', 'suggester_id', $spec);
 }

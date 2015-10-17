@@ -9,14 +9,15 @@ Information for users
 
 - Necessary server feature
 
-The server on which the search will be executed has to support the
-"search_api_autocomplete" feature in order for autocompletion to work. Searches
-on other servers won't be affected by this module.
+The default suggester plugin included in this module retrieves autocomplete
+suggestions from the server. For this to work, the server has to support the
+"search_api_autocomplete" feature. Having autocompletion on other servers is
+only possible if you install a module provide another suggester plugin.
 Currently, the Solr service class [1] and the Database Search [2] are known to
 support this feature.
 
-[1] https://drupal.org/project/search_api_solr
-[2] https://drupal.org/project/search_api_db
+[1] https://www.drupal.org/project/search_api_solr
+[2] https://www.drupal.org/project/search_api_db
 
 - Necessary setup
 
@@ -55,9 +56,42 @@ functionality. See the "Information for developers" for details.
   If you want to fix this in a custom way for your site, take a look at
   example_search_api_query_alter() for suggestions.
 
+- Hidden settings
+
+search_api_autocomplete_delay:
+  Change the delay before the autocomplete request is sent when a user is typing
+  into an autocomplete field. The setting is only effective on pages with Search
+  API Autocomplete forms, not on other pages with autocomplete fields. The unit
+  of the value is milliseconds, the default is 300.
+
+search_api_autocomplete_scripts:
+  Allows you to override the autocomplete URL used by the module on a per-search
+  basis. The value should be an associative array mapping autocomplete search
+  machine names to their custom URLs. The script will receive the user input as
+  the "search" GET parameter and should respond with a JSON dictionary mapping
+  suggestions to an HTML string that should be displayed for them.
+  As the URL you can either use a relative path on the site or an absolute URL.
+  Use absolute URLs to avoid problems with things like language-specific path
+  prefixes. Note, though, that external URLs might not work due to security
+  restrictions in browsers.
+  Instead of a URL you can also set an associative array. This should have a
+  valid callback in its "#callback" key, as described by
+  callback_search_api_autocomplete_script_url() in
+  search_api_autocomplete.api.php.
+  See [4] for more information.
+
+[4] https://www.drupal.org/node/2559699
+
 
 Information for developers
 --------------------------
+
+- Supporting a new method of creating suggestions
+
+You can add your own implementation for creating autocomplete suggestions by
+creating a so-called "suggester" plugin. For details, see the
+hook_search_api_autocomplete_suggester_info() documentation in
+search_api_autocomplete.api.php.
 
 - Supporting autocompletion with a service class
 

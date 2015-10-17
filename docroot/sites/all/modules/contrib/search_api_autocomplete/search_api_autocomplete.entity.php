@@ -2,13 +2,11 @@
 
 /**
  * @file
- * Contains the SearchApiAutocompleteSearch class.
+ * Contains SearchApiAutocompleteSearch.
  */
 
-
 /**
- * Class describing the settings for a certain search for which autocompletion
- * is available.
+ * Describes the autocomplete settings for a certain search.
  */
 class SearchApiAutocompleteSearch extends Entity {
 
@@ -33,6 +31,11 @@ class SearchApiAutocompleteSearch extends Entity {
    * @var integer
    */
   public $index_id;
+
+  /**
+   * @var string
+   */
+  public $suggester_id;
 
   /**
    * @var string
@@ -68,7 +71,14 @@ class SearchApiAutocompleteSearch extends Entity {
   protected $server;
 
   /**
-   * Constructor.
+   * The suggester plugin this search uses.
+   *
+   * @var SearchApiAutocompleteSuggesterInterface
+   */
+  protected $suggester;
+
+  /**
+   * Constructs a SearchApiAutocompleteSearch.
    *
    * @param array $values
    *   The entity properties.
@@ -116,17 +126,49 @@ class SearchApiAutocompleteSearch extends Entity {
   }
 
   /**
-   * @return boolean
-   *   TRUE if the server this search is currently associated with supports the
-   *   autocompletion feature; FALSE otherwise.
+   * Retrieves the ID of the suggester plugin for this search.
+   *
+   * @return string
+   *   This search's suggester plugin's ID.
+   */
+  public function getSuggesterId() {
+    return $this->suggester_id;
+  }
+
+  /**
+   * Retrieves the suggester plugin for this search.
+   *
+   * @param bool $reset
+   *   (optional) If TRUE, clear the internal static cache and reload the
+   *   suggester.
+   *
+   * @return SearchApiAutocompleteSuggesterInterface|null
+   *   This search's suggester plugin, or NULL if it could not be loaded.
+   */
+  public function getSuggester($reset = FALSE) {
+    if (!isset($this->suggester) || $reset) {
+      $configuration = !empty($this->options['suggester_configuration']) ? $this->options['suggester_configuration'] : array();
+      $this->suggester = search_api_autocomplete_suggester_load($this->suggester_id, $this, $configuration);
+      if (!$this->suggester) {
+        $variables['@search'] = $this->machine_name;
+        $variables['@index'] = $this->index() ? $this->index()->label() : $this->index_id;
+        $variables['@suggester_id'] = $this->suggester_id;
+        watchdog('search_api_autocomplete', 'Autocomplete search @search on index @index specifies an invalid suggester plugin @suggester_id.', $variables, WATCHDOG_ERROR);
+        $this->suggester = FALSE;
+      }
+    }
+    return $this->suggester ? $this->suggester : NULL;
+  }
+
+  /**
+   * Determines whether autocompletion is currently supported for this search.
+   *
+   * @return bool
+   *   TRUE if autocompletion is possible for this search with the current
+   *   settings; FALSE otherwise.
    */
   public function supportsAutocompletion() {
-    try {
-      return $this->server() && $this->server()->supportsFeature('search_api_autocomplete');
-    }
-    catch (Exception $e) {
-      return FALSE;
-    }
+    return $this->index() && $this->getSuggester() && $this->getSuggester()->supportsIndex($this->index());
   }
 
   /**
@@ -134,22 +176,63 @@ class SearchApiAutocompleteSearch extends Entity {
    */
   public function alterElement(array &$element, array $fields = array()) {
     if (search_api_autocomplete_access($this)) {
+      // Add option defaults (in case of updates from earlier versions).
+      $options = $this->options + array(
+        'submit_button_selector' => ':submit',
+        'autosubmit' => TRUE,
+        'min_length' => 1,
+      );
 
       $fields_string = $fields ? implode(' ', $fields) : '-';
+
       $module_path = drupal_get_path('module', 'search_api_autocomplete');
+      $autocomplete_path = 'search_api_autocomplete/' . $this->machine_name . '/' . $fields_string;
       $element['#attached']['css'][] = $module_path . '/search_api_autocomplete.css';
       $element['#attached']['js'][] = $module_path . '/search_api_autocomplete.js';
-      if (isset($this->options['submit_button_selector'])) {
+
+      $js_settings = array();
+      if ($options['submit_button_selector'] != ':submit') {
+        $js_settings['selector'] = $options['submit_button_selector'];
+      }
+      if (($delay = variable_get('search_api_autocomplete_delay')) !== NULL) {
+        $js_settings['delay'] = $delay;
+      }
+
+      // Allow overriding of the default handler with a custom script.
+      $path_overrides = variable_get('search_api_autocomplete_scripts', array());
+      if (!empty($path_overrides[$this->machine_name])) {
+        $autocomplete_path = NULL;
+        $override = $path_overrides[$this->machine_name];
+        if (is_scalar($override)) {
+          $autocomplete_path = url($override, array('absolute' => TRUE, 'query' => array('machine_name' => $this->machine_name)));
+        }
+        elseif (!empty($override['#callback']) && is_callable($override['#callback'])) {
+          $autocomplete_path = call_user_func($override['#callback'], $this, $element, $override);
+        }
+        if (!$autocomplete_path) {
+          return;
+        }
+        $js_settings['custom_path'] = TRUE;
+      }
+
+      if ($js_settings) {
         $element['#attached']['js'][] = array(
           'type' => 'setting',
-          'data' => array('search_api_autocomplete' => array('selector' => $this->options['submit_button_selector'])),
+          'data' => array(
+            'search_api_autocomplete' => array(
+              $this->machine_name => $js_settings,
+            ),
+          ),
         );
       }
-      $element['#autocomplete_path'] = 'search_api_autocomplete/' . $this->machine_name . '/' . $fields_string;
+
+      $element['#autocomplete_path'] = $autocomplete_path;
       $element += array('#attributes' => array());
       $element['#attributes'] += array('class'=> array());
-      $element['#attributes']['class'][] = 'auto_submit';
-      $options = $this->options + array('min_length' => 1);
+      if ($options['autosubmit']) {
+        $element['#attributes']['class'][] = 'auto_submit';
+      }
+      $element['#attributes']['data-search-api-autocomplete-search'] = $this->machine_name;
       if ($options['min_length'] > 1) {
         $element['#attributes']['data-min-autocomplete-length'] = $options['min_length'];
       }

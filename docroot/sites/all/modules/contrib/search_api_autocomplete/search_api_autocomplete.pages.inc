@@ -7,12 +7,19 @@
 
 /**
  * Page callback for getting autocomplete suggestions.
+ *
+ * @param SearchApiAutocompleteSearch $search
+ *   The search for which to retrieve autocomplete suggestions.
+ * @param string $fields
+ *   A comma-separated list of fields on which to do autocompletion. Or "-" to
+ *   use all fulltext fields.
+ * @param string $keys
+ *   The user input so far.
  */
 function search_api_autocomplete_autocomplete(SearchApiAutocompleteSearch $search, $fields, $keys = '') {
   $ret = array();
   try {
     if ($search->supportsAutocompletion()) {
-      $server = $search->server();
       list($complete, $incomplete) = $search->splitKeys($keys);
       $query = $search->getQuery($complete, $incomplete);
       if ($query) {
@@ -27,7 +34,7 @@ function search_api_autocomplete_autocomplete(SearchApiAutocompleteSearch $searc
           $query->fields($fields);
         }
         $query->preExecute();
-        $suggestions = $server->getAutocompleteSuggestions($query, $search, $incomplete, $keys);
+        $suggestions = $search->getSuggester()->getAutocompleteSuggestions($query, $incomplete, $keys);
         if ($suggestions) {
           foreach ($suggestions as $suggestion) {
             // Convert suggestion strings into an array.
@@ -49,6 +56,8 @@ function search_api_autocomplete_autocomplete(SearchApiAutocompleteSearch $searc
             }
             // Add defaults.
             $suggestion += array(
+              'url' => NULL,
+              'keys' => NULL,
               'prefix' => NULL,
               'suggestion_prefix' => '',
               'user_input' => $keys,
@@ -58,7 +67,21 @@ function search_api_autocomplete_autocomplete(SearchApiAutocompleteSearch $searc
             if (empty($search->options['results'])) {
               unset($suggestion['results']);
             }
-            $key = $suggestion['suggestion_prefix'] . $suggestion['user_input'] . $suggestion['suggestion_suffix'];
+
+            // Decide what the action of the suggestion is – entering specific
+            // search terms or redirecting to a URL.
+            if (isset($suggestion['url'])) {
+              $key = ' ' . $suggestion['url'];
+            }
+            else {
+              // Also set the "keys" key so it will always be available in alter
+              // hooks and the theme function.
+              if (!isset($suggestion['keys'])) {
+                $suggestion['keys'] = $suggestion['suggestion_prefix'] . $suggestion['user_input'] . $suggestion['suggestion_suffix'];
+              }
+              $key = trim($suggestion['keys']);
+            }
+
             if (!isset($ret[$key])) {
               $ret[$key] = $suggestion;
             }
@@ -73,7 +96,18 @@ function search_api_autocomplete_autocomplete(SearchApiAutocompleteSearch $searc
           drupal_alter('search_api_autocomplete_suggestions', $ret, $alter_params);
 
           foreach ($ret as $key => $suggestion) {
-            $ret[$key] = theme('search_api_autocomplete_suggestion', $suggestion);
+            if (isset($suggestion['render'])) {
+              $ret[$key] = render($suggestion['render']);
+            }
+            else {
+              $escaped_variables = array('keys', 'suggestion_prefix', 'user_input', 'suggestion_suffix');
+              foreach ($escaped_variables as $variable) {
+                if ($suggestion[$variable]) {
+                  $suggestion[$variable] = check_plain($suggestion[$variable]);
+                }
+              }
+              $ret[$key] = theme('search_api_autocomplete_suggestion', $suggestion);
+            }
           }
         }
       }
@@ -87,18 +121,25 @@ function search_api_autocomplete_autocomplete(SearchApiAutocompleteSearch $searc
 }
 
 /**
- *
+ * Returns HTML for an autocomplete suggestion.
  *
  * @param array $variables
  *   An associative array containing:
- *   - prefix: For special suggestions, some kind of prefix describing them.
+ *   - keys: The keyword (or keywords) this suggestion will autocomplete to.
+ *   - prefix: For special suggestions, some kind of HTML prefix describing
+ *     them.
  *   - suggestion_prefix: A suggested prefix for the entered input.
  *   - user_input: The input entered by the user.
  *   - suggestion_suffix: A suggested suffix for the entered input.
  *   - results: If available, the estimated number of results for these keys.
  */
 function theme_search_api_autocomplete_suggestion(array $variables) {
-  extract($variables);
+  $prefix = $variables['prefix'];
+  $suggestion_prefix = $variables['suggestion_prefix'];
+  $user_input = $variables['user_input'];
+  $suggestion_suffix = $variables['suggestion_suffix'];
+  $results = $variables['results'];
+
   $output = '';
   if ($prefix) {
     $output .= "<span class=\"autocomplete-suggestion-note\">$prefix</span> ";

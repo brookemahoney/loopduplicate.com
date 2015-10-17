@@ -144,55 +144,57 @@ class fieldable_panels_pane extends ctools_export_ui {
     $header = array(t('Name'), array('data' => t('Operations'), 'colspan' => 2));
     $rows = array();
 
-    foreach ($entity_info['bundles'] as $bundle => $info) {
-      // Filter out bundles that already exist as ctools exportable objects.
-      if (isset($items[$bundle])) {
-        continue;
+    if (!empty($entity_info['bundles'])) {
+      foreach ($entity_info['bundles'] as $bundle => $info) {
+        // Filter out bundles that already exist as ctools exportable objects.
+        if (isset($items[$bundle])) {
+          continue;
+        }
+
+        $row = array();
+
+        $label = check_plain($info['label']);
+        $label .= ' <small>' . t('(Machine name: @type)', array('@type' => $bundle)) . '</small>';
+
+        $row[] = $label;
+
+        $operations = array();
+
+        $operations['list'] = array(
+          'title' => t('list'),
+          'href' => 'admin/structure/fieldable-panels-panes/manage/' . $bundle,
+        );
+
+        $operations['add'] = array(
+          'title' => t('add'),
+          'href' => 'admin/structure/fieldable-panels-panes/manage/' . $bundle . '/add',
+        );
+
+        $operations['fields'] = array(
+          'title' => t('manage fields'),
+          'href' => $this->field_admin_path($bundle, 'fields'),
+        );
+
+        $operations['display'] = array(
+          'title' => t('manage display'),
+          'href' => $this->field_admin_path($bundle, 'display'),
+        );
+
+        $ops = theme('links', array('links' => $operations, 'attributes' => array('class' => array('links', 'inline'))));
+
+        $row[] = $ops;
+        $rows[] = $row;
       }
 
-      $row = array();
+      if (!empty($rows)) {
+        $variables = array(
+          'caption' => t('Legacy bundles that are not managed by the bundle administrative UI are listed here.'),
+          'header' => $header,
+          'rows' => $rows,
+        );
 
-      $label = check_plain($info['label']);
-      $label .= ' <small>' . t('(Machine name: @type)', array('@type' => $bundle)) . '</small>';
-
-      $row[] = $label;
-
-      $operations = array();
-
-      $operations['list'] = array(
-        'title' => t('list'),
-        'href' => 'admin/structure/fieldable-panels-panes/manage/' . $bundle,
-      );
-
-      $operations['add'] = array(
-        'title' => t('add'),
-        'href' => 'admin/structure/fieldable-panels-panes/manage/' . $bundle . '/add',
-      );
-
-      $operations['fields'] = array(
-        'title' => t('manage fields'),
-        'href' => $this->field_admin_path($bundle, 'fields'),
-      );
-
-      $operations['display'] = array(
-        'title' => t('manage display'),
-        'href' => $this->field_admin_path($bundle, 'display'),
-      );
-
-      $ops = theme('links', array('links' => $operations, 'attributes' => array('class' => array('links', 'inline'))));
-
-      $row[] = $ops;
-      $rows[] = $row;
-    }
-
-    if (!empty($rows)) {
-      $variables = array(
-        'caption' => t('Legacy bundles that are not managed by the bundle administrative UI are listed here.'),
-        'header' => $header,
-        'rows' => $rows,
-      );
-
-      return theme('table', $variables);
+        return theme('table', $variables);
+      }
     }
   }
 

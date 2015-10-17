@@ -3,6 +3,35 @@
 // Auto-submit main search input after autocomplete
 if (typeof Drupal.jsAC != 'undefined') {
 
+  var getSetting = function (input, setting, defaultValue) {
+    // Earlier versions of jQuery, like the default for Drupal 7, don't properly
+    // convert data-* attributes to camel case, so we access it via the verbatim
+    // name from the attribute (which also works in newer versions).
+    var search = $(input).data('search-api-autocomplete-search');
+    if (typeof search == 'undefined'
+        || typeof Drupal.settings.search_api_autocomplete == 'undefined'
+        || typeof Drupal.settings.search_api_autocomplete[search] == 'undefined'
+        || typeof Drupal.settings.search_api_autocomplete[search][setting] == 'undefined') {
+      return defaultValue;
+    }
+    return Drupal.settings.search_api_autocomplete[search][setting];
+  };
+
+  var oldJsAC = Drupal.jsAC;
+  /**
+   * An AutoComplete object.
+   *
+   * Overridden to set the proper "role" attribute on the input element.
+   */
+  Drupal.jsAC = function ($input, db) {
+    if ($input.data('search-api-autocomplete-search')) {
+      $input.attr('role', 'combobox');
+      $input.parent().attr('role', 'search');
+    }
+    oldJsAC.call(this, $input, db);
+  };
+  Drupal.jsAC.prototype = oldJsAC.prototype;
+
   /**
    * Handler for the "keyup" event.
    *
@@ -15,16 +44,10 @@ if (typeof Drupal.jsAC != 'undefined') {
       e = window.event;
     }
     // Fire standard function.
-    $.proxy(default_onkeyup, this)(input, e);
+    default_onkeyup.call(this, input, e);
 
     if (13 == e.keyCode && $(input).hasClass('auto_submit')) {
-      var selector;
-      if (typeof Drupal.settings.search_api_autocomplete.selector != 'undefined') {
-        selector = Drupal.settings.search_api_autocomplete.selector;
-      }
-      else {
-        selector = ':submit';
-      }
+      var selector = getSetting(input, 'selector', ':submit');
       $(selector, input.form).trigger('click');
     }
   };
@@ -41,9 +64,9 @@ if (typeof Drupal.jsAC != 'undefined') {
       e = window.event;
     }
     // Fire standard function.
-    $.proxy(default_onkeydown, this)(input, e);
+    default_onkeydown.call(this, input, e);
 
-    // Prevent that the ajax handling of views fires to early and thus
+    // Prevent that the ajax handling of Views fires too early and thus
     // misses the form update.
     if (13 == e.keyCode && $(input).hasClass('auto_submit')) {
       e.preventDefault();
@@ -51,9 +74,14 @@ if (typeof Drupal.jsAC != 'undefined') {
     }
   };
 
-
   Drupal.jsAC.prototype.select = function(node) {
-    this.input.value = $(node).data('autocompleteValue');
+    var autocompleteValue = $(node).data('autocompleteValue');
+    // Check whether this is not a suggestion but a "link".
+    if (autocompleteValue.charAt(0) == ' ') {
+      window.location.href = autocompleteValue.substr(1);
+      return false;
+    }
+    this.input.value = autocompleteValue;
     $(this.input).trigger('autocompleteSelect', [node]);
     if ($(this.input).hasClass('auto_submit')) {
       if (typeof Drupal.search_api_ajax != 'undefined') {
@@ -61,14 +89,7 @@ if (typeof Drupal.jsAC != 'undefined') {
         Drupal.search_api_ajax.navigateQuery($(this.input).val());
       }
       else {
-        var selector;
-        if (typeof Drupal.settings.search_api_autocomplete.selector != 'undefined') {
-          selector = Drupal.settings.search_api_autocomplete.selector;
-        }
-        else {
-          selector = ':submit';
-        }
-
+        var selector = getSetting(this.input, 'selector', ':submit');
         $(selector, this.input.form).trigger('click');
       }
       return true;
@@ -122,14 +143,26 @@ Drupal.ACDB.prototype.search = function (searchString) {
   if (this.timer) {
     clearTimeout(this.timer);
   }
-  this.timer = setTimeout(function () {
+  var sendAjaxRequest = function () {
     db.owner.setStatus('begin');
 
-    // Ajax GET request for autocompletion. We use Drupal.encodePath instead of
-    // encodeURIComponent to allow autocomplete search terms to contain slashes.
+    var url;
+
+    // Allow custom Search API Autocomplete overrides for specific searches.
+    if (getSetting(db.owner.input, 'custom_path', false)) {
+      var queryChar = db.uri.indexOf('?') >= 0 ? '&' : '?';
+      url = db.uri + queryChar + 'search=' + encodeURIComponent(searchString);
+    }
+    else {
+      // We use Drupal.encodePath instead of encodeURIComponent to allow
+      // autocomplete search terms to contain slashes.
+      url = db.uri + '/' + Drupal.encodePath(searchString);
+    }
+
+    // Ajax GET request for autocompletion.
     $.ajax({
       type: 'GET',
-      url: db.uri + '/' + Drupal.encodePath(searchString),
+      url: url,
       dataType: 'json',
       success: function (matches) {
         if (typeof matches.status == 'undefined' || matches.status != 0) {
@@ -147,7 +180,15 @@ Drupal.ACDB.prototype.search = function (searchString) {
         }
       }
     });
-  }, this.delay);
+  };
+  // Make it possible to override the delay via a setting.
+  var delay = getSetting(this.owner.input, 'delay', this.delay);
+  if (delay > 0) {
+    this.timer = setTimeout(sendAjaxRequest, delay);
+  }
+  else {
+    sendAjaxRequest.apply();
+  }
 };
 
 })(jQuery);

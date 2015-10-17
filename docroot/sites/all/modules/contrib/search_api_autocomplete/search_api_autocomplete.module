@@ -39,6 +39,19 @@ function search_api_autocomplete_search_api_autocomplete_types() {
 }
 
 /**
+ * Implements hook_search_api_autocomplete_suggester_info().
+ */
+function search_api_autocomplete_search_api_autocomplete_suggester_info() {
+  $suggesters['server'] = array(
+    'label' => t('Retrieve from server'),
+    'description' => t('For compatible servers, ask the server for autocomplete suggestions.'),
+    'class' => 'SearchApiAutocompleteServerSuggester',
+  );
+
+  return $suggesters;
+}
+
+/**
  * Implements hook_menu().
  */
 function search_api_autocomplete_menu() {
@@ -91,6 +104,7 @@ function search_api_autocomplete_menu() {
 function search_api_autocomplete_theme() {
   $themes['search_api_autocomplete_suggestion'] = array(
     'variables' => array(
+      'keys' => NULL,
       'prefix' => NULL,
       'suggestion_prefix' => '',
       'user_input' => '',
@@ -141,12 +155,12 @@ function search_api_autocomplete_permission() {
 /**
  * Access callback for search autocompletion.
  *
- * @param $search
+ * @param SearchApiAutocompleteSearch $search
  *   The autocomplete search which is being accessed.
- * @param $account
+ * @param object|null $account
  *   (optional) The account to check, if not given use currently logged in user.
  *
- * @return
+ * @return bool
  *   TRUE, if the search is enabled, supports autocompletion and the user has
  *   the necessary permission. FALSE otherwise.
  */
@@ -168,12 +182,12 @@ function search_api_autocomplete_search_api_index_delete(SearchApiIndex $index) 
 }
 
 /**
- * Get information about all search types, or a specific one.
+ * Retrieves information about all search types, or a specific one.
  *
  * @param $type
  *   (optional) The name of a type.
  *
- * @return
+ * @return array|null
  *   If $type was not given, an array containing information about all search
  *   types. Otherwise, either information about the specified type, or NULL if
  *   the type is not known.
@@ -189,6 +203,83 @@ function search_api_autocomplete_get_types($type = NULL) {
     return isset($types[$type]) ? $types[$type] : NULL;
   }
   return $types;
+}
+
+/**
+ * Retrieves the definitions of all suggester plugins, or a specific one.
+ *
+ * @param string|null $suggester_id
+ *   (optional) The ID of the suggester plugin whose definition should be
+ *   retrieved. Or NULL to return all known definitions.
+ *
+ * @return array|null
+ *   If $suggester_id was given, either the definition of the given suggester
+ *   plugin, or NULL if it isn't known. Otherwise, an associative array of all
+ *   known suggester plugin definitions, keyed by ID.
+ */
+function search_api_autocomplete_suggester_info($suggester_id = NULL) {
+  $suggesters = &drupal_static(__FUNCTION__);
+
+  if (!isset($suggesters)) {
+    $suggesters = module_invoke_all('search_api_autocomplete_suggester_info');
+    drupal_alter('search_api_autocomplete_suggester_info', $suggesters);
+    foreach ($suggesters as $i => $definition) {
+      if (empty($definition['class']) || !class_exists($definition['class']) || !in_array('SearchApiAutocompleteSuggesterInterface', class_implements($definition['class']))) {
+        $variables['@suggester_id'] = $i;
+        watchdog('search_api_autocomplete', 'Autocomplete suggester plugin with ID @suggester_id does not specify a valid plugin class.', $variables, WATCHDOG_ERROR);
+        unset($suggesters[$i]);
+      }
+    }
+  }
+
+  if (!isset($suggester_id)) {
+    return $suggesters;
+  }
+  return isset($suggesters[$suggester_id]) ? $suggesters[$suggester_id] : NULL;
+}
+
+/**
+ * Retrieves all suggester plugin definitions that support the given index.
+ *
+ * @param SearchApiIndex $index
+ *   The index for which to check.
+ *
+ * @return array|null
+ *   If $suggester_id was given, either the definition of the given suggester
+ *   plugin, or NULL if it isn't known. Otherwise, an associative array of all
+ *   known suggester plugin definitions, keyed by ID.
+ */
+function search_api_autocomplete_suggesters_for_index(SearchApiIndex $index) {
+  $suggesters = search_api_autocomplete_suggester_info();
+
+  foreach ($suggesters as $suggester_id => $definition) {
+    if (!call_user_func(array($definition['class'], 'supportsIndex'), $index)) {
+      unset($suggesters[$suggester_id]);
+    }
+  }
+
+  return $suggesters;
+}
+
+/**
+ * Loads the specified suggester plugin.
+ *
+ * @param string $suggester_id
+ *   The ID of the suggester plugin to load.
+ * @param SearchApiAutocompleteSearch $search
+ *   The search for which to create a suggester.
+ * @param array $configuration
+ *   The configuration for the search.
+ *
+ * @return SearchApiAutocompleteSuggesterInterface|null
+ *   The loaded suggester plugin, or NULL if it could not be loaded.
+ */
+function search_api_autocomplete_suggester_load($suggester_id, SearchApiAutocompleteSearch $search, array $configuration) {
+  $definition = search_api_autocomplete_suggester_info($suggester_id);
+  if (!$definition) {
+    return NULL;
+  }
+  return call_user_func(array($definition['class'], 'create'), $search, $configuration, $suggester_id, $definition);
 }
 
 /**

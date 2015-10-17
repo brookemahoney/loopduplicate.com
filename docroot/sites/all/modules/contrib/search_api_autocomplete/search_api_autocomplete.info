@@ -1,14 +1,17 @@
 name = Search API autocomplete
-description = "Adds autocomplete functionality to most searches on servers supportings this feature."
+description = "Adds autocomplete functionality to searches."
 dependencies[] = search_api
 core = 7.x
 package = Search
 
 files[] = search_api_autocomplete.entity.php
+files[] = src/SearchApiAutocompleteSuggesterInterface.php
+files[] = src/SearchApiAutocompleteSuggesterPluginBase.php
+files[] = src/SearchApiAutocompleteServerSuggester.php
 
-; Information added by Drupal.org packaging script on 2015-03-04
-version = "7.x-1.1+9-dev"
+; Information added by Drupal.org packaging script on 2015-08-29
+version = "7.x-1.4"
 core = "7.x"
 project = "search_api_autocomplete"
-datestamp = "1425461582"
+datestamp = "1440839643"
 

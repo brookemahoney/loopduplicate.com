@@ -189,14 +189,16 @@ class MigrateDestinationFieldablePanelsPanes extends MigrateDestinationEntity {
     if ($migration->getSystemOfRecord() == Migration::DESTINATION) {
       // Incoming data overrides existing data, so only copy non-existent
       // fields.
-      foreach ($old_fieldable_panels_panes as $field => $value) {
-        // An explicit NULL in the source data means to wipe to old value (i.e.
-        // don't copy it over from $old_fieldable_panels_panes).
-        if (property_exists($fieldable_panels_pane, $field) && $fieldable_panels_pane->$field === NULL) {
-          // Ignore this field.
-        }
-        elseif (!isset($fieldable_panels_pane->$field)) {
-          $fieldable_panels_pane->$field = $old_fieldable_panels_panes->$field;
+      if (!empty($old_fieldable_panels_panes)) {
+        foreach ($old_fieldable_panels_panes as $field => $value) {
+          // An explicit NULL in the source data means to wipe to old value
+          // (i.e. don't copy it over from $old_fieldable_panels_panes).
+          if (property_exists($fieldable_panels_pane, $field) && $fieldable_panels_pane->$field === NULL) {
+            // Ignore this field.
+          }
+          elseif (!isset($fieldable_panels_pane->$field)) {
+            $fieldable_panels_pane->$field = $old_fieldable_panels_panes->$field;
+          }
         }
       }
     }

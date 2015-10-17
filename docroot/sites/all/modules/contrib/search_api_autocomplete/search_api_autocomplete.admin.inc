@@ -20,10 +20,13 @@ function search_api_autocomplete_admin_overview(array $form, array &$form_state,
   $form_state['index'] = $index;
   $index_id = $index->machine_name;
 
-  $server = $index->server();
-  if (!$server || !$server->supportsFeature('search_api_autocomplete')) {
-    drupal_set_message(t("The server this index currently lies on doesn't support autocompletion. " .
-        'To use autocompletion, you will have to move this index to a server supporting this feature.'), 'error');
+  $available_suggesters = search_api_autocomplete_suggesters_for_index($index);
+  if (!$available_suggesters) {
+    $args = array(
+      '@feature' => 'search_api_autocomplete',
+      '@service_classes_url' => url('https://www.drupal.org/node/1254698#service-classes'),
+    );
+    drupal_set_message(t('There are currently no suggester plugins installed that support this index. To solve this problem, you can either:<ul><li>move the index to a server which supports the "@feature" feature (see the <a href="@service_classes_url">available service class</a>)</li><li>or install a module providing a new suggester plugin that supports this index</li></ul>', $args), 'error');
     if (search_api_autocomplete_search_load_multiple(FALSE, array('index_id' => $index_id))) {
       $form['description'] = array(
         '#type' => 'item',
@@ -62,12 +65,13 @@ function search_api_autocomplete_admin_overview(array $form, array &$form_state,
         $search += array(
           'machine_name' => $id,
           'index_id' => $index_id,
+          'suggester_id' => key($available_suggesters),
           'type' => $type,
           'enabled' => 0,
           'options' => array(),
         );
         $search['options'] += array(
-          'result count' => TRUE,
+          'results' => TRUE,
           'fields' => array(),
         );
         $types[$type]['searches'][$id] = entity_create('search_api_autocomplete_search', $search);
@@ -222,7 +226,21 @@ function search_api_autocomplete_admin_overview_submit_delete(array $form, array
  * @see search_api_autocomplete_admin_search_edit_submit()
  */
 function search_api_autocomplete_admin_search_edit(array $form, array &$form_state, SearchApiAutocompleteSearch $search) {
-  drupal_set_title(t('Edit %search', array('%search' => $search->name)), PASS_THROUGH);
+  drupal_set_title(t('Configure autocompletion for %search', array('%search' => $search->name)), PASS_THROUGH);
+
+  // If this is a re-build (i.e., most likely an AJAX call due to a new
+  // suggester being selected), prepare the suggester sub-form state
+  // accordingly.
+  $selected_suggester_id = $search->getSuggesterId();
+  if (!empty($form_state['values']['suggester_id'])) {
+    $selected_suggester_id = $form_state['values']['suggester_id'];
+    // Don't let submitted values for a different suggester influence another
+    // suggester's form.
+    if ($selected_suggester_id != $form_state['values']['old_suggester_id']) {
+      unset($form_state['values']['options']['suggester_configuration']);
+      unset($form_state['input']['options']['suggester_configuration']);
+    }
+  }
 
   $form_state['search'] = $search;
   $form_state['type'] = $type = search_api_autocomplete_get_types($search->type);
@@ -236,6 +254,67 @@ function search_api_autocomplete_admin_search_edit(array $form, array &$form_sta
     '#title' => t('Enabled'),
     '#default_value' => $search->enabled,
   );
+  $form['suggester_id'] = array(
+    '#type' => 'radios',
+    '#title' => t('Suggester plugin'),
+    '#description' => t('Choose the suggester implementation to use.'),
+    '#options' => array(),
+    '#required' => TRUE,
+    '#default_value' => $selected_suggester_id,
+    '#ajax' => array(
+      'callback' => 'search_api_autocomplete_suggester_ajax_callback',
+      'wrapper' => 'search-api-suggester-options',
+    ),
+  );
+
+  foreach (search_api_autocomplete_suggesters_for_index($search->index()) as $suggester_id => $definition) {
+    // Load the suggester plugin. If the suggester is unchanged from the one on
+    // the saved version of the search, use the saved configuration.
+    $configuration = array();
+    if ($suggester_id == $search->getSuggesterId() && isset($search->options['suggester_configuration'])) {
+      $configuration = $search->options['suggester_configuration'];
+    }
+    $suggester = search_api_autocomplete_suggester_load($suggester_id, $search, $configuration);
+    if (!$suggester) {
+      continue;
+    }
+
+    // Add the suggester to the suggester options.
+    $form['suggester_id']['#options'][$suggester_id] = $suggester->label();
+
+    // Then, also add the configuration form for the selected suggester.
+    if ($suggester_id != $selected_suggester_id) {
+      continue;
+    }
+    $suggester_form_state = &search_api_autocomplete_get_plugin_form_state($form_state);
+    $suggester_form = $suggester->buildConfigurationForm(array(), $suggester_form_state);
+    if ($suggester_form) {
+      $form['options']['suggester_configuration'] = $suggester_form;
+      $form['options']['suggester_configuration']['#type'] = 'fieldset';
+      $form['options']['suggester_configuration']['#title'] = t('Configure the %suggester suggester plugin', array('%suggester' => $suggester->label()));
+      $form['options']['suggester_configuration']['#description'] = $suggester->getDescription();
+      $form['options']['suggester_configuration']['#collapsible'] = TRUE;
+    }
+    else {
+      $form['options']['suggester_configuration']['#type'] = 'item';
+    }
+    $form['options']['suggester_configuration']['#prefix'] = '<div id="search-api-suggester-options">';
+    $form['options']['suggester_configuration']['#suffix'] = '</div>';
+  }
+  $form['options']['suggester_configuration']['old_suggester_id'] = array(
+    '#type' => 'hidden',
+    '#value' => $selected_suggester_id,
+    '#tree' => FALSE,
+  );
+
+  // If there is only a single plugin available, hide the "suggester" option.
+  if (count($form['suggester_id']['#options']) == 1) {
+    $form['suggester_id'] = array(
+      '#type' => 'value',
+      '#value' => key($form['suggester_id']['#options']),
+    );
+  }
+
   $form['options']['min_length'] = array(
     '#type' => 'textfield',
     '#title' => t('Minimum length of keywords for autocompletion'),
@@ -247,24 +326,8 @@ function search_api_autocomplete_admin_search_edit(array $form, array &$form_sta
     '#type' => 'checkbox',
     '#title' => t('Display result count estimates'),
     '#description' => t('Display the estimated number of result for each suggestion. ' .
-        'This option might not have an effect for some servers or types of suggestion.'),
+      'This option might not have an effect for some servers or types of suggestion.'),
     '#default_value' => !empty($search->options['results']),
-  );
-
-  // Add a list of fields to include for autocomplete searches.
-  $fields = $search->index()->getFields();
-  $fulltext_fields = $search->index()->getFulltextFields();
-  $options = array();
-  foreach ($fulltext_fields as $field) {
-    $options[$field] = $fields[$field]['name'];
-  }
-  $form['options']['fields'] = array(
-    '#type' => 'checkboxes',
-    '#title' => t('Fields to use'),
-    '#description' => t('Select the fields which should be searched for matches when looking for autocompletion suggestions. Leave blank to use the same fields as the underlying search.'),
-    '#options' => $options,
-    '#default_value' => empty($search->options['fields']) ? array() : drupal_map_assoc($search->options['fields']),
-    '#attributes' => array('class' => array('search-api-checkboxes-list')),
   );
 
   $custom_form = empty($form['options']['custom']) ? array() : $form['options']['custom'];
@@ -284,6 +347,14 @@ function search_api_autocomplete_admin_search_edit(array $form, array &$form_sta
     '#description' => t('<a href="@jquery_url">jQuery selector</a> to identify the search button in the search form. Use the ID attribute of the "Search" submit button to prevent issues when another button is present (e.g., "Reset"). The selector is evaluated relative to the form. The default value is ":submit".', array('@jquery_url' => 'https://api.jquery.com/category/selectors/')),
     '#default_value' => isset($search->options['submit_button_selector']) ? $search->options['submit_button_selector'] : ':submit',
     '#required' => TRUE,
+    '#parents' => array('options', 'submit_button_selector'),
+  );
+  $form['advanced']['autosubmit'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable auto-submit'),
+    '#description' => t('When enabled, the search form will automatically be submitted when a selection is made by pressing "Enter".'),
+    '#default_value' => isset($search->options['autosubmit']) ? $search->options['autosubmit'] : TRUE,
+    '#parents' => array('options', 'autosubmit'),
   );
 
   $form['submit'] = array(
@@ -295,19 +366,40 @@ function search_api_autocomplete_admin_search_edit(array $form, array &$form_sta
 }
 
 /**
+ * Form AJAX handler for search_api_autocomplete_admin_search_edit().
+ */
+function search_api_autocomplete_suggester_ajax_callback(array $form, array &$form_state) {
+  return $form['options']['suggester_configuration'];
+}
+
+/**
  * Validate callback for search_api_autocomplete_admin_search_edit().
  *
  * @see search_api_autocomplete_admin_search_edit()
  * @see search_api_autocomplete_admin_search_edit_submit()
  */
 function search_api_autocomplete_admin_search_edit_validate(array $form, array &$form_state) {
-  if (empty($form_state['type']['config form'])) {
-    return;
+  $values = &$form_state['values'];
+  // Call the config form validation method of the selected suggester plugin,
+  // but only if it was the same plugin that created the form.
+  if ($values['suggester_id'] == $values['old_suggester_id']) {
+    $configuration = array();
+    if (!empty($values['options']['suggester_configuration'])) {
+      $configuration = $values['options']['suggester_configuration'];
+    }
+    $suggester = search_api_autocomplete_suggester_load($values['suggester_id'], $form_state['search'], $configuration);
+    $suggester_form = $form['options']['suggester_configuration'];
+    unset($suggester_form['old_suggester_id']);
+    $suggester_form_state = &search_api_autocomplete_get_plugin_form_state($form_state);
+    $suggester->validateConfigurationForm($suggester_form, $suggester_form_state);
   }
-  $f = $form_state['type']['config form'] . '_validate';
-  if (function_exists($f)) {
-    $custom_form = empty($form['options']['custom']) ? array() : $form['options']['custom'];
-    $f($custom_form, $form_state, $form_state['values']['options']['custom']);
+
+  if (!empty($form_state['type']['config form'])) {
+    $f = $form_state['type']['config form'] . '_validate';
+    if (function_exists($f)) {
+      $custom_form = empty($form['options']['custom']) ? array() : $form['options']['custom'];
+      $f($custom_form, $form_state, $values['options']['custom']);
+    }
   }
 }
 
@@ -329,19 +421,71 @@ function search_api_autocomplete_admin_search_edit_submit(array $form, array &$f
 
   $search = $form_state['search'];
   $search->enabled = $values['enabled'];
-  $search->options['results'] = $values['options']['results'];
-  $search->options['min_length'] = $values['options']['min_length'];
-  $search->options['fields'] = array_keys(array_filter($values['options']['fields']));
-  $search->options['submit_button_selector'] = $form_state['values']['advanced']['submit_button_selector'];
-  if (isset($values['options']['custom'])) {
-    // Take care of custom options that aren't changed in the config form.
-    $old = empty($search->options['custom']) ? array() : $search->options['custom'];
-    $search->options['custom'] = $values['options']['custom'] + $old;
+  $search->suggester_id = $values['suggester_id'];
+
+  $form_state['redirect'] = 'admin/config/search/search_api/index/' . $search->index_id . '/autocomplete';
+
+  // Take care of custom options that aren't changed in the config form.
+  if (!empty($search->options['custom'])) {
+    if (!isset($values['options']['custom'])) {
+      $values['options']['custom'] = array();
+    }
+    $values['options']['custom'] += $search->options['custom'];
   }
+
+  // Allow the suggester to decide how to save its configuration. If the user
+  // has disabled JS in the browser, or AJAX didn't work for some other reason,
+  // a different suggester might be selected than that which created the config
+  // form. In that case, we don't call the form submit method, save empty
+  // configuration for the plugin and stay on the page.
+  if ($values['suggester_id'] == $values['old_suggester_id']) {
+    $configuration = array();
+    if (!empty($values['options']['suggester_configuration'])) {
+      $configuration = $values['options']['suggester_configuration'];
+    }
+    $suggester = search_api_autocomplete_suggester_load($values['suggester_id'], $search, $configuration);
+    $suggester_form = $form['options']['suggester_configuration'];
+    unset($suggester_form['old_suggester_id']);
+    $suggester_form_state = &search_api_autocomplete_get_plugin_form_state($form_state);
+    $suggester->submitConfigurationForm($suggester_form, $suggester_form_state);
+    $values['options']['suggester_configuration'] = $suggester->getConfiguration();
+  }
+  else {
+    $values['options']['suggester_configuration'] = array();
+    $form_state['redirect'] = NULL;
+    drupal_set_message(t('The used suggester plugin has changed. Please review the configuration for the new plugin.'), 'warning');
+  }
+
+  $search->options = $values['options'];
 
   $search->save();
   drupal_set_message(t('The autocompletion settings for the search have been saved.'));
-  $form_state['redirect'] = 'admin/config/search/search_api/index/' . $search->index_id . '/autocomplete';
+}
+
+/**
+ * Returns a new form state for the suggester configuration sub-form.
+ *
+ * @param array $form_state
+ *   The original form state.
+ *
+ * @return array
+ *   A form state for the sub-form.
+ */
+function &search_api_autocomplete_get_plugin_form_state(array &$form_state) {
+  $sub_form_state = &$form_state['suggester_form_state'];
+
+  foreach (array('values', 'input') as $key) {
+    if (!isset($form_state[$key]['options']['suggester_configuration'])) {
+      $form_state[$key]['options']['suggester_configuration'] = array();
+    }
+    $sub_form_state[$key] = &$form_state[$key]['options']['suggester_configuration'];
+  }
+
+  foreach (array('rebuild', 'rebuild_info', 'redirect') as $key) {
+    $sub_form_state[$key] = &$form_state[$key];
+  }
+
+  return $sub_form_state;
 }
 
 /**

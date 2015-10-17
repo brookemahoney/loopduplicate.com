@@ -40,10 +40,12 @@ class PanelsPaneController extends DrupalDefaultEntityController {
     parent::attachLoad($queried_entities, $revision_id);
 
     // We need to go through and unserialize our serialized fields.
-    foreach ($queried_entities as $entity) {
-      foreach (array('view_access', 'edit_access') as $key) {
-        if (is_string($entity->$key)) {
-          $entity->$key = unserialize($entity->$key);
+    if (!empty($queried_entities)) {
+      foreach ($queried_entities as $entity) {
+        foreach (array('view_access', 'edit_access') as $key) {
+          if (is_string($entity->$key)) {
+            $entity->$key = unserialize($entity->$key);
+          }
         }
       }
     }
@@ -290,27 +292,30 @@ class PanelsPaneController extends DrupalDefaultEntityController {
     if (!empty($fpids)) {
       $entities = fieldable_panels_panes_load_multiple($fpids, array());
 
-      try {
-        foreach ($entities as $fpid => $entity) {
-          // Call the entity-specific callback (if any):
-          module_invoke_all('fieldable_panels_pane_delete', $entity);
-          module_invoke_all('entity_delete', $entity, 'fieldable_panels_pane');
-          field_attach_delete('fieldable_panels_pane', $entity);
+      if (!empty($entities)) {
+        try {
+          foreach ($entities as $fpid => $entity) {
+            // Call the entity-specific callback (if any):
+            module_invoke_all('fieldable_panels_pane_delete', $entity);
+            module_invoke_all('entity_delete', $entity, 'fieldable_panels_pane');
+            field_attach_delete('fieldable_panels_pane', $entity);
+          }
+
+          // Delete after calling hooks so that they can query entity tables as
+          // needed.
+          db_delete('fieldable_panels_panes')
+            ->condition('fpid', $fpids, 'IN')
+            ->execute();
+
+          db_delete('fieldable_panels_panes_revision')
+            ->condition('fpid', $fpids, 'IN')
+            ->execute();
         }
-
-        // Delete after calling hooks so that they can query entity tables as needed.
-        db_delete('fieldable_panels_panes')
-          ->condition('fpid', $fpids, 'IN')
-          ->execute();
-
-        db_delete('fieldable_panels_panes_revision')
-          ->condition('fpid', $fpids, 'IN')
-          ->execute();
-      }
-      catch (Exception $e) {
-        $transaction->rollback();
-        watchdog_exception('fieldable_panels_pane', $e);
-        throw $e;
+        catch (Exception $e) {
+          $transaction->rollback();
+          watchdog_exception('fieldable_panels_pane', $e);
+          throw $e;
+        }
       }
 
       // Clear the page and block and entity_load_multiple caches.
