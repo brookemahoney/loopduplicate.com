@@ -1,3 +1,16 @@
+# Sudo not allowed in the new Travis architecture which is based on containers.
+# @see http://docs.travis-ci.com/user/migrating-from-legacy/
+sudo: false
+
+addons:
+  apt:
+    packages:
+    - php5-cli
+    - php5-cgi
+    - php5-curl
+    - php5-gd
+    - php5-mysql
+
 language: php
 
 php:
@@ -13,13 +26,9 @@ mysql:
 #    - develop
 
 before_install:
-  - sudo apt-get update > /dev/null
   - composer self-update
 
 install:
-  # Installs some php packages.
-  - sudo apt-get --quiet=2 install php5-cli php5-cgi php5-curl php5-gd php5-mysql > /dev/null
-
   # Creates DB
   - "mysql -e 'create database drupal;'"
 
@@ -58,10 +67,14 @@ before_script:
   - cd $TRAVIS_BUILD_DIR/docroot
   - drush si loopd_profile --db-url=mysql://travis:@127.0.0.1/drupal --site-name=LoopDuplicate --account-mail="noreply@loopduplicate.com" --account-name=loopduplicate --account-pass=loopduplicate --site-mail="noreply@loopduplicate.com" -y;
 
-  # Starts a web server on port 8080, runs in the background; waits for
-  # initialization.
+  # Starts a web server on port 8080 which runs in the background.
   - drush @self runserver 127.0.0.1:8080 &
-  - until netstat -an 2>/dev/null | grep '8080.*LISTEN'; do true; done
+
+  # Waits for initialization.
+  # The commented line below worked on the old Travis architecture but it seems
+  # to hang on the new container based architecture. Using sleep instead.
+  #  - until netstat -an 2>/dev/null | grep '8080.*LISTEN'; do true; done
+  - sleep 10
 
 script:
   # Runs PhantomJs.
