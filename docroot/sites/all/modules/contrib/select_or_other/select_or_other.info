@@ -7,9 +7,9 @@ files[] = tests/select_or_other_number.test
 files[] = tests/select_or_other_taxonomy.test
 files[] = tests/select_or_other_text.test
 
-; Information added by Drupal.org packaging script on 2015-09-30
-version = "7.x-3.x-dev"
+; Information added by Drupal.org packaging script on 2015-10-24
+version = "7.x-3.0-alpha1"
 core = "7.x"
 project = "select_or_other"
-datestamp = "1443615841"
+datestamp = "1445714940"
 
