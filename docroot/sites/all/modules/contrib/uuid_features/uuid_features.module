@@ -64,6 +64,7 @@ function uuid_features_entity_info_alter(&$entity_info) {
     'commerce_product',
     'field_collection_item',
     'paragraphs_item',
+    'user',
   );
   if (module_exists('file_entity')) {
     $entity_types[] = 'file';

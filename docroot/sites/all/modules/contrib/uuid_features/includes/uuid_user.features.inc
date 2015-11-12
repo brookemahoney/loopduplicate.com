@@ -10,18 +10,20 @@
 function uuid_user_features_export_options() {
   $options = array();
 
-  $query = db_select('users', 'u')
-    ->fields('u', array('uid', 'name', 'mail', 'uuid'))
-    ->condition('u.uid', 0, '>')
-    ->orderBy('u.name', 'ASC')
-    ->addTag('uuid_user_features_export_options');
+  if (variable_get('uuid_features_entity_user_user', FALSE)) {
+    $query = db_select('users', 'u')
+      ->fields('u', array('uid', 'name', 'mail', 'uuid'))
+      ->condition('u.uid', 0, '>')
+      ->orderBy('u.name', 'ASC')
+      ->addTag('uuid_user_features_export_options');
 
-  $results = $query->execute()->fetchAll();
-  foreach ($results as $user) {
-    $options[$user->uuid] = t('@name: @mail', array(
-      '@name' => $user->name,
-      '@mail' => $user->mail,
-    ));
+    $results = $query->execute()->fetchAll();
+    foreach ($results as $user) {
+      $options[$user->uuid] = t('@name: @mail', array(
+        '@name' => $user->name,
+        '@mail' => $user->mail,
+      ));
+    }
   }
 
   return $options;
