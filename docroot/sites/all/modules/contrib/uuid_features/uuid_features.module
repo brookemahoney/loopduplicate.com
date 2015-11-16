@@ -662,6 +662,8 @@ function uuid_features_file_field_import(&$import, $entity_type, $module = NULL)
  *
  * @param object &$file
  *   The file, passed by reference.
+ * @param string $module
+ *   The module name.
  *
  * @return bool
  *   TRUE on success. On success the $file object will have a valid

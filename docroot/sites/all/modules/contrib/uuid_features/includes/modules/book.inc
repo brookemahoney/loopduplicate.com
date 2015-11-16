@@ -78,7 +78,7 @@ function book_uuid_node_features_rebuild_alter($node, $module) {
         // Set up node as for add child page.
         $node->book['plid'] = $parent_node->book['mlid'];
         $node->book['menu_name'] = $parent_node->book['menu_name'];
-        $node->book['weight'] = $node->book['weight'];
+        $node->book['weight'] = $parent_node->book['weight'];
       }
       else {
         // Add to pending.
