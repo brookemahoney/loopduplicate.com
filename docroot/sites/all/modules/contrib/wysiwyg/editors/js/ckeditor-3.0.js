@@ -7,23 +7,45 @@ Drupal.wysiwyg.excludeIdSelectors.wysiwyg_ckeditor = ['[id^="cke_"]'];
 
 /**
  * Initialize the editor library.
+ *
+ * This method is called once the first time a library is needed. If new
+ * WYSIWYG fieldsare added later, update() will be called instead.
+ *
+ * @param settings
+ *   An object containing editor settings for each input format.
+ * @param pluginInfo
+ *   An object containing global plugin configuration.
  */
-Drupal.wysiwyg.editor.init.ckeditor = function (settings, pluginInfo) {
+Drupal.wysiwyg.editor.init.ckeditor = function(settings, pluginInfo) {
+  // Nothing to do here other than register new plugins etc.
+  Drupal.wysiwyg.editor.update.ckeditor(settings, pluginInfo);
+};
+
+/**
+ * Update the editor library when new settings are available.
+ *
+ * This method is called instead of init() when at least one new WYSIWYG field
+ * has been added to the document and the library has already been initialized.
+ *
+ * $param settings
+ *   An object containing editor settings for each input format.
+ * $param pluginInfo
+ *   An object containing global plugin configuration.
+ */
+Drupal.wysiwyg.editor.update.ckeditor = function(settings, pluginInfo) {
   // Register native external plugins.
   // Array syntax required; 'native' is a predefined token in JavaScript.
   for (var pluginId in pluginInfo['native']) {
-    if (!pluginInfo['native'].hasOwnProperty(pluginId)) {
-      continue;
+    if (pluginInfo['native'].hasOwnProperty(pluginId) && (!CKEDITOR.plugins.externals || !CKEDITOR.plugins.externals[pluginId])) {
+      var plugin = pluginInfo['native'][pluginId];
+      CKEDITOR.plugins.addExternal(pluginId, plugin.path, plugin.fileName);
     }
-    var plugin = pluginInfo['native'][pluginId];
-    CKEDITOR.plugins.addExternal(pluginId, plugin.path, plugin.fileName);
   }
   // Build and register Drupal plugin wrappers.
   for (var pluginId in pluginInfo.drupal) {
-    if (!pluginInfo.drupal.hasOwnProperty(pluginId)) {
-      continue;
+    if (pluginInfo.drupal.hasOwnProperty(pluginId) && (!CKEDITOR.plugins.registered || !CKEDITOR.plugins.registered[pluginId])) {
+      Drupal.wysiwyg.editor.instance.ckeditor.addPlugin(pluginId, pluginInfo.drupal[pluginId]);
     }
-    Drupal.wysiwyg.editor.instance.ckeditor.addPlugin(pluginId, pluginInfo.drupal[pluginId]);
   }
   // Register Font styles (versions 3.2.1 and above).
   for (var format in settings) {
