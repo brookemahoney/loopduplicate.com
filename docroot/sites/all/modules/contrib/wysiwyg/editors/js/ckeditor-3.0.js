@@ -49,7 +49,7 @@ Drupal.wysiwyg.editor.update.ckeditor = function(settings, pluginInfo) {
   }
   // Register Font styles (versions 3.2.1 and above).
   for (var format in settings) {
-    if (settings[format].stylesSet) {
+    if (settings[format].stylesSet && (!CKEDITOR.stylesSet || !CKEDITOR.stylesSet.registered[format])) {
       CKEDITOR.stylesSet.add(format, settings[format].stylesSet);
     }
   }
