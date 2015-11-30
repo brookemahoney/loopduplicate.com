@@ -27,7 +27,14 @@ function radix_preprocess_html(&$variables) {
   if (!module_exists('bootstrap_library')) {
     $base = parse_url($base_url);
     $url = $base['scheme'] . '://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js';
-    drupal_add_js($url, 'external');
+    $jquery_ui_library = drupal_get_library('system', 'ui');
+    $jquery_ui_js = reset($jquery_ui_library['js']);
+    drupal_add_js($url, array(
+      'type' => 'external',
+      // We have to put Bootstrap after jQuery, but before jQuery UI.
+      'group' => JS_LIBRARY,
+      'weight' => $jquery_ui_js['weight'] - 1,
+    ));
   }
 
   // Add support for the Modenizr module.
@@ -161,12 +168,10 @@ function radix_preprocess_page(&$variables) {
   }
 
   // Format and add main menu to theme.
-  $main_menu_data = menu_build_tree(variable_get('menu_main_links_source', 'main-menu'), array(
+  $variables['main_menu'] = _radix_dropdown_menu_tree(variable_get('menu_main_links_source', 'main-menu'), array(
     'min_depth' => 1,
     'max_depth' => 2,
   ));
-  $variables['main_menu'] = menu_tree_output($main_menu_data);
-  $variables['main_menu']['#theme_wrappers'] = array();
 
   // Add a copyright message.
   $variables['copyright'] = t('Drupal is a registered trademark of Dries Buytaert.');

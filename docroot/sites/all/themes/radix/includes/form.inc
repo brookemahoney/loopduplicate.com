@@ -111,7 +111,7 @@ function _radix_process_input(&$element, &$form_state) {
     'select_as_checkboxes',
   );
 
-  if (!empty($element['#type']) && in_array($element['#type'], $types) && !in_array($element['#theme'], $skip_themes)) {
+  if (!empty($element['#type']) && in_array($element['#type'], $types) && (empty($element['#theme']) || !in_array($element['#theme'], $skip_themes))) {
     $element['#attributes']['class'][] = 'form-control';
   }
 
@@ -214,7 +214,7 @@ function radix_form_element($variables) {
         $output .= ' ' . $prefix . theme('form_element_label', $variables) . $suffix . "\n";
       }
       else {
-        $variables['#children'] = ' ' . $prefix . $element['#children'] . $suffix;
+        $output .= ' ' . $prefix . $element['#children'] . $suffix . "\n";
         $output .= ' ' . theme('form_element_label', $variables) . "\n";
       }
       break;
