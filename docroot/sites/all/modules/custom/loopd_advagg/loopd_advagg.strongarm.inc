@@ -98,7 +98,7 @@ function loopd_advagg_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'advagg_ie_css_selector_limiter_value';
-  $strongarm->value = '4000';
+  $strongarm->value = '3000';
   $export['advagg_ie_css_selector_limiter_value'] = $strongarm;
 
   $strongarm = new stdClass();
