@@ -16,6 +16,7 @@ function cer_schema() {
     'fields' => array(
       'pid' => array(
         'type' => 'serial',
+        'not null' => TRUE,
       ),
       'identifier' => array(
         'type' => 'text',
