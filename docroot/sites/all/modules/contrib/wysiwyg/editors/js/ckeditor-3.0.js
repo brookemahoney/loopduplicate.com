@@ -5,6 +5,9 @@ CKEDITOR.disableAutoInline = true;
 // Exclude every id starting with 'cke_' in ajax_html_ids during AJAX requests.
 Drupal.wysiwyg.excludeIdSelectors.wysiwyg_ckeditor = ['[id^="cke_"]'];
 
+// Keeps track of private instance data.
+var instanceMap;
+
 /**
  * Initialize the editor library.
  *
@@ -17,6 +20,7 @@ Drupal.wysiwyg.excludeIdSelectors.wysiwyg_ckeditor = ['[id^="cke_"]'];
  *   An object containing global plugin configuration.
  */
 Drupal.wysiwyg.editor.init.ckeditor = function(settings, pluginInfo) {
+  instanceMap = {};
   // Nothing to do here other than register new plugins etc.
   Drupal.wysiwyg.editor.update.ckeditor(settings, pluginInfo);
 };
@@ -111,7 +115,7 @@ Drupal.wysiwyg.editor.attach.ckeditor = function(context, params, settings) {
     },
 
     pluginsLoaded: function(ev) {
-      var wysiwygInstance = this._drupalWysiwygInstance;
+      var wysiwygInstance = instanceMap[this.name];
       var enabledPlugins = wysiwygInstance.pluginInfo.instances.drupal;
       // Override the conversion methods to let Drupal plugins modify the data.
       var editor = ev.editor;
@@ -144,7 +148,7 @@ Drupal.wysiwyg.editor.attach.ckeditor = function(context, params, settings) {
     },
 
     selectionChange: function (event) {
-      var wysiwygInstance = this._drupalWysiwygInstance;
+      var wysiwygInstance = instanceMap[this.name];
       var enabledPlugins = wysiwygInstance.pluginInfo.instances.drupal;
       for (var name in enabledPlugins) {
         var plugin = Drupal.wysiwyg.plugins[name];
@@ -175,13 +179,12 @@ Drupal.wysiwyg.editor.attach.ckeditor = function(context, params, settings) {
 
     destroy: function (event) {
       // Free our reference to the private instance to not risk memory leaks.
-      delete this._drupalWysiwygInstance;
-    }
+      delete instanceMap[this.name];
+    },
   };
-
+  instanceMap[params.field] = this;
   // Attach editor.
   var editorInstance = CKEDITOR.replace(params.field, settings);
-  editorInstance._drupalWysiwygInstance = this;
 };
 
 /**
