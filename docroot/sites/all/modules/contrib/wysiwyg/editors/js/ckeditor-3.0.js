@@ -180,7 +180,7 @@ Drupal.wysiwyg.editor.attach.ckeditor = function(context, params, settings) {
     destroy: function (event) {
       // Free our reference to the private instance to not risk memory leaks.
       delete instanceMap[this.name];
-    },
+    }
   };
   instanceMap[params.field] = this;
   // Attach editor.
