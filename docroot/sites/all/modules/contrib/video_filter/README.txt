@@ -76,7 +76,7 @@ function MODULE_youtube($video) {
   // $video contains the video URL in source, the codec (as above) and also
   // [code][matches] with the result of the regexp and [codec][delta] with the
   // key of the matched regexp.
-  $video['source'] = 'http://www.youtube.com/v/' . $video['codec']['matches'][1] . ($video['autoplay'] ? '&autoplay=1' : '');
+  $video['source'] = '//www.youtube.com/v/' . $video['codec']['matches'][1] . ($video['autoplay'] ? '&autoplay=1' : '');
 
   // Outputs a general <object...> for embedding flash players. Needs width,
   // height, source and optionally align (left or right) and params (a list of
