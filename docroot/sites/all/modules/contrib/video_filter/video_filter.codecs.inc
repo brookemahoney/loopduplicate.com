@@ -70,6 +70,24 @@ function video_filter_codec_info() {
     'control_bar_height' => 20,
   );
 
+  $codecs['democracynow_fullshow'] = array(
+    'name' => t('DemocracyNow Fullshow'),
+    'sample_url' => 'http://www.democracynow.org/shows/2015/3/20',
+    'callback' => 'video_filter_democracynow_fullshow',
+    'regexp' => '/democracynow\.org\/shows\/([0-9]+)\/([0-9]+)\/([0-9]+)/',
+    'ratio' => 16 / 9,
+    'control_bar_height' => 0,
+  );
+
+  $codecs['democracynow_story'] = array(
+    'name' => t('DemocracyNow Story'),
+    'sample_url' => 'http://www.democracynow.org/2015/3/23/yemen_in_crisis_us_closes_key',
+    'callback' => 'video_filter_democracynow_story',
+    'regexp' => '/democracynow\.org\/([0-9]+)\/([0-9]+)\/([0-9]+)\/([a-zA-Z0-9\-_]+)/',
+    'ratio' => 16 / 9,
+    'control_bar_height' => 0,
+  );
+
   $codecs['flickr_slideshows'] = array(
     'name' => t('Flickr Slideshows'),
     'sample_url' => 'http://www.flickr.com/photos/username/sets/1234567890/show/',
@@ -269,8 +287,8 @@ function video_filter_codec_info() {
     'callback' => 'video_filter_youku_html5',
     'html5_callback' => 'video_filter_youku_html5',
     'regexp' => array(
-      '/youku\.com\/v_show\/id_([a-z0-9\-_]+)\.html/i',
-      '/youku\.com\/player\.php\/sid\/([a-z0-9\-_]+)/i',
+      '/youku\.com\/v_show\/id_([a-z0-9\-_=]+)\.html/i',
+      '/youku\.com\/player\.php\/sid\/([a-z0-9\-_=]+)/i',
     ),
     'ratio' => 16 / 9,
     'control_bar_height' => 50,
@@ -452,6 +470,40 @@ function video_filter_flickr_slideshows($video) {
   $params['flashvars'] = "&amp;offsite=true&amp;lang=en-us&amp;page_show_url=%2Fphotos%2F$user_name%2Fsets%2F$set_id%2Fshow%2F&amp;page_show_back_url=%2Fphotos%2F$user_name%2Fsets%2F$set_id%2F&amp;set_id=$set_id&amp;jump_to=";
 
   return video_filter_flash($video, $params);
+}
+
+/**
+ * Callback for DemocracyNow Fullshow codec.
+ *
+ * @see video_filter_codec_info()
+ */
+function video_filter_democracynow_fullshow($video) {
+  $video['source'] = 'http://www.democracynow.org/embed/show/' . $video['codec']['matches'][0];
+  // The above is pulling in the url part of the regex, so we need to do a
+  // search and replace to remove it.
+  $toomuch = array("http://www.democracynow.org/embed/show/democracynow.org/shows/");
+  $justright = array("http://www.democracynow.org/embed/show/");
+  $replaced = str_replace($toomuch, $justright, $video);
+  $video = $replaced;
+
+  return video_filter_iframe($video);
+}
+
+/**
+ * Callback for DemocracyNow story codec.
+ *
+ * @see video_filter_codec_info()
+ */
+function video_filter_democracynow_story($video) {
+  $video['source'] = 'http://www.democracynow.org/embed/story/' . $video['codec']['matches'][0];
+  // The above is pulling in the url part of the regex, so we need to do a
+  // search and replace to remove it.
+  $toomuch = array("http://www.democracynow.org/embed/story/democracynow.org/");
+  $justright = array("http://www.democracynow.org/embed/story/");
+  $replaced = str_replace($toomuch, $justright, $video);
+  $video = $replaced;
+
+  return video_filter_iframe($video);
 }
 
 /**
@@ -656,7 +708,20 @@ function video_filter_vbox($video) {
  * @see video_filter_codec_info()
  */
 function video_filter_vimeo($video) {
-  $video['source'] = '//www.vimeo.com/moogaloop.swf?clip_id=' . $video['codec']['matches'][1] . '&amp;server=www.vimeo.com&amp;fullscreen=1&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=&amp;autoplay=' . $video['autoplay'];
+  $attributes = array(
+    'autopause' => isset($video['autopause']) ? 'autopause=' . (int) $video['autopause'] : 'autopause=1',
+    'autoplay' => isset($video['autoplay']) ? 'autoplay=' . (int) $video['autoplay'] : 'autoplay=0',
+    'badge' => isset($video['badge']) ? 'badge=' . (int) $video['badge'] : 'badge=1',
+    'byline' => isset($video['byline']) ? 'byline=' . (int) $video['byline'] : 'byline=1',
+    'loop' => isset($video['loop']) ? 'loop=' . (int) $video['loop'] : 'loop=0',
+    'portrait' => isset($video['portrait']) ? 'portrait=' . (int) $video['portrait'] : 'portrait=1',
+    'title' => isset($video['title']) ? 'autopause=' . (int) $video['title'] : 'autopause=1',
+    'fullscreen' => isset($video['fullscreen']) ? 'fullscreen=' . (int) $video['fullscreen'] : 'fullscreen=1',
+  );
+  if (!empty($video['color'])) {
+    $attributes['color'] = (string) $video['color'];
+  }
+  $video['source'] = '//www.vimeo.com/moogaloop.swf?clip_id=' . $video['codec']['matches'][1] . '&amp;server=www.vimeo.com&amp;' . implode('&amp;', $attributes);
 
   return video_filter_flash($video);
 }
@@ -667,7 +732,20 @@ function video_filter_vimeo($video) {
  * @see video_filter_codec_info()
  */
 function video_filter_vimeo_html5($video) {
-  $video['source'] = '//player.vimeo.com/video/' . $video['codec']['matches'][1] . ($video['autoplay'] ? '?autoplay=1' : '');
+  $attributes = array(
+    'autopause' => isset($video['autopause']) ? 'autopause=' . (int) $video['autopause'] : 'autopause=1',
+    'autoplay' => isset($video['autoplay']) ? 'autoplay=' . (int) $video['autoplay'] : 'autoplay=0',
+    'badge' => isset($video['badge']) ? 'badge=' . (int) $video['badge'] : 'badge=1',
+    'byline' => isset($video['byline']) ? 'byline=' . (int) $video['byline'] : 'byline=1',
+    'loop' => isset($video['loop']) ? 'loop=' . (int) $video['loop'] : 'loop=0',
+    'portrait' => isset($video['portrait']) ? 'portrait=' . (int) $video['portrait'] : 'portrait=1',
+    'title' => isset($video['title']) ? 'autopause=' . (int) $video['title'] : 'autopause=1',
+    'fullscreen' => isset($video['fullscreen']) ? 'fullscreen=' . (int) $video['fullscreen'] : 'fullscreen=1',
+  );
+  if (!empty($video['color'])) {
+    $attributes['color'] = (string) $video['color'];
+  }
+  $video['source'] = '//player.vimeo.com/video/' . $video['codec']['matches'][1] . '?' . implode('&', $attributes);
 
   return video_filter_iframe($video);
 }
@@ -707,15 +785,25 @@ function video_filter_youtube($video) {
     'autoplay' => !empty($video['autoplay']) ? 'autoplay=1' : 'autoplay=0',
     'fs' => 'fs=1',
     'loop' => !empty($video['loop']) ? 'loop=1' : 'loop=0',
-    'controls' => !empty($video['controls']) ? 'controls=1' : 'controls=0',
+    'controls' => !empty($video['controls']) ? 'controls=1' : (!isset($video['controls']) ? 'controls=1' : 'controls=0'),
     'autohide' => !empty($video['autohide']) ? 'autohide=1' : 'autohide=0',
     'showinfo' => !empty($video['showinfo']) ? 'showinfo=1' : 'showinfo=0',
     'theme' => !empty($video['theme']) ? 'theme=' . $video['theme'] : 'theme=dark',
     'color' => !empty($video['color']) ? 'color=' . $video['color'] : 'color=red',
+    'enablejsapi' => !empty($video['enablejsapi']) ? 'enablejsapi=' . (int) $video['enablejsapi'] : 'enablejsapi=0',
   );
 
   if (!empty($video['loop'])) {
     $attributes['playlist'] = 'playlist=' . $video['codec']['matches'][1];
+  }
+
+  if (preg_match('/t=((\d+[m|s])?(\d+[s]?)?)/', $video['source'], $matches)) {
+    $attributes['start'] = 'start=' . (preg_replace("/[^0-9]/", "", $matches[2]) * 60 + (preg_replace("/[^0-9]/", "", $matches[3])));
+  }
+  if (!empty($video['start'])) {
+    if (preg_match('/((\d+[m|s])?(\d+[s]?)?)/', $video['start'], $matches)) {
+      $attributes['start'] = 'start=' . (preg_replace("/[^0-9]/", "", $matches[2]) * 60 + (preg_replace("/[^0-9]/", "", $matches[3])));
+    }
   }
 
   $video['source'] = '//www.youtube.com/embed/' . $video['codec']['matches'][1] . '?' . implode('&amp;', $attributes);
@@ -749,15 +837,25 @@ function video_filter_youtube_html5($video) {
     'autoplay' => $video['autoplay'] ? 'autoplay=1' : 'autoplay=0',
     'wmode' => 'wmode=opaque',
     'loop' => !empty($video['loop']) ? 'loop=1' : 'loop=0',
-    'controls' => !empty($video['controls']) ? 'controls=1' : 'controls=0',
+    'controls' => !empty($video['controls']) ? 'controls=1' : (!isset($video['controls']) ? 'controls=1' : 'controls=0'),
     'autohide' => !empty($video['autohide']) ? 'autohide=1' : 'autohide=0',
     'showinfo' => !empty($video['showinfo']) ? 'showinfo=1' : 'showinfo=0',
     'theme' => !empty($video['theme']) ? 'theme=' . $video['theme'] : 'theme=dark',
     'color' => !empty($video['color']) ? 'color=' . $video['color'] : 'color=red',
+    'enablejsapi' => !empty($video['enablejsapi']) ? 'enablejsapi=' . (int) $video['enablejsapi'] : 'enablejsapi=0',
   );
 
   if (!empty($video['loop'])) {
     $attributes['playlist'] = 'playlist=' . $video['codec']['matches'][1];
+  }
+
+  if (preg_match('/t=((\d+[m|s])?(\d+[s]?)?)/', $video['source'], $matches)) {
+    $attributes['start'] = 'start=' . (preg_replace("/[^0-9]/", "", $matches[2]) * 60 + (preg_replace("/[^0-9]/", "", $matches[3])));
+  }
+  if (!empty($video['start'])) {
+    if (preg_match('/((\d+[m|s])?(\d+[s]?)?)/', $video['start'], $matches)) {
+      $attributes['start'] = 'start=' . (preg_replace("/[^0-9]/", "", $matches[2]) * 60 + (preg_replace("/[^0-9]/", "", $matches[3])));
+    }
   }
 
   $video['source'] = '//www.youtube.com/embed/' . $video['codec']['matches'][1] . '?' . implode('&amp;', $attributes);
