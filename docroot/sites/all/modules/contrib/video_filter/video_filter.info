@@ -5,9 +5,9 @@ package = Input filters
 
 stylesheets[all][] = video_filter.css
 
-; Information added by Drupal.org packaging script on 2016-03-07
-version = "7.x-3.1+39-dev"
+; Information added by Drupal.org packaging script on 2016-03-08
+version = "7.x-3.1+40-dev"
 core = "7.x"
 project = "video_filter"
-datestamp = "1457349215"
+datestamp = "1457425464"
 

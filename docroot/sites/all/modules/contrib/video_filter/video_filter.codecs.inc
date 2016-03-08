@@ -436,7 +436,10 @@ function video_filter_collegehumor($video) {
  * @see video_filter_codec_info()
  */
 function video_filter_dailymotion($video) {
-  $video['source'] = '//www.dailymotion.com/swf/' . $video['codec']['matches'][1];
+  $attributes = array(
+    'autoplay' => $video['autoplay'] ? 'autoplay=1' : 'autoplay=0',
+  );
+  $video['source'] = '//www.dailymotion.com/swf/' . $video['codec']['matches'][1] . '?' . implode('&amp;', $attributes);
 
   return video_filter_flash($video);
 }
