@@ -176,6 +176,16 @@ function video_filter_codec_info() {
     'control_bar_height' => 40,
   );
 
+  $codecs['myvideo'] = array(
+    'name' => t('MyVideo'),
+    'sample_url' => 'http://www.myvideo.de/filme/story-title-1234567890',
+    'html5_callback' => 'video_filter_myvideo',
+    'regexp' => array(
+      '/myvideo\.de\/(.+)\-([0-9]+)/i',
+    ),
+    'ratio' => 400 / 283,
+  );
+
   $codecs['picasa_slideshows'] = array(
     'name' => t('Picasa Slideshows'),
     'sample_url' => 'http://picasaweb.google.com/data/feed/base/user/USER_NAME/albumid/5568104935784209834?alt=rss&amp;kind=photo&amp;hl=en_US',
@@ -614,6 +624,16 @@ function video_filter_myspace($video) {
   $video['source'] = '//mediaservices.myspace.com/services/media/embed.aspx/m=' . $video['codec']['matches'][$last - 1];
 
   return video_filter_flash($video, $params);
+}
+
+/**
+ * Callback for MyVideo codec.
+ *
+ * @see video_filter_codec_info()
+ */
+function video_filter_myvideo($video) {
+  $video['source'] = 'http://www.myvideo.de/embedded/public/' . $video['codec']['matches'][2];
+  return video_filter_iframe($video);
 }
 
 /**
