@@ -180,6 +180,7 @@ function video_filter_codec_info() {
     'name' => t('MyVideo'),
     'sample_url' => 'http://www.myvideo.de/filme/story-title-1234567890',
     'html5_callback' => 'video_filter_myvideo',
+    'callback' => 'video_filter_myvideo',
     'regexp' => array(
       '/myvideo\.de\/(.+)\-([0-9]+)/i',
     ),
@@ -244,6 +245,15 @@ function video_filter_codec_info() {
     'sample_url' => 'http://www.twitch.tv/uN1qUe-I_d',
     'callback' => 'video_filter_twitch',
     'regexp' => '/twitch\.tv\/([a-z0-9\-_]+)/i',
+    'ratio' => 16 / 9,
+  );
+
+  $codecs['ustream'] = array(
+    'name' => t('Ustream'),
+    'sample_url' => 'http://www.ustream.tv/recorded/111212121212',
+    'html5_callback' => 'video_filter_ustream',
+    'callback' => 'video_filter_ustream',
+    'regexp' => '/ustream\.tv\/recorded\/([0-9]+)/i',
     'ratio' => 16 / 9,
   );
 
@@ -712,6 +722,20 @@ function video_filter_teachertube($video) {
   $params['flashvars'] = 'file=http://www.teachertube.com/embedFLV.php?pg=video_' . $video['codec']['matches'][1] . '&amp;menu=false&amp;frontcolor=ffffff&amp;lightcolor=FF0000&amp;logo=http://www.teachertube.com/www3/images/greylogo.swf&amp;skin=http://www.teachertube.com/embed/overlay.swf&amp;volume=80&amp;controlbar=over&amp;displayclick=link&amp;viral.link=http://www.teachertube.com/viewVideo.php?video_id=' . $video['codec']['matches'][1] . '&amp;stretching=exactfit&amp;plugins=viral-2&amp;viral.callout=none&amp;viral.onpause=false';
 
   return video_filter_flash($video, $params);
+}
+
+/**
+ * Callback for Ustream codec.
+ *
+ * @see video_filter_codec_info()
+ */
+function video_filter_ustream($video) {
+  $attributes = array(
+    'html5ui' => 'html5ui',
+    'autoplay' => isset($video['autoplay']) ? 'autoplay=' . (int) $video['autoplay'] : 'autoplay=0',
+  );
+  $video['source'] = 'http://www.ustream.tv/embed/recorded/' . $video['codec']['matches'][1] . '?' . implode('&', $attributes);
+  return video_filter_iframe($video);
 }
 
 /**
