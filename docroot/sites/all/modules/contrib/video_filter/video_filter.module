@@ -25,6 +25,7 @@ function video_filter_filter_info() {
       'video_filter_related' => 1,
       'video_filter_html5' => 1,
       'video_filter_codecs' => _video_filter_map_codecs_name(video_filter_get_codec_info()),
+      'video_filter_multiple_sources' => TRUE,
     ),
     'tips callback' => '_video_filter_tips',
     // See http://drupal.org/node/1061244.
@@ -72,6 +73,17 @@ function _video_filter_settings($form, &$form_state, $filter, $format, $defaults
     '#title' => t('Use HTML5'),
     '#description' => t('Use HTML5 if the codec provides it. Makes your videos more device agnostic.'),
     '#default_value' => isset($filter->settings['video_filter_html5']) ? $filter->settings['video_filter_html5'] : $defaults['video_filter_html5'],
+    '#options' => array(
+      0 => t('No'),
+      1 => t('Yes'),
+    ),
+  );
+
+  $settings['video_filter_multiple_sources'] = array(
+    '#type' => 'radios',
+    '#title' => t('Allow multiple sources'),
+    '#description' => t('Allow the use of multiple sources (used source is selected at random).'),
+    '#default_value' => isset($filter->settings['video_filter_multiple_sources']) ? $filter->settings['video_filter_multiple_sources'] : $defaults['video_filter_multiple_sources'],
     '#options' => array(
       0 => t('No'),
       1 => t('Yes'),
@@ -143,7 +155,7 @@ function _video_filter_process($text, $filter, $format, $langcode, $cache, $cach
       );
 
       // Pick random out of multiple sources separated by comma (,).
-      if (strstr($video['source'], ',')) {
+      if ($filter->settings['video_filter_multiple_sources'] && strstr($video['source'], ',')) {
         $sources          = explode(',', $video['source']);
         $random           = array_rand($sources, 1);
         $video['source']  = $sources[$random];

@@ -282,6 +282,7 @@ function video_filter_codec_info() {
 
   $codecs['ted'] = array(
     'name' => t('TED'),
+    'sample_url' => 'https://www.ted.com/talks/[story-title]',
     'instructions' => t('Click in Embed and copy the "Link to this talk" link and paste here.'),
     'callback' => 'video_filter_ted',
     'html5_callback' => 'video_filter_ted',
