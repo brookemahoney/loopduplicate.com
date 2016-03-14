@@ -376,7 +376,7 @@ function video_filter_codec_info() {
       '/youtube\.com\/embed\/([a-z0-9\-_]+)/i',
     ),
     'ratio' => 16 / 9,
-    'control_bar_height' => 25,
+    'control_bar_height' => 0,
   );
 
   $codecs['youtube_playlist'] = array(
@@ -387,7 +387,7 @@ function video_filter_codec_info() {
       '/youtube\.com\/playlist\?list=([a-z0-9\-_]+)/i',
     ),
     'ratio' => 16 / 9,
-    'control_bar_height' => 25,
+    'control_bar_height' => 0,
   );
 
   return $codecs;
