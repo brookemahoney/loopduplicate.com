@@ -10,12 +10,12 @@
 function loopd_article_default_cer() {
   $items = array();
   $items['node:article:field_internal_references*node:article:field_internal_references'] = entity_import('cer', '{
-    "identifier" : "node:article:field_internal_references*node:article:field_internal_references",
     "cer_bidirectional" : { "und" : [ { "value" : "1" } ] },
     "cer_enabled" : { "und" : [ { "value" : "1" } ] },
-    "cer_weight" : { "und" : [ { "value" : "0" } ] },
     "cer_left" : { "und" : [ { "path" : "node:article:field_internal_references" } ] },
     "cer_right" : { "und" : [ { "path" : "node:article:field_internal_references" } ] },
+    "cer_weight" : { "und" : [ { "value" : "0" } ] },
+    "identifier" : "node:article:field_internal_references*node:article:field_internal_references",
     "rdf_mapping" : []
   }');
   return $items;

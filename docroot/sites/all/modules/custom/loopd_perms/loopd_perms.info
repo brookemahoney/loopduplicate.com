@@ -7,6 +7,7 @@ dependencies[] = backup_migrate
 dependencies[] = block
 dependencies[] = block_class
 dependencies[] = blockify
+dependencies[] = cer
 dependencies[] = clean_markup_blocks
 dependencies[] = clean_markup_panels
 dependencies[] = contextual
