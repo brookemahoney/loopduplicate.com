@@ -143,21 +143,20 @@ function theme_module_filter_system_modules_tabs($variables) {
     $form['modules'][$package]['#printed'] = TRUE;
   }
 
-  if (variable_get('module_filter_count_enabled', 1)) {
-    $enabled_counts = array();
-    foreach ($enabled as $package_id => $value) {
-      $enabled_counts[$package_id] = array(
-        'enabled' => count(array_filter($value)),
-        'total' => count($value),
-      );
-    }
-    drupal_add_js(array(
-      'moduleFilter' => array(
-        'packageIDs' => $package_ids,
-        'enabledCounts' => $enabled_counts,
-      )
-    ), 'setting');
+  //Get packages and count number of modules
+  $enabled_counts = array();
+  foreach ($enabled as $package_id => $value) {
+    $enabled_counts[$package_id] = array(
+      'enabled' => count(array_filter($value)),
+      'total' => count($value),
+    );
   }
+  drupal_add_js(array(
+    'moduleFilter' => array(
+      'packageIDs' => $package_ids,
+      'enabledCounts' => $enabled_counts,
+    )
+  ), 'setting');
 
   // Add first and last class to rows.
   $rows[0]['class'][] = 'first';
@@ -172,6 +171,12 @@ function theme_module_filter_system_modules_tabs($variables) {
   return $output;
 }
 
+/**
+ * Theme function for module filter operations.
+ * @param $variables
+ * @return
+ *   HTML for admin status operations.
+ */
 function theme_module_filter_operations(&$vars) {
   $links = &$vars['links'];
   $dropbutton = $vars['dropbutton'];

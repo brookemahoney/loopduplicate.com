@@ -1,3 +1,15 @@
+Module Filter 7.x-2.x, 2016-03-20
+---------------------------------
+Issue #2452067 by Madis: Option to show description expanded as default
+  not working.
+Issue #2580791 by makbul_khan8: Coding standards and few function without
+  help comments.
+Issue #2153697 by annya: Disabling option "Number of enabled modules" breaks
+  tabs functionality.
+Issue #1710230 by willvincent: On | Off buttons does not change state with
+  jquery_update module active.
+
+
 Module Filter 7.x-2.x, 2015-03-12
 ---------------------------------
 Added option to show description as expanded by default.
