@@ -90,7 +90,6 @@ dependencies[] = radix_layouts
 dependencies[] = reroute_email
 dependencies[] = search_api
 dependencies[] = search_api_db
-dependencies[] = search_api_solr
 dependencies[] = search_api_views
 dependencies[] = select_or_other
 dependencies[] = strongarm

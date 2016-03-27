@@ -32,6 +32,7 @@ function loopd_search_default_search_api_autocomplete_search() {
     "machine_name" : "search_api_views_search_db",
     "name" : "Search DB",
     "index_id" : "db_node",
+    "suggester_id" : "",
     "type" : "search_api_views",
     "enabled" : "1",
     "options" : { "result count" : true, "fields" : [] },
