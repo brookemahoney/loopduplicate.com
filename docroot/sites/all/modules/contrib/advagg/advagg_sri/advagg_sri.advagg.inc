@@ -93,9 +93,14 @@ function advagg_sri_advagg_build_aggregate_plans_alter() {
  * Implements hook_advagg_missing_root_file().
  */
 function advagg_sri_advagg_missing_root_file($aggregate_filename, $filename, $cache) {
+  // Remove entries from the DB.
   if (!empty($aggregate_filename) && !empty($cache)) {
     advagg_sri_del_filename_hashes($aggregate_filename);
   }
+  // Remove entries from the Cache.
+  $ext = pathinfo($aggregate_filename, PATHINFO_EXTENSION);
+  $cid = "advagg:$ext:";
+  cache_clear_all($cid, 'cache_advagg_aggregates', TRUE);
 }
 
 /**
@@ -103,6 +108,11 @@ function advagg_sri_advagg_missing_root_file($aggregate_filename, $filename, $ca
  */
 function advagg_sri_advagg_removed_aggregates($kill_list) {
   foreach ($kill_list as $uri) {
+    if (is_object($uri) && property_exists($uri, 'uri')) {
+      $temp = $uri->uri;
+      unset($uri);
+      $uri = $temp;
+    }
     // Skip gzip files.
     $ext = pathinfo($uri, PATHINFO_EXTENSION);
     if ($ext === 'gz') {
@@ -154,19 +164,22 @@ function advagg_sri_del_filename_hashes($filename) {
  * Returns the hashes settings.
  *
  * @param array $filenames
- *   An array of filenames
+ *   An array of filenames.
  *
  * @return array
  *   The hashes for the given filenames.
  */
 function advagg_sri_get_filenames_hashes($filenames) {
   $hashes = array();
-  $rows = db_select('advagg_sri', 'advagg_sri')
-    ->fields('advagg_sri', array('filename', 'hashes'))
-    ->condition('filename', $filenames, 'IN')
-    ->execute();
-  foreach ($rows as $row) {
-    $hashes[$row->filename] = unserialize($row->hashes);
+  // Do not use the DB if in development mode.
+  if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) < 0) {
+    $rows = db_select('advagg_sri', 'advagg_sri')
+      ->fields('advagg_sri', array('filename', 'hashes'))
+      ->condition('filename', $filenames, 'IN')
+      ->execute();
+    foreach ($rows as $row) {
+      $hashes[$row->filename] = unserialize($row->hashes);
+    }
   }
 
   // If the hash is not in the database, generate it on demand.

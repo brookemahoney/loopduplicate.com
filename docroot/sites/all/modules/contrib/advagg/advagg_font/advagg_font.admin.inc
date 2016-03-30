@@ -31,8 +31,8 @@ function advagg_font_admin_settings_form() {
     6 => t('Externally load the latest from github (version: @version)', array('@version' => $package->version)),
   );
   $description = t('This will use the fallback font until the font has been downloaded. See <a href="@link">fontfaceobserver</a> for more info.', array(
-      '@link' => 'https://github.com/bramstein/fontfaceobserver',
-    ));
+    '@link' => 'https://github.com/bramstein/fontfaceobserver',
+  ));
   if (function_exists('libraries_info')) {
     $lib_info = libraries_detect('fontfaceobserver');
     if ($lib_info['installed']) {

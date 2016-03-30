@@ -24,7 +24,7 @@ function advagg_sri_admin_settings_form() {
       0 => t('Disabled'),
       1 => t('SHA-256'),
       2 => t('SHA-384'),
-      3 => t('SHA-512')
+      3 => t('SHA-512'),
     ),
   );
 

@@ -50,7 +50,7 @@ function advagg_font_requirements($phase) {
 
   if ( isset($lib_info['version'])
     && !empty($package->version)
-    && version_compare($package->version,  $lib_info['version']) >= 1
+    && version_compare($package->version, $lib_info['version']) >= 1
   ) {
     $requirements['advagg_font_old_library'] = array(
       'title' => $t('AdvAgg Font - Version is out of date'),

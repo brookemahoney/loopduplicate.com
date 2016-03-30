@@ -241,7 +241,7 @@ function advagg_bundler_analyisis_query($safesql) {
   // root bundles that have been used in the last 2 weeks. This prevents an
   // old site structure from influencing new bundles.
   // Grouping by the filename gives us the count and makes it so we don't
-  // return a lot of rows;
+  // return a lot of rows.
   $db_type = Database::getConnection()->databaseType();
   $schema = Database::getConnection()->schema();
   if ($safesql) {
@@ -328,6 +328,7 @@ function advagg_bundler_analyisis_query($safesql) {
     'linecount',
     'filename_hash',
   );
+  // Make drupal_get_installed_schema_version() available.
   include_once DRUPAL_ROOT . '/includes/install.inc';
   if (drupal_get_installed_schema_version('advagg') >= 7211) {
     $af_fields[] = 'filesize_processed';

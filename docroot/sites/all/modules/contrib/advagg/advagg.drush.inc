@@ -189,12 +189,28 @@ function drush_advagg_cron() {
     // format_plural() not always available.
     drupal_set_message(dt('Some oleftover temporary files were found. A total of %count temporary files were removed.', array('%count' => $output[5])), 'ok');
   }
+
+  // Output results from running advagg_refresh_all_locale_files().
+  if (empty($output[6])) {
+    drupal_set_message(dt('Locale did not translate anything in any JavaScript files.'), 'ok');
+  }
+  else {
+    drupal_set_message(dt('Locale did translate some JavaScript files. Resulting locale js files: @files', array('@files' => print_r($output[6], TRUE))), 'ok');
+  }
 }
 
 /**
  * Flush the correct caches so CSS/JS changes go live.
  */
 function drush_advagg_smart_cache_flush() {
+  // Clear the libraries cache.
+  if (function_exists('libraries_flush_caches')) {
+    $cache_tables = libraries_flush_caches();
+    foreach ($cache_tables as $table) {
+      cache_clear_all('*', $table, TRUE);
+    }
+  }
+
   // Run the command.
   module_load_include('inc', 'advagg', 'advagg.cache');
   $flushed = advagg_push_new_changes();

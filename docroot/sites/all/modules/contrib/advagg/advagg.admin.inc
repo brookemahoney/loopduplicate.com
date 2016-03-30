@@ -76,11 +76,12 @@ function advagg_admin_settings_form($form, $form_state) {
     '#title' => t('AdvAgg Cache Settings'),
     '#default_value' => variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL),
     '#options' => $options,
-    '#description' => t("As a reference, core takes about 25 ms to run. Development will scan all files for a change on every page load. Normal and the render cache is fine for all use cases. Aggressive should be fine for most use cases. If your inline css/js changes based off of a variable then the cache hit ratio will be low; if that is the case consider using Drupal.settings for a better cache hit ratio when using the render cache. The aggressive render cache will cache the output from js_alter and css_alter.", array(
+    '#description' => t("As a reference, core takes about 25 ms to run. Development will scan all files for a change on every page load. Normal and the render cache is fine for all use cases. Aggressive should be fine for most use cases. If your inline css/js changes based off of a variable then the cache hit ratio will be low; if that is the case consider using Drupal.settings for a better cache hit ratio when using the render cache. The aggressive render cache will cache the output from js_alter and css_alter. !description", array(
       '@information' => url($config_path . '/advagg/info', array(
         'fragment' => 'edit-hooks-implemented',
       )),
-    )) . ' ' . $description,
+      '!description' => $description,
+    )),
   );
 
   $form['global']['dev_container'] = array(
@@ -264,6 +265,12 @@ function advagg_admin_settings_form($form, $form_state) {
         '#edit-advagg-convert-absolute-to-protocol-relative-path' => array('checked' => FALSE),
       ),
     ),
+  );
+  $form['global']['obscure']['advagg_skip_file_create_url_inside_css'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Do not run CSS url() values through file_create_url().'),
+    '#default_value' => variable_get('advagg_skip_file_create_url_inside_css', ADVAGG_SKIP_FILE_CREATE_URL_INSIDE_CSS),
+    '#description' => t('If checked, the processing of url() values within CSS will be handled more like core than the CDN module. This has the advantage of not converting relative paths in your source CSS to absolute paths in the aggregated CSS.'),
   );
 
   $form['css'] = array(
@@ -476,6 +483,21 @@ function advagg_admin_operations_form($form, $form_state) {
     '#value' => t('Delete leftover temporary files'),
     '#submit' => array('advagg_admin_cleanup_temp_files_button'),
   );
+
+  if (module_exists('locale')) {
+    $form['cron']['refresh_locale_files'] = array(
+      '#type' => 'fieldset',
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#title' => t('Refresh all locale files'),
+      '#description' => t('Run all js files in the advagg_files table through locale_js_alter; loop for each enabled language.'),
+    );
+    $form['cron']['refresh_locale_files']['advagg_refresh_all_locale_files'] = array(
+      '#type' => 'submit',
+      '#value' => t('Refresh all locale files'),
+      '#submit' => array('advagg_admin_refresh_locale_files_button'),
+    );
+  }
 
   // Hide drastic measures as they should not be done unless you really need it.
   $form['drastic_measures'] = array(
@@ -926,6 +948,14 @@ function advagg_admin_get_file_info($filename) {
  * Perform a smart flush.
  */
 function advagg_admin_flush_cache_button() {
+  // Clear the libraries cache.
+  if (function_exists('libraries_flush_caches')) {
+    $cache_tables = libraries_flush_caches();
+    foreach ($cache_tables as $table) {
+      cache_clear_all('*', $table, TRUE);
+    }
+  }
+
   // Run the command.
   module_load_include('inc', 'advagg', 'advagg.cache');
   $flushed = advagg_push_new_changes();
@@ -965,6 +995,14 @@ function advagg_admin_flush_cache_button() {
  * Clear out all advagg cache bins.
  */
 function advagg_admin_clear_all_caches_button() {
+  // Clear the libraries cache.
+  if (function_exists('libraries_flush_caches')) {
+    $cache_tables = libraries_flush_caches();
+    foreach ($cache_tables as $table) {
+      cache_clear_all('*', $table, TRUE);
+    }
+  }
+
   // Run the command.
   module_load_include('inc', 'advagg', 'advagg.cache');
   advagg_flush_all_cache_bins();
@@ -1087,10 +1125,25 @@ function advagg_admin_cleanup_semaphore_table_button() {
     drupal_set_message(t('No orphaned advagg semaphore database table locks discovered. Nothing was deleted.'));
   }
   else {
-    drupal_set_message($count, format_plural('1 orphaned advagg semaphore database table lock was found. A total of 1 database entry was removed.', 'Some orphaned advagg semaphore database table locks were found. A total of @count database entries were removed.'));
+    drupal_set_message(format_plural($count, '1 orphaned advagg semaphore database table lock was found. A total of 1 database entry was removed.', 'Some orphaned advagg semaphore database table locks were found. A total of @count database entries were removed.'));
   }
 }
 
+/**
+ * Delete orphaned/expired advagg locks from the semaphore database table.
+ */
+function advagg_admin_refresh_locale_files_button() {
+  module_load_include('inc', 'advagg', 'advagg.cache');
+
+  // Refresh all locale files.
+  $locale_files = advagg_refresh_all_locale_files();
+  if (empty($locale_files)) {
+    drupal_set_message(t('No locale files are being used.'));
+  }
+  else {
+    drupal_set_message(t('The following locale files are being used: <pre>@files</pre>', array('@files' => print_r($locale_files, TRUE))));
+  }
+}
 
 /**
  * Delete leftover temp files.
@@ -1104,6 +1157,6 @@ function advagg_admin_cleanup_temp_files_button() {
     drupal_set_message(t('No leftover temp files found. Nothing was deleted.'));
   }
   else {
-    drupal_set_message($count, format_plural('1 leftover temp files from advagg was found. A total of 1 temp files was removed.', 'Some leftover temp files from advagg were found. A total of %count temp files were removed.'));
+    drupal_set_message(format_plural($count, '1 leftover temp files from advagg was found. A total of 1 temp files was removed.', 'Some leftover temp files from advagg were found. A total of %count temp files were removed.'));
   }
 }

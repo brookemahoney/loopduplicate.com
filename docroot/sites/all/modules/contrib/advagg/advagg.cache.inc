@@ -292,6 +292,10 @@ function advagg_remove_all_aggregated_files($kill_htaccess = FALSE) {
     'nomask' => '/(\.\.?|CVS)$/',
   );
   list($css_files, $js_files) = advagg_get_all_files($options);
+  // Let other modules know about the removed files.
+  // Call hook_advagg_removed_aggregates().
+  module_invoke_all('advagg_removed_aggregates', $css_files);
+  module_invoke_all('advagg_removed_aggregates', $js_files);
 
   // Remove the htaccess files as well.
   if ($kill_htaccess) {
@@ -684,8 +688,86 @@ function advagg_remove_temp_files() {
   }
   $total_count += count($files);
 
+  // Remove empty temp files from public://.
+  $files = file_scan_directory($top_level, '/advagg_file_.*/', array(
+    'recurse' => FALSE,
+    'callback' => 'advagg_delete_temp_file_if_stale',
+  ));
+  foreach ($files as $key => $file) {
+    if (file_exists($file->uri)) {
+      unset($files[$key]);
+    }
+  }
+  $total_count += count($files);
+
+  // Remove empty temp files from public://advagg_css.
+  $files = file_scan_directory($advagg_path[0][0], '/advagg_file_.*/', array(
+    'recurse' => FALSE,
+    'callback' => 'advagg_delete_temp_file_if_stale',
+  ));
+  foreach ($files as $key => $file) {
+    if (file_exists($file->uri)) {
+      unset($files[$key]);
+    }
+  }
+  $total_count += count($files);
+
+  // Remove empty temp files from public://advagg_js.
+  $files = file_scan_directory($advagg_path[1][0], '/advagg_file_.*/', array(
+    'recurse' => FALSE,
+    'callback' => 'advagg_delete_temp_file_if_stale',
+  ));
+  foreach ($files as $key => $file) {
+    if (file_exists($file->uri)) {
+      unset($files[$key]);
+    }
+  }
+  $total_count += count($files);
+
   // Output info.
   return $total_count;
+}
+
+/**
+ * Refresh all locale files.
+ *
+ * @return int
+ *   Count of the number of files removed
+ */
+function advagg_refresh_all_locale_files() {
+  $locale_files = array();
+  if (!module_exists('locale')) {
+    return $locale_files;
+  }
+
+  $results = db_select('advagg_files', 'af')
+    ->fields('af')
+    ->condition('af.filetype', 'js')
+    ->execute();
+  $javascript = array();
+  foreach ($results as $row) {
+    $javascript[] = array(
+      'type' => 'file',
+      'data' => $row->filename,
+    );
+  }
+
+  if (!empty($javascript)) {
+    $javascript_before = $javascript;
+    $language_before = $GLOBALS['language'];
+    $language_list = language_list();
+    foreach ($language_list as $lang) {
+      if ($lang->enabled) {
+        $GLOBALS['language'] = $lang;
+        $javascript = $javascript_before;
+        locale_js_alter($javascript);
+        $locale_file = array_diff_key($javascript, $javascript_before);
+        $locale_files += $locale_file;
+      }
+    }
+    $GLOBALS['language'] = $language_before;
+  }
+  return $locale_files;
 }
 
 /**

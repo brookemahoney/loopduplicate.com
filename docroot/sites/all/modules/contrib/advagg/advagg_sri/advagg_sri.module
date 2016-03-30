@@ -55,6 +55,7 @@ function advagg_sri_module_implements_alter(&$implementations, $hook) {
  * Implements hook_form_FORM_ID_alter().
  */
 function advagg_sri_form_advagg_admin_settings_form_alter(&$form, $form_state) {
+  // Disable httprl if SRI is set to always on.
   if (variable_get('advagg_sri_file_generation', ADVAGG_SRI_FILE_GENERATION)) {
     $form['global']['advagg_use_httprl']['#default_value'] = FALSE;
     $form['global']['advagg_use_httprl']['#disabled'] = TRUE;

@@ -75,7 +75,7 @@ function advagg_insert_aggregate_version($aggregate_filenames_hash, $aggregate_c
     ->key(array(
       'aggregate_filenames_hash' => $record['aggregate_filenames_hash'],
       'aggregate_contents_hash' => $record['aggregate_contents_hash'],
-      ))
+    ))
     ->insertFields($record)
     ->execute();
   return $return;
@@ -133,7 +133,7 @@ function advagg_insert_aggregate(array $files, $aggregate_filenames_hash) {
       ->key(array(
         'aggregate_filenames_hash' => $record['aggregate_filenames_hash'],
         'filename_hash' => $record['filename_hash'],
-        ))
+      ))
       ->insertFields($record)
       ->execute();
 
@@ -194,7 +194,14 @@ function advagg_insert_update_files(array $files, $type) {
       try {
         // Add in filesize_processed if the schema is 7210 or higher.
         if (drupal_get_installed_schema_version('advagg') >= 7210) {
-          $record['filesize_processed'] = advagg_generate_filesize_processed($filename, $type);
+          $record['filesize_processed'] = (int) advagg_generate_filesize_processed($filename, $type);
+        }
+        // Add in use_strict if the schema is 7212 or higher.
+        if (drupal_get_installed_schema_version('advagg') >= 7212) {
+          $record['use_strict'] = 0;
+          if ($type === 'js') {
+            $record['use_strict'] = (int) advagg_does_js_start_with_use_strict($filename);
+          }
         }
 
         // Insert into database.
@@ -203,7 +210,7 @@ function advagg_insert_update_files(array $files, $type) {
         $return = db_merge('advagg_files')
           ->key(array(
             'filename_hash' => $record['filename_hash'],
-            ))
+          ))
           ->insertFields($record)
           ->execute();
         if ($return) {
@@ -213,6 +220,10 @@ function advagg_insert_update_files(array $files, $type) {
       catch (PDOException $e) {
         // If it fails we don't care, the file was added to the table by another
         // process then.
+        // Still log it if in development mode.
+        if (variable_get('advagg_cache_level', ADVAGG_CACHE_LEVEL) < 0) {
+          watchdog('advagg', 'Development Mode - Caught PDO Exception: <code>@info</code>', array('@info' => $e));
+        }
       }
     }
     else {
@@ -228,30 +239,22 @@ function advagg_insert_update_files(array $files, $type) {
 
         // Add in filesize_processed if the schema is 7210 or higher.
         if (drupal_get_installed_schema_version('advagg') >= 7210) {
-          $diff['filesize_processed'] = advagg_generate_filesize_processed($filename, $type);
+          $diff['filesize_processed'] = (int) advagg_generate_filesize_processed($filename, $type);
+        }
+        if (drupal_get_installed_schema_version('advagg') >= 7212) {
+          $diff['use_strict'] = 0;
+          if ($type === 'js') {
+            $diff['use_strict'] = (int) advagg_does_js_start_with_use_strict($filename);
+            if (empty($diff['use_strict'])) {
+              $diff['use_strict'] = 0;
+            }
+          }
         }
 
         $return = db_merge('advagg_files')
           ->key(array(
             'filename_hash' => $diff['filename_hash'],
-            ))
-          ->fields($diff)
-          ->execute();
-        if ($return) {
-          $write_done = TRUE;
-        }
-      }
-      elseif (drupal_get_installed_schema_version('advagg') >= 7210 && empty($files_in_db[$filename]['filesize_processed'])) {
-        $diff['filename_hash'] = $record['filename_hash'];
-        // Add in filesize_processed if the schema is 7210 or higher.
-        if (drupal_get_installed_schema_version('advagg') >= 7210) {
-          $diff['filesize_processed'] = advagg_generate_filesize_processed($filename, $type);
-        }
-
-        $return = db_merge('advagg_files')
-          ->key(array(
-            'filename_hash' => $diff['filename_hash'],
-            ))
+          ))
           ->fields($diff)
           ->execute();
         if ($return) {
@@ -275,24 +278,90 @@ function advagg_insert_update_files(array $files, $type) {
  *   Processed filesize.
  */
 function advagg_generate_filesize_processed($filename, $type) {
-  // Make advagg_get_*_aggregate_contents() available.
-  module_load_include('inc', 'advagg', 'advagg.missing');
-  $aggregate_settings = advagg_current_hooks_hash_array();
+  $files = &drupal_static(__FUNCTION__, array());
+  if (!isset($files[$type][$filename])) {
+    // Make advagg_get_*_aggregate_contents() available.
+    module_load_include('inc', 'advagg', 'advagg.missing');
+    $aggregate_settings = advagg_current_hooks_hash_array();
 
-  $file_aggregate = array($filename => array());
-  if ($type === 'css') {
-    $contents = advagg_get_css_aggregate_contents($file_aggregate, $aggregate_settings);
+    $file_aggregate = array($filename => array());
+    if ($type === 'css') {
+      list($contents) = advagg_get_css_aggregate_contents($file_aggregate, $aggregate_settings);
+    }
+    elseif ($type === 'js') {
+      list($contents) = advagg_get_js_aggregate_contents($file_aggregate, $aggregate_settings);
+    }
+    if (!empty($contents)) {
+      $compressed = gzencode($contents, 9, FORCE_GZIP);
+      $files[$type][$filename] = strlen($compressed);
+    }
+    else {
+      $files[$type][$filename] = 0;
+    }
   }
-  elseif ($type === 'js') {
-    $contents = advagg_get_js_aggregate_contents($file_aggregate, $aggregate_settings);
+  return $files[$type][$filename];
+}
+
+/**
+ * Given a js string, see if "use strict"; is the first thing ran.
+ *
+ * @param string $filename
+ *   String; filename containing path information as well.
+ *
+ * @return bool
+ *   True if "use strict"; is the first thing ran.
+ */
+function advagg_does_js_start_with_use_strict($filename) {
+  $files = &drupal_static(__FUNCTION__, array());
+  if (!isset($files[$filename])) {
+    // Make advagg_get_*_aggregate_contents() available.
+    module_load_include('inc', 'advagg', 'advagg.missing');
+    $aggregate_settings = advagg_current_hooks_hash_array();
+
+    $file_aggregate = array($filename => array());
+    list($contents) = advagg_get_js_aggregate_contents($file_aggregate, $aggregate_settings);
+
+    // See if the js file starts with "use strict";.
+    $use_strict = stripos(trim($contents), '"use strict";');
+    $strict_js = FALSE;
+    if ($use_strict !== FALSE) {
+      if ($use_strict == 0) {
+        $strict_js = TRUE;
+      }
+      else {
+        // Get all text before "use strict";.
+        $substr = substr($contents, 0, $use_strict);
+        // Check if there are any comments.
+        $single_line_comment = stripos($substr, '//');
+        $multi_line_comment = stripos($substr, '/*');
+        $in_function = stripos($substr, '{');
+        if ($single_line_comment !== FALSE || $multi_line_comment !== FALSE) {
+          // Include jsminplus.inc and advagg_js_compress.advagg.inc.
+          if (!function_exists('advagg_js_compress_jsminplus')) {
+            include_once drupal_get_path('module', 'advagg') . '/advagg_js_compress/advagg_js_compress.advagg.inc';
+            if (!class_exists('JSMinPlus')) {
+              include drupal_get_path('module', 'advagg') . '/advagg_js_compress/jsminplus.inc';
+              $nesting_level = ini_get('xdebug.max_nesting_level');
+              if (!empty($nesting_level) && $nesting_level < 200) {
+                ini_set('xdebug.max_nesting_level', 200);
+              }
+            }
+          }
+          // Jsminplus strips all comments.
+          advagg_js_compress_jsminplus($contents, FALSE);
+          $use_strict = stripos($contents, '"use strict"');
+          $substr = substr($contents, 0, $use_strict);
+          // Check if there is a function before this.
+          $in_function = stripos($substr, '{');
+        }
+        if ($in_function === FALSE) {
+          $strict_js = TRUE;
+        }
+      }
+    }
+    $files[$filename] = $strict_js;
   }
-  if (!empty($contents)) {
-    $compressed = gzencode($contents, 9, FORCE_GZIP);
-    return strlen($compressed);
-  }
-  else {
-    return 0;
-  }
+  return $files[$filename];
 }
 
 // File operations.
@@ -443,8 +512,8 @@ function &advagg_load_files_info_into_static_cache(array $files) {
  */
 function advagg_drupal_hash_base64($file) {
   // Get the static cache of this data.
-  $cached_data = &drupal_static('advagg_drupal_hash_base64');
-  if (!isset($cached_data[$file])) {
+  $cached_data = &drupal_static('advagg_drupal_hash_base64', array());
+  if (!array_key_exists($file, $cached_data)) {
     $cached_data[$file] = drupal_hash_base64($file);
   }
   return $cached_data[$file];
@@ -517,7 +586,7 @@ function advagg_get_info_on_files(array $files, $bypass_cache = FALSE, $run_alte
 
     $ext = pathinfo($file, PATHINFO_EXTENSION);
     if ($ext !== 'css' && $ext !== 'js') {
-      // Get the $ext from the database,
+      // Get the $ext from the database.
       $row = db_select('advagg_files', 'af')
         ->fields('af')
         ->condition('filename', $file)
@@ -665,11 +734,13 @@ function advagg_clearstatcache($filename = NULL) {
  *
  * @param array $files_to_aggregate
  *   An array of CSS/JS groups.
+ * @param string $type
+ *   String; css or js.
  *
  * @return array
  *   New version of groups.
  */
-function advagg_generate_groups(array $files_to_aggregate) {
+function advagg_generate_groups(array $files_to_aggregate, $type) {
   $groups = array();
   $count = 0;
   $location = 0;
@@ -679,6 +750,7 @@ function advagg_generate_groups(array $files_to_aggregate) {
   $async = '';
   $cache = '';
   $scope = '';
+  $use_strict = 0;
   $browsers = array();
   $selector_count = 0;
   // Get CSS limit value.
@@ -699,6 +771,21 @@ function advagg_generate_groups(array $files_to_aggregate) {
     $files_info = advagg_get_info_on_files($filenames, TRUE);
   }
 
+  $strict_files = array();
+  if ($type == 'js') {
+    // Make drupal_get_installed_schema_version() available.
+    include_once DRUPAL_ROOT . '/includes/install.inc';
+    if (drupal_get_installed_schema_version('advagg') >= 7213) {
+      $query = db_select('advagg_files', 'af')
+        ->fields('af', array('filename', 'use_strict'))
+        ->condition('use_strict', 1)
+        ->execute();
+      foreach ($query as $row) {
+        $strict_files[$row->filename] = $row->use_strict;
+      }
+    }
+  }
+
   foreach ($files_to_aggregate as $data) {
     foreach ($data as $values) {
 
@@ -712,7 +799,7 @@ function advagg_generate_groups(array $files_to_aggregate) {
         $ext = isset($file_info['fileext']) ? $file_info['fileext'] : pathinfo($file_info['data'], PATHINFO_EXTENSION);
         if ($ext !== 'css' && $ext !== 'js') {
           if (empty($last_ext)) {
-            // Get the $ext from the database,
+            // Get the $ext from the database.
             $row = db_select('advagg_files', 'af')
               ->fields('af')
               ->condition('filename', $file_info['data'])
@@ -756,6 +843,16 @@ function advagg_generate_groups(array $files_to_aggregate) {
           $browsers = array();
         }
 
+        if (!empty($strict_files[$file_info['data']]) && $use_strict != $strict_files[$file_info['data']]) {
+          // use_strict value changed to 1.
+          $changed = TRUE;
+          $use_strict = 1;
+        }
+        if (!empty($use_strict) && empty($strict_files[$file_info['data']])) {
+          // use_strict value changed to 0.
+          $changed = TRUE;
+          $use_strict = 0;
+        }
         if (isset($file_info['defer']) && $defer != $file_info['defer']) {
           // Defer value changed.
           $changed = TRUE;
@@ -1149,7 +1246,7 @@ function advagg_build_aggregate_plans(array $files_to_aggregate, $type) {
   }
 
   // Place into biggest grouping possible.
-  $groups = advagg_generate_groups($files_to_aggregate);
+  $groups = advagg_generate_groups($files_to_aggregate, $type);
 
   // Get filenames.
   $files = advagg_generate_filenames($groups, $type);
@@ -1332,14 +1429,14 @@ function advagg_create_aggregate_files(array $plans, $type) {
  * @return string
  *   Contents of the stylesheet, including any resolved @import commands.
  */
-function advagg_load_css_stylesheet($file, $optimize, array $aggregate_settings = array()) {
+function advagg_load_css_stylesheet($file, $optimize = TRUE, array $aggregate_settings = array(), $contents = '') {
   $old_base_path = $GLOBALS['base_path'];
 
   // Change context to that of when this aggregate was created.
   advagg_context_switch($aggregate_settings, 0);
 
   // Get the stylesheets contents.
-  $contents = advagg_load_stylesheet($file, $optimize);
+  $contents = advagg_load_stylesheet($file, $optimize, TRUE, $contents);
 
   // Get the parent directory of this file, relative to the Drupal root.
   $css_base_url = substr($file, 0, strrpos($file, '/'));
@@ -1362,10 +1459,9 @@ function advagg_load_css_stylesheet($file, $optimize, array $aggregate_settings 
   }
 
   _advagg_build_css_path(array(), $css_base_url . '/', $aggregate_settings);
-
   // Anchor all paths in the CSS with its base URL, ignoring external,
   // absolute paths, and urls that start with # or %23 (SVG).
-  $contents = preg_replace_callback('%url\(\s*+[\'"]?+(?![a-z]++:|/|\#|\%23+)([^\'"()\s]++)[\'"]?+\s*+\)%i', '_advagg_build_css_path', $contents);
+  $contents = preg_replace_callback('%url\(\s*+[\'"]?+(?![a-z]++:|/|\#|\%23+)([^\'"\)]++)[\'"]?+\s*+\)%i', '_advagg_build_css_path', $contents);
 
   // Change context back.
   advagg_context_switch($aggregate_settings, 1);
@@ -1450,6 +1546,19 @@ function _advagg_build_css_path(array $matches, $base = '', array $aggregate_set
   }
   $fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
 
-  $url = advagg_file_create_url($base_url, $_aggregate_settings);
+  if (variable_get('advagg_skip_file_create_url_inside_css', ADVAGG_SKIP_FILE_CREATE_URL_INSIDE_CSS)) {
+    if (isset($_aggregate_settings['variables']['base_path'])) {
+      $url = $_aggregate_settings['variables']['base_path'] . $url;
+    }
+    else {
+      $url = $GLOBALS['base_path'] . $url;
+    }
+    $query = '';
+    $fragment = '';
+  }
+  else {
+    $url = advagg_file_create_url($base_url, $_aggregate_settings);
+  }
+
   return 'url(' . $url . $query . $fragment . ')';
 }
