@@ -183,7 +183,7 @@ function media_field_widget_value($element, $input = FALSE, $form_state) {
     // If the display field is present make sure its unchecked value is saved.
     $field = field_widget_field($element, $form_state);
     if (empty($input['display'])) {
-      $input['display'] = intval(!empty($field['settings']['display_field']));
+      $input['display'] = intval(empty($field['settings']['display_field']));
     }
   }
 
