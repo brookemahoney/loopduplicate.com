@@ -46,12 +46,11 @@ function loopd_search_views_default_views() {
   $handler->display->display_options['fields']['cer_lineage']['id'] = 'cer_lineage';
   $handler->display->display_options['fields']['cer_lineage']['table'] = 'search_api_index_db_node';
   $handler->display->display_options['fields']['cer_lineage']['field'] = 'cer_lineage';
-  /* Sort criterion: Indexed Content: Date created */
-  $handler->display->display_options['sorts']['created']['id'] = 'created';
-  $handler->display->display_options['sorts']['created']['table'] = 'search_api_index_db_node';
-  $handler->display->display_options['sorts']['created']['field'] = 'created';
-  $handler->display->display_options['sorts']['created']['order'] = 'DESC';
-  $handler->display->display_options['sorts']['created']['expose']['label'] = 'Date created';
+  /* Sort criterion: Indexed Content: Date changed */
+  $handler->display->display_options['sorts']['changed']['id'] = 'changed';
+  $handler->display->display_options['sorts']['changed']['table'] = 'search_api_index_db_node';
+  $handler->display->display_options['sorts']['changed']['field'] = 'changed';
+  $handler->display->display_options['sorts']['changed']['order'] = 'DESC';
   /* Filter criterion: Indexed Content: Status */
   $handler->display->display_options['filters']['status']['id'] = 'status';
   $handler->display->display_options['filters']['status']['table'] = 'search_api_index_db_node';
