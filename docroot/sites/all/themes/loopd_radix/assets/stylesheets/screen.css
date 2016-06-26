@@ -11023,7 +11023,7 @@ fieldset .panel-body {
 
 /* line 73, ../../../../../../../../../../../Users/jmahoney/.rvm/gems/ruby-2.1.2@loopd_radix/gems/compass_radix-3.0.6/stylesheets/compass_radix/_form.scss */
 html.js input.form-autocomplete {
-  background: url('../images/throbber.gif?1409636163') no-repeat right 8px #fff !important;
+  background: url('../images/throbber.gif?1448909746') no-repeat right 8px #fff !important;
 }
 /* line 76, ../../../../../../../../../../../Users/jmahoney/.rvm/gems/ruby-2.1.2@loopd_radix/gems/compass_radix-3.0.6/stylesheets/compass_radix/_form.scss */
 html.js input.throbbing {
@@ -11493,7 +11493,7 @@ span.geshifilter .javascript .me2 {
 }
 
 /* line 1, ../sass/components/_panes.scss */
-.pane-title {
+h2.pane-title {
   font-size: 18px;
 }
 

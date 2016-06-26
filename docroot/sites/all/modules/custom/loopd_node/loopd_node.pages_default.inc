@@ -141,7 +141,7 @@ function loopd_node_default_page_manager_handlers() {
           'additional_pane_classes' => 'panel-pane',
           'additional_pane_attributes' => '',
           'enable_inner_div' => 0,
-          'title_wrapper' => 'h2',
+          'title_wrapper' => 'h1',
           'title_hide' => 0,
           'content_wrapper' => 'none',
         ),
