@@ -1,0 +1,45 @@
+<?php
+
+function temppp_init() {
+}
+
+function temppp_preprocess_node(&$variables) {
+}
+
+function temppp_preprocess_page(&$variables) {
+}
+
+function temppp_form_alter(&$form, &$form_state, $form_id) {
+}
+
+function temppp_menu() {
+  $items['temppp'] = array(
+    'title' => 'Temppp Page',
+    'page callback' => 'temppp_page_callback',
+    'access callback' => TRUE,
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  $items['temppp/page'] = array(
+    'title' => 'Temppp Page',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -1,
+    // Access callback, page callback, and theme callback are inherited
+    // from 'temppp'.
+  );
+
+  return $items;
+}
+
+function temppp_page_callback() {
+  return theme('temppptheme');
+}
+
+function temppp_theme() {
+  return array(
+    'temppptheme' => array(
+      'variables' => array(),
+      'template' => 'temppptheme',
+    ),
+  );
+}

@@ -1,0 +1,4 @@
+name = temppp
+description = A temporary module, to do things and stuff with, which is ignored by git.
+core = 7.x
+package = LoopDuplicate
