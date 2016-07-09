@@ -98,6 +98,5 @@ dependencies[] = transliteration
 dependencies[] = views
 dependencies[] = views_autocomplete_filters
 dependencies[] = views_content
-dependencies[] = views_slideshow
 dependencies[] = views_ui
 dependencies[] = wysiwyg
