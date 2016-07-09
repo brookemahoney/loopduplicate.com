@@ -114,7 +114,7 @@ function panels_mini_uninstall() {
     $deltas[] = $panel_mini->pid;
   }
 
-  if ($deltas) {
+  if (db_table_exists('block') && $deltas) {
     // Delete all configured blocks.
     db_delete('block')
       ->condition('module', 'panels_mini')

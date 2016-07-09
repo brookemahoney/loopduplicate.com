@@ -47,7 +47,18 @@ function panels_requirements_install() {
 function panels_schema() {
   // This should always point to our 'current' schema. This makes it relatively
   // easy to keep a record of schema as we make changes to it.
-  return panels_schema_6();
+  return panels_schema_7();
+}
+
+function panels_schema_7() {
+  $schema = panels_schema_6();
+
+  // Update field lengths to 255 chars.
+  $schema['panels_pane']['fields']['subtype']['length'] = '255';
+  $schema['panels_pane']['fields']['panel']['length'] = '255';
+  $schema['panels_pane']['fields']['type']['length'] = '255';
+
+  return $schema;
 }
 
 function panels_schema_6() {
@@ -490,5 +501,22 @@ function panels_update_7303() {
   $table_name = 'cache_panels';
   if (!db_table_exists($table_name)) {
     db_create_table($table_name, $schema[$table_name]);
+  }
+}
+
+/**
+ * Update "panels_pane" table field lengths to 255 chars.
+ */
+function panels_update_7304() {
+  $schema = panels_schema_7();
+
+  $update_fields = array(
+    'panels_pane' => array('subtype', 'panel', 'type'),
+  );
+
+  foreach($update_fields as $table => $fields) {
+    foreach($fields as $field_name) {
+      db_change_field($table, $field_name, $field_name, $schema[$table]['fields'][$field_name]);
+    }
   }
 }

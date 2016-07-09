@@ -20,7 +20,7 @@ define('PANELS_REQUIRED_CTOOLS_API', '2.0.8');
  *   ; Requires Panels v7.x-3.4 or newer.
  *   dependencies[] = panels (>=3.4)
  */
-define('PANELS_VERSION', '7.x-3.5');
+define('PANELS_VERSION', '7.x-3.6-dev');
 
 
 define('PANELS_TITLE_FIXED', 0); // Hide title use to be true/false. So false remains old behavior.
@@ -1079,12 +1079,12 @@ function panels_export_display($display, $prefix = '') {
         $title_pid = $pid;
       }
       $pane->pid = $pid;
-      $output .= ctools_export_object('panels_pane', $pane, $prefix . '  ');
-      $output .= "$prefix  " . '$display->content[\'' . $pane->pid . '\'] = $pane' . ";\n";
+      $output .= ctools_export_object('panels_pane', $pane, $prefix);
+      $output .= $prefix . '$display->content[\'' . $pane->pid . '\'] = $pane' . ";\n";
       if (!isset($region_counters[$pane->panel])) {
         $region_counters[$pane->panel] = 0;
       }
-      $output .= "$prefix  " . '$display->panels[\'' . $pane->panel . '\'][' . $region_counters[$pane->panel]++ .'] = \'' . $pane->pid . "';\n";
+      $output .= $prefix . '$display->panels[\'' . $pane->panel . '\'][' . $region_counters[$pane->panel]++ .'] = \'' . $pane->pid . "';\n";
     }
   }
   $output .= $prefix . '$display->hide_title = ';
@@ -1334,7 +1334,7 @@ function template_preprocess_panels_pane(&$vars) {
   $vars['pane_suffix'] = !empty($content->pane_suffix) ? $content->pane_suffix : '';
 
   $vars['title'] = !empty($content->title) ? $content->title : '';
-  $vars['title_heading'] = !empty($content->title_heading) ? $content->title_heading : 'h2';
+  $vars['title_heading'] = !empty($content->title_heading) ? $content->title_heading : variable_get('override_title_heading', 'h2');
   $vars['title_attributes_array']['class'][] = 'pane-title';
 
   $vars['feeds'] = !empty($content->feeds) ? implode(' ', $content->feeds) : '';

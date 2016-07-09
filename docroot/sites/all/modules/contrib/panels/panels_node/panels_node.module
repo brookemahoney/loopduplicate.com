@@ -113,7 +113,7 @@ function panels_node_add() {
   ctools_include('common', 'panels');
 
   $layouts = panels_common_get_allowed_layouts('panels_node');
-  return panels_common_print_layout_links($layouts, 'node/add/panel', array('query' => $_GET));
+  return panels_common_print_layout_links($layouts, 'node/add/panel', array('query' => drupal_get_query_parameters()));
 }
 
 // ---------------------------------------------------------------------------
@@ -183,14 +183,12 @@ function panels_node_hook_form(&$node, &$form_state) {
     // and if that doesn't work present them with a list to pick from.
     $panel_layout = isset($node->panel_layout) ? $node->panel_layout : arg(3);
     if (empty($panel_layout)) {
-      $opts = $_GET;
-      unset($opts['q']);
-      return drupal_goto('node/add/panel/choose-layout', $opts);
+      drupal_goto('node/add/panel/choose-layout', array('query' => drupal_get_query_parameters()));
     }
 
     $layout = panels_get_layout($panel_layout);
     if (empty($layout)) {
-      return drupal_not_found();
+      return MENU_NOT_FOUND;
     }
     $form['panels_node']['layout'] = array(
       '#type' => 'value',
