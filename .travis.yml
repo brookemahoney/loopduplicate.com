@@ -2,15 +2,6 @@
 # @see http://docs.travis-ci.com/user/migrating-from-legacy/
 sudo: false
 
-addons:
-  apt:
-    packages:
-    - php7-cli
-    - php7-cgi
-    - php7-curl
-    - php7-gd
-    - php7-mysql
-
 language: php
 
 php:
