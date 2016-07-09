@@ -148,20 +148,12 @@
                 len++;
               }
 
-              var object = $('#' + id + '-wrapper');
-              if (!object.size()) {
-                // Some elements can't use the parent() method or they can
-                // damage things. They are guaranteed to have wrappers but
-                // only if dependent.inc provided them. This check prevents
-                // problems when multiple AJAX calls cause settings to build
-                // up.
-                var $original = $('#' + id);
-                if ($original.is('fieldset') || $original.is('textarea')) {
-                  continue;
-                }
-
-                object = $('#' + id).parent();
+              var $original = $('#' + id);
+              if ($original.is('fieldset') || $original.is('textarea')) {
+                continue;
               }
+
+              var object = $original.parent();
 
               if (Drupal.settings.CTools.dependent[id].type == 'disable') {
                 if (Drupal.settings.CTools.dependent[id].num <= len) {
