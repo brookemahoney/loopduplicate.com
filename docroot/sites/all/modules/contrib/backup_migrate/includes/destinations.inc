@@ -319,7 +319,7 @@ function _backup_migrate_ui_destination_display_files($destination = NULL, $limi
 function _backup_migrate_ui_destination_display_file_list($files, $options = array()) {
   drupal_add_css(drupal_get_path('module', 'backup_migrate') .'/backup_migrate.css');
 
-  // Set soem default options
+  // Set some default options
   $options += array(
     'pager' => TRUE,
     'more' => FALSE,
