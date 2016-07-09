@@ -5,7 +5,7 @@ sudo: false
 addons:
   apt:
     packages:
-    - php-cgi
+    - php5-cgi
 
 language: php
 
