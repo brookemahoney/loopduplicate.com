@@ -1,0 +1,26 @@
+diff --git a/includes/destinations.email.inc b/includes/destinations.email.inc
+index c7d426d..70f46e7 100644
+--- a/includes/destinations.email.inc
++++ b/includes/destinations.email.inc
+@@ -93,7 +93,7 @@ class mime_mail {
+   var $subject;
+   var $body;
+ 
+-  function mime_mail() {
++  function __construct() {
+     $this->parts   = array();
+     $this->to      = "";
+     $this->from    = "";
+diff --git a/includes/files.inc b/includes/files.inc
+index 8931189..c1f374d 100644
+--- a/includes/files.inc
++++ b/includes/files.inc
+@@ -213,7 +213,7 @@ class backup_file {
+   /**
+    * Construct a file object given a file path, or create a temp file for writing.
+    */
+-  function backup_file($params = array()) {
++  function __construct($params = array()) {
+     if (isset($params['filepath']) && file_exists($params['filepath'])) {
+       $this->set_filepath($params['filepath']);
+     }
