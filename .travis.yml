@@ -6,6 +6,10 @@ addons:
   apt:
     packages:
     - php5-cgi
+    - php5-cgi
+    - php5-curl
+    - php5-gd
+    - php5-mysql
 
 language: php
 
