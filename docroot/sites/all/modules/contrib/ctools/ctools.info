@@ -9,9 +9,9 @@ files[] = includes/math-expr.inc
 files[] = includes/stylizer.inc
 files[] = tests/css_cache.test
 
-; Information added by Drupal.org packaging script on 2016-06-16
-version = "7.x-1.9+6-dev"
+; Information added by Drupal.org packaging script on 2016-07-12
+version = "7.x-1.9+10-dev"
 core = "7.x"
 project = "ctools"
-datestamp = "1466061543"
+datestamp = "1468364341"
 
