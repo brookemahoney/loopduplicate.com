@@ -231,7 +231,7 @@ function panels_node_hook_form(&$node, &$form_state) {
     '#type' => 'radios',
     '#options' => $options,
     '#title' => t('Renderer'),
-    '#default_value' => isset($node->panels_node['pipeline']) ? $node->panels_node['pipeline'] : 'standard',
+    '#default_value' => isset($node->panels_node['pipeline']) ? $node->panels_node['pipeline'] : variable_get('panels_renderer_default', 'standard'),
   );
 
   return $form;

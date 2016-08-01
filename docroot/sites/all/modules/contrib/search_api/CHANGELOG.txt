@@ -1,5 +1,7 @@
 Search API 1.x, dev (xxxx-xx-xx):
 ---------------------------------
+- #2769021 by Plazik, drunken monkey: Added the generated Search API query to
+  the Views preview.
 - #2769877 by mfernea: Fixed database exception when filtering for anonymous
   user.
 

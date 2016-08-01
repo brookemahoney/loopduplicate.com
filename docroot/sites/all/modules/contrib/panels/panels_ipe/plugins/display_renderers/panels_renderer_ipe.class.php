@@ -42,7 +42,7 @@ class panels_renderer_ipe extends panels_renderer_editor {
       '#suffix' => '</div>',
     );
 
-    panels_ipe_toolbar_add_button($this->clean_key, 'panels-ipe-startedit', $button);
+    panels_ipe_toolbar_add_button($this->display->cache_key, 'panels-ipe-startedit', $button);
 
     // @todo this actually should be an IPE setting instead.
     if (user_access('change layouts in place editing')) {
@@ -63,7 +63,7 @@ class panels_renderer_ipe extends panels_renderer_editor {
       '#suffix' => '</div>',
       );
 
-      panels_ipe_toolbar_add_button($this->clean_key, 'panels-ipe-change-layout', $button);
+      panels_ipe_toolbar_add_button($this->display->cache_key, 'panels-ipe-change-layout', $button);
     }
 
     ctools_include('ajax');

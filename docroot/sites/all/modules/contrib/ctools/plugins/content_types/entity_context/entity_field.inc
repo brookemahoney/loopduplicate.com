@@ -270,10 +270,7 @@ function ctools_entity_field_content_type_admin_title($subtype, $conf, $context)
     $identifier = $context->identifier;
   }
   else {
-    $type = 'ctools_entity_field_content_type_admin_title';
-    $message = t('Context is missing for field: @name', array('@name' => $subtype));
-    $variables = array($subtype, $conf, $context);
-    watchdog($type, $message, $variables, $severity = WATCHDOG_NOTICE);
+    watchdog('ctools_entity_field_content_type_admin_title', 'Context is missing for field: @name', array('@name' => $subtype), WATCHDOG_NOTICE);
     $identifier = t('Unknown');
   }
 

@@ -147,6 +147,10 @@ function panels_mini_block_list_alter(&$blocks) {
   if (module_exists('page_manager')) {
     $current_page = page_manager_get_current_page();
   }
+
+  // Load add at once to save time.
+  panels_mini_load_all();
+
   foreach ($blocks as $key => $block) {
     if ($block->module != 'panels_mini') {
       // This block was added by a contrib module, leave it in the list.
@@ -255,22 +259,30 @@ function panels_mini_load($name) {
   // We use array_key_exists because failed loads will be NULL and
   // isset() will try to load it again.
   if (!array_key_exists($name, $cache)) {
-    ctools_include('export');
-    $result = ctools_export_load_object('panels_mini', 'names', array($name));
-    if (isset($result[$name])) {
-      if (empty($result[$name]->display)) {
-        $result[$name]->display = panels_load_display($result[$name]->did);
-        if (!empty($result[$name]->title) && empty($result[$name]->display->title)) {
-          $result[$name]->display->title = $result[$name]->title;
-        }
-      }
-      $cache[$name] = $result[$name];
-      if (!empty($result[$name]->title) && empty($result[$name]->admin_title)) {
-        $cache[$name]->admin_title = $result[$name]->title;
-      }
+    $cid = 'panels_mini_load:' . $name;
+    $result = cache_get($cid, 'cache_panels');
+    if (!empty($result->data)) {
+      $cache[$name] = $result->data;
     }
     else {
-      $cache[$name] = NULL;
+      ctools_include('export');
+      $result = ctools_export_load_object('panels_mini', 'names', array($name));
+      if (isset($result[$name])) {
+        if (empty($result[$name]->display)) {
+          $result[$name]->display = panels_load_display($result[$name]->did);
+          if (!empty($result[$name]->title) && empty($result[$name]->display->title)) {
+            $result[$name]->display->title = $result[$name]->title;
+          }
+        }
+        $cache[$name] = $result[$name];
+        if (!empty($result[$name]->title) && empty($result[$name]->admin_title)) {
+          $cache[$name]->admin_title = $result[$name]->title;
+        }
+        cache_set($cid, $cache[$name], 'cache_panels', CACHE_TEMPORARY);
+      }
+      else {
+        $cache[$name] = NULL;
+      }
     }
   }
 
@@ -292,6 +304,25 @@ function panels_mini_load_all($reset = FALSE) {
     $all_loaded = TRUE;
     if ($reset) {
       $cache = array();
+    }
+    else {
+      $panel_names = db_select('panels_mini', 'pm')
+        ->fields('pm', array('name'))
+        ->execute();
+      $cids = array();
+      foreach ($panel_names as $name) {
+        $cids[] = 'panels_mini_load:' . $name->name;
+      }
+      if (empty($cids)) {
+        return array_filter($cache);
+      }
+      $output = cache_get_multiple($cids, 'cache_panels');
+      foreach ($output as $mini) {
+        if (!empty($mini->data)) {
+          $mini = $mini->data;
+          $cache[$mini->name] = $mini;
+        }
+      }
     }
 
     ctools_include('export');
@@ -337,6 +368,9 @@ function panels_mini_save(&$mini) {
     $display = panels_save_display($mini->display);
     $mini->did = $display->did;
   }
+
+  // Clear the panels_mini_load cache.
+  cache_clear_all('panels_mini_load:', 'cache_panels', TRUE);
 
   $update = (isset($mini->pid) && $mini->pid != 'new') ? array('pid') : array();
   drupal_write_record('panels_mini', $mini, $update);
