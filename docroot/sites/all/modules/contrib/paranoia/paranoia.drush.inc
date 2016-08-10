@@ -25,7 +25,7 @@ function paranoia_drush_sql_sync_sanitize($site) {
     dt('Remove history, which contains info on where users have browsed on a site.'),
     "TRUNCATE history;");
   // Since people may not enable the dblog module, ensure it exists first.
-  drupal_bootstrap(DRUPAL_BOOTSTRAP_DATABASE);
+  drupal_bootstrap(DRUPAL_BOOTSTRAP_VARIABLES);
   if (db_table_exists('watchdog')) {
     drush_sql_register_post_sync_op('watchdog',
       dt('Watchdog usually contains user id, IP, e-mail addresses, filesystem paths.'),
@@ -37,12 +37,15 @@ function paranoia_drush_sql_sync_sanitize($site) {
   drush_sql_register_post_sync_op('users_data',
     dt('The magical fairy puts a lot of junk into users.data. We cannot trust it to be only non-sensitive data. Dang magic.'),
     "UPDATE users SET data = '';");
-  drush_sql_register_post_sync_op('users_blocked',
-    dt('Blocked user accounts may contain inappropriate information and are not accessible to the public in general.'),
-    "DELETE FROM users WHERE status <> 1 AND uid NOT IN (0, 1);");
-  drush_sql_register_post_sync_op('users_blocked_roles',
-    dt('Blocked users were deleted, now lets delete their associated roles.'),
-    "DELETE users_roles FROM users_roles LEFT JOIN users ON users_roles.uid = users.uid WHERE users.uid IS NULL;");
+  // Make the purging inactive users optional.
+  if (variable_get('paranoia_delete_blocked_users', 1)) {
+    drush_sql_register_post_sync_op('users_blocked',
+      dt('Blocked user accounts may contain inappropriate information and are not accessible to the public in general.'),
+      "DELETE FROM users WHERE status <> 1 AND uid NOT IN (0, 1);");
+    drush_sql_register_post_sync_op('users_blocked_roles',
+      dt('Blocked users were deleted, now lets delete their associated roles.'),
+      "DELETE users_roles FROM users_roles LEFT JOIN users ON users_roles.uid = users.uid WHERE users.uid IS NULL;");
+  }
   drush_sql_register_post_sync_op('email-in-username',
     dt('Sanitize email-based names in user table'),
     "UPDATE users SET name = uid WHERE name LIKE '%@%';");

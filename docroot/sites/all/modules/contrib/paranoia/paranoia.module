@@ -80,6 +80,29 @@ function paranoia_form_views_ui_config_item_form_alter(&$form, &$form_state) {
 }
 
 /**
+ * Implements hook_user_update().
+ */
+function paranoia_user_update(&$edit, $account, $category) {
+  // If they are changing their password.
+  if (isset($account->pass) && isset($account->original) &&
+    isset($account->original->pass) &&
+    $account->original->pass != $account->pass) {
+    // Confirm a db based session destruction is going to work.
+    if (variable_get('session_inc', 'includes/session.inc') == 'includes/session.inc') {
+      // Destroy all sessions.
+      db_delete('sessions')
+        ->condition('uid', $account->uid, '=')
+        ->condition('sid', session_id(), '!=')
+        ->execute();
+    }
+    else {
+      // If db deletion of sessions won't work, log that problem.
+      watchdog('paranoia', 'Tried deleting sessions after a password change, but sessions are stored in an unknown place. See <a href="https://www.drupal.org/node/2294061">this issue</a> for details.', array(), WATCHDOG_CRITICAL);
+    }
+  }
+}
+
+/**
  * Implements hook_form_FORM_ID_alter().
  */
 function paranoia_form_user_profile_form_alter(&$form, &$form_state) {
@@ -305,4 +328,36 @@ function devel_paranoia_hide_paths() {
  */
 function views_paranoia_hide_paths() {
   return array('admin/structure/views/import');
+}
+
+/**
+ * Implements hook_form_alter().
+ *
+ * Hides forms that allow php arrays for importing to avoid RCE.
+ * http://heine.familiedeelstra.com/security/unserialize
+ */
+function paranoia_form_alter(&$form, &$form_state, $form_id) {
+  $forms_to_disable = module_invoke_all('paranoia_risky_forms');
+  $forms_to_disable = drupal_map_assoc($forms_to_disable);
+  if (array_key_exists($form_id, $forms_to_disable)) {
+    $form['#access'] = FALSE;
+    $form['#validate'] = 'paranoia_form_validate_always_fail';
+    drupal_set_message(t('This form is disabled for security reasons. See <a href="https://www.drupal.org/node/2313945">details</a> on why this form is disabled.'), 'error');
+  }
+}
+
+/**
+ * Form validation that will always throw an error to prevent submits.
+ */
+function paranoia_form_validate_always_fail() {
+  form_set_error('', t('This form is disabled for security reasons. See <a href="https://www.drupal.org/node/2313945">details</a> on why this form is disabled.'));
+}
+
+/**
+ * Implements paranoia_risky_forms().
+ *
+ * On behalf of views module.
+ */
+function views_paranoia_risky_forms() {
+  return array('views_ui_import_page');
 }
