@@ -17,29 +17,9 @@
  */
 function panels_node_permission() {
   return array(
-    'create panel-nodes' => array(
-      'title' => t('Create panel nodes'),
-      'description' => t('Create new panel nodes.'),
-    ),
-    'edit any panel-nodes' => array(
-      'title' => t('Edit any panel-nodes'),
-      'description' => t('Edit all pre-existing panel nodes regardless of ownership.'),
-    ),
-    'edit own panel-nodes' => array(
-      'title' => t('Edit own panel nodes'),
-      'description' => t('Edit panel nodes owned by this user.'),
-    ),
     'administer panel-nodes' => array(
       'title' => t('Administer panel nodes'),
       'description' => t('Full administrative access to panel nodes including create, update and delete all'),
-    ),
-    'delete any panel-nodes' => array(
-      'title' => t('Delete any panel nodes'),
-      'description' => t('Delete any panel node regardless of ownership'),
-    ),
-    'delete own panel-nodes' => array(
-      'title' => t('Delete own panel nodes'),
-      'description' => t('Delete any panel node owned by this user.'),
     ),
   );
 }
@@ -154,19 +134,6 @@ function panels_node_node_access($node, $op, $account) {
   }
 
   if (user_access('administer panel-nodes', $account)) {
-    return NODE_ACCESS_ALLOW;
-  }
-
-  if ($op == 'create' && user_access('create panel-nodes', $account)) {
-    return NODE_ACCESS_ALLOW;
-  }
-
-  if ($op == 'update' && (user_access('edit any panel-nodes', $account) || $node->uid == $account->uid && user_access('edit own panel-nodes', $account))) {
-    return NODE_ACCESS_ALLOW;
-  }
-
-
-  if ($op == 'delete' && (user_access('delete any panel-nodes') || $node->uid == $account->uid && user_access('delete own panel-nodes'))) {
     return NODE_ACCESS_ALLOW;
   }
 }

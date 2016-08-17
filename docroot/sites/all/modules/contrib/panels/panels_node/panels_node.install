@@ -69,3 +69,41 @@ function panels_node_update_6001() {
   db_add_field('panels_node', 'pipeline', $field);
   return $ret;
 }
+
+/**
+ * Migrate legacy Drupal 6 permissions to Drupal 7.
+ */
+function panels_node_update_6002() {
+  $permissions = array(
+    'create panel-nodes' => 'create panel content',
+    'edit any panel-nodes' => 'edit any panel content',
+    'edit own panel-nodes' => 'edit own panel content',
+    'delete any panel-nodes' => 'delete any panel content',
+    'delete own panel-nodes' => 'delete own panel content',
+  );
+  foreach ($permissions as $legacy_permission => $new_permission) {
+    $query = db_select('role_permission', 'p')
+      ->fields('p', array('rid'))
+      ->condition('permission', $legacy_permission);
+    $rids = $query->execute()->fetchCol();
+    foreach ($rids as $rid) {
+      // Insert the new permission if it doesn't already exist.
+      db_merge('role_permission')
+        ->key(array(
+          'rid' => $rid,
+          'permission' => $new_permission,
+        ))
+        ->insertFields(array(
+          'rid' => $rid,
+          'permission' => $new_permission,
+          'module' => 'node',
+        ))
+        ->execute();
+    }
+
+    // Delete the legacy permission.
+    db_delete('role_permission')
+      ->condition('permission', $legacy_permission)
+      ->execute();
+  }
+}
