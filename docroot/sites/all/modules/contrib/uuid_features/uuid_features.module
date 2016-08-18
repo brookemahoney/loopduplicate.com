@@ -725,6 +725,16 @@ function _uuid_features_file_field_import_file(&$file, $module = NULL) {
       }
     }
   }
+  // The file is in a local location and available in DB as managed file, but
+  // missed in the destination, move it to the destination without file save.
+  elseif (isset($file->uuid_features_file_path) && is_file($file->uuid_features_file_path)
+    && !is_file($file->uri) && file_load_multiple(array(), array('uri' => $file->uri))) {
+    $directory = drupal_dirname($file->uri);
+    if (file_prepare_directory($directory, FILE_CREATE_DIRECTORY)) {
+      $uuid_features_file_path = $file->uuid_features_file_path;
+      file_unmanaged_copy($uuid_features_file_path, $file->uri, FILE_EXISTS_REPLACE);
+    }
+  }
   // The file is in a local location, move it to the destination then finish the
   // save.
   elseif (isset($file->uuid_features_file_path) && is_file($file->uuid_features_file_path)) {

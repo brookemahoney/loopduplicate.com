@@ -5,9 +5,9 @@ version = CTOOLS_MODULE_VERSION
 dependencies[] = ctools
 core = 7.x
 
-; Information added by Drupal.org packaging script on 2016-08-01
-version = "7.x-1.9+20-dev"
+; Information added by Drupal.org packaging script on 2016-08-17
+version = "7.x-1.10"
 core = "7.x"
 project = "ctools"
-datestamp = "1470033549"
+datestamp = "1471454104"
 
