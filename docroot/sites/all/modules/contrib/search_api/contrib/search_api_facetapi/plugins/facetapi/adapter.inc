@@ -281,6 +281,20 @@ class SearchApiFacetapiAdapter extends FacetapiAdapter {
 
       // Date facets don't support the "OR" operator (for now).
       $form['global']['operator']['#access'] = FALSE;
+
+      $default_value = FACETAPI_DATE_YEAR;
+      if (isset($options['date_granularity_min'])) {
+        $default_value = $options['date_granularity_min'];
+      }
+      $form['global']['date_granularity_min'] = array(
+        '#type' => 'select',
+        '#title' => t('Minimum granularity'),
+        '#description' => t('Determine the minimum drill-down level to start at'),
+        '#prefix' => '<div class="facetapi-global-setting">',
+        '#suffix' => '</div>',
+        '#options' => $granularity_options,
+        '#default_value' => $default_value,
+      );
     }
 
     // Add an "Exclude" option for terms.
