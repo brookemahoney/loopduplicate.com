@@ -109,6 +109,9 @@ function theme_module_filter_system_modules_tabs($variables) {
       }
 
       // Add the description, along with any modules it requires.
+      if (empty($module['description']['#markup'])) {
+        $module['description']['#markup'] = '<em>' . t('No description available.') . '</em>';
+      }
       $description = '<span class="details"><span class="text">' . drupal_render($module['description']) . '</span></span>';
       if ($requires || $required_by || (!variable_get('module_filter_version_column', 0) && $version)) {
         $description .= '<div class="requirements">';
@@ -186,16 +189,19 @@ function theme_module_filter_operations(&$vars) {
     if ($dropbutton) {
       hide($links[$key]);
       if (!empty($links[$key]['#href'])) {
-        $operations[] = array(
+        $operations[$key] = array(
           'title' => $links[$key]['#title'],
           'href' => $links[$key]['#href'],
         );
+        if (isset($links[$key]['#options'])) {
+          $operations[$key] += $links[$key]['#options'];
+        }
       }
     }
     else {
       $data = drupal_render($links[$key]);
       if (!empty($data)) {
-        $operations[] = array('data' => $data);
+        $operations[$key] = array('data' => $data);
       }
     }
   }

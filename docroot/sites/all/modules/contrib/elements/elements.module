@@ -205,7 +205,7 @@ function elements_process_placeholder($element) {
 function elements_process_pattern($element) {
   if (isset($element['#pattern']) && !isset($element['#attributes']['pattern'])) {
     $element['#attributes']['pattern'] = $element['#pattern'];
-    $element['#element_validate'][] = 'form_validate_pattern';
+    $element['#element_validate'][] = 'elements_validate_pattern';
   }
 
   return $element;

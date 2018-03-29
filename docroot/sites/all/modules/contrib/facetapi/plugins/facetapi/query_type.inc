@@ -144,7 +144,7 @@ class FacetapiQueryType {
   }
 
   /**
-   * Convenience method to get the facet's global and per realm settings.
+   * Convenience method to get the facet's global and per relam settings.
    *
    * @param string|array $realm
    *   The machine readable name of the realm or an array containing the realm

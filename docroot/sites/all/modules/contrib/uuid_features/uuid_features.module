@@ -178,7 +178,7 @@ function uuid_features_features_api() {
 
   if (module_exists('fieldable_panels_panes')) {
     $components['uuid_fpp'] = array(
-      'name' => t('Fieldable Panels Pane'),
+      'name' => t('Fieldable Panels Panes Content'),
       'feature_source' => TRUE,
       'default_hook' => 'uuid_features_default_fpps',
       'default_file' => FEATURES_DEFAULTS_INCLUDED,

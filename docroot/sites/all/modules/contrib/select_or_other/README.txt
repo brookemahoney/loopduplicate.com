@@ -27,12 +27,14 @@ INSTALLATION
 
 USAGE
 ------------
-Field API integration is available for Boolean, Decimal, Float, and Text field
-types.
+Field API integration is available for Boolean, Decimal, Float, Text and Taxonomy
+field types.
 
 1. In your content type, add a new Text, Taxonomy, Float, Decimal or Boolean field.
 2. Choose the 'Select (or other)' widget option you want.
 3. Configure as required and save.
+4. If you configured Text, Float, Decimal or Boolean fields to have a key|value, use
+   the 'Select or other' field formatter to display the value instead of the key.
 
 Webform integration is built into Webform 3.
 

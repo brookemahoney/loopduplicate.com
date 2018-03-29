@@ -71,8 +71,10 @@ function rh_file_form_file_entity_add_upload_alter(&$form, $form_state) {
 function rh_file_form_file_entity_edit_alter(&$form, $form_state) {
   // Add the Rabbit Hole form, and add an extra javascript file that's needed
   // for the fieldset summary.
-  rabbit_hole_form($form, 'file', $form['#entity']->type, 'rh_file', $form['#entity']);
-  $form['#attached']['js'][] = drupal_get_path('module', 'rh_file') . '/rh-file.js';
+  rabbit_hole_form($form, 'file', $form_state['file']->type, 'rh_file', $form_state['file']);
+  if (isset($form['rabbit_hole'])) {
+    $form['rabbit_hole']['#attached']['js'][] = drupal_get_path('module', 'rh_file') . '/rh-file.js';
+  }
 
   // Add a custom submit function. This is used to disable the redirect to
   // file/123 if Rabbit Hole is enabled and the user doesn't have the bypass

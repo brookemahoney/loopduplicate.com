@@ -44,7 +44,7 @@ class SearchApiAutocompleteServerSuggester extends SearchApiAutocompleteSuggeste
     $fulltext_fields = $search->index()->getFulltextFields();
     $options = array();
     foreach ($fulltext_fields as $field) {
-      $options[$field] = $fields[$field]['name'];
+      $options[$field] = check_plain($fields[$field]['name']);
     }
     $form['fields'] = array(
       '#type' => 'checkboxes',

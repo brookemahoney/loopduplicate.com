@@ -1,0 +1,12 @@
+name = Rabbit Hole field collections
+description = Adds Rabbit Hole functionality for field collections.
+core = 7.x
+dependencies[] = rabbit_hole
+dependencies[] = field_collection
+
+; Information added by Drupal.org packaging script on 2017-03-20
+version = "7.x-2.24"
+core = "7.x"
+project = "rabbit_hole"
+datestamp = "1490001791"
+

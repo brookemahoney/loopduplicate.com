@@ -16,7 +16,7 @@ function select_or_other_install() {
     ->condition('name', 'text', '=')
     ->execute()
     ->fetchField();
-  
+
   db_update('system')
     ->fields(array('weight' => $weight + 1))
     ->condition('type', 'module')
@@ -35,10 +35,26 @@ function select_or_other_update_7201() {
     ->condition('name', 'text', '=')
     ->execute()
     ->fetchField();
-  
+
   db_update('system')
     ->fields(array('weight' => $weight + 1))
     ->condition('type', 'module')
     ->condition('name', 'select_or_other')
     ->execute();
+}
+
+/**
+ * Update widgets to use select_or_other instead of select_or_other_sort.
+ */
+function select_or_other_update_7301() {
+  $instances = field_info_instances();
+
+  foreach ($instances as $entity_type => $bundles) {
+    foreach ($bundles as $field_name => $instance) {
+      if ($instance['widget']['module'] === 'select_or_other' && $instance['widget']['type'] === 'select_or_other_sort') {
+        $instance['widget']['type'] = 'select_or_other';
+        field_update_instance($instance);
+      }
+    }
+  }
 }

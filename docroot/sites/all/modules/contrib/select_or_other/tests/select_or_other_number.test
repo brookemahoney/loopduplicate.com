@@ -3,9 +3,7 @@
 /**
  * Tests the select or other text field based functionality
  */
-class SelectOrOtherNumberTestCase extends DrupalWebTestCase {
-  protected $privileged_user;
-  protected $field_options;
+class SelectOrOtherNumberTestCase extends SelectOrOtherTestBase {
 
   public static function getInfo() {
     return array(
@@ -16,15 +14,8 @@ class SelectOrOtherNumberTestCase extends DrupalWebTestCase {
   }
 
   public function setUp() {
-    parent::setUp(array('text', 'select_or_other'));
-    // Create and log in our privileged user.
-    $this->privileged_user = $this->drupalCreateUser(
-      array('create page content', 'edit own page content')
-    );
-    $this->drupalLogin($this->privileged_user);
-
-    // start with a clean slate.
-    $this->field_options = array();
+    parent::setUp();
+    $widgets = array('select_or_other', 'select_or_other_buttons');
     // Field types to test.
     $field_types = array(
       'number_integer',
@@ -32,192 +23,110 @@ class SelectOrOtherNumberTestCase extends DrupalWebTestCase {
       'number_decimal',
     );
 
-    $delta = 1;
-    foreach (array('single', 'multiple') as $cardinality) {
-      foreach ($field_types as $type) {
-        $field_name = drupal_strtolower($this->randomName());
-        $field_settings = array(
-          'type' => 'text',
-          'field_name' => $field_name,
-          'cardinality' => $cardinality === 'single' ? 1 : -1,
-        );
-        field_create_field($field_settings);
+    foreach ($field_types as $type) {
+      $options = array();
+      $delta = 1;
+      switch ($type) {
+        case 'number_integer':
+          $options[] = "{$delta}|{$this->randomName()}";
+          $delta++;
+          $options[] = "{$delta}|{$this->randomName()}";
+          break;
 
-        $options = array();
-        switch ($type) {
-          case 'number_integer':
-            $options[$delta] = "{$delta}|{$this->randomName()}";
-            $delta++;
-            $options[$delta] = "{$delta}|{$this->randomName()}";
-            $delta++;
-            break;
-
-          case 'number_float':
-            $float = .1111 + $delta++;
-            $options["{$float}"] = "{$float}|{$this->randomName()}";
-            $float = .1112 + $delta++;
-            $options["{$float}"] = "{$float}|{$this->randomName()}";
-            break;
-
-          case 'number_decimal':
-            $decimal = .11 + $delta++;
-            $options["{$decimal}"] = "{$decimal}|{$this->randomName()}";
-            $decimal = .12 + $delta++;
-            $options["{$decimal}"] = "{$decimal}|{$this->randomName()}";
-            break;
-        }
-
-        $this->field_options[$cardinality][$type][$field_name] = $options;
-        $instance_settings = array(
-          'entity_type' => 'node',
-          'bundle' => 'page',
-          'field_name' => $field_name,
-          'widget' => array(
-            'type' => 'select_or_other',
-            'settings' => array(
-              'available_options' => implode("\r\n", $options),
-            ),
-          ),
-          'display' => array(
-            'full' => array(
-              'type' => $type,
-            ),
-          ),
-        );
-
-        field_create_instance($instance_settings);
+        case 'number_float':
+        case 'number_decimal':
+          $decimal = .11 + $delta++;
+          $options[] = "{$decimal}|{$this->randomName()}";
+          $decimal = .12 + $delta;
+          $options[] = "{$decimal}|{$this->randomName()}";
+          break;
       }
+
+      $widget_settings = array('available_options' => implode("\r\n", $options));
+      $this->prepareTestFields($type, array(), $widgets, $widget_settings, $type);
     }
+
+    $this->drupalLogin($this->drupalCreateUser($this->defaultPermissions));
   }
 
   /**
    * Tests Select or Other without other selected.
    */
   function testNoOtherSelected() {
-    $langcode = LANGUAGE_NONE;
-
-    foreach ($this->field_options as $cardinality => $field_types) {
-      foreach ($field_types as $type => $field_names) {
-        foreach ($field_names as $field_name => $options) {
-          $edit = array();
-          // A node requires a title
-          $edit["title"] = $this->randomName(8);
-          $keys = array_keys($options);
-          if ($cardinality === 'single') {
-            // Test single select.
-            $edit["{$field_name}[{$langcode}][select]"] = $keys[0];
-          }
-          else {
-            // Test multiple select.
-            $edit["{$field_name}[{$langcode}][select][]"] = $keys;
-          }
-
-          // Create the node.
-          $this->drupalPost('node/add/page', $edit, t('Save'));
-
-          // Check if the values have been created.
-          if ($cardinality === 'single') {
-            // Add the </div> because assertRaw fails for integer values.
-            $this->assertRaw("{$keys[0]}</div>");
-          }
-          else {
-            foreach ($keys as $key) {
-              // Add the </div> because assertRaw fails for integer values.
-              $this->assertRaw("{$key}</div>");
-            }
-          }
-          // Check if the 'select_or_other' option is not displayed.
-          $this->assertNoRaw('select_or_other');
-        }
-      }
+    foreach ($this->fields as $field_name => $field) {
+      $options = $this->getAvailableOptions($field['instance_settings']);
+      $keys = array_keys($options);
+      $this->setFieldValue($field_name, $keys[0]);
+      // Add the </div> because assertRaw fails for integer values.
+      $this->assertRaw("{$keys[0]}</div>");
+      $this->assertNoRaw('select_or_other');
     }
   }
 
   function testOtherSelected() {
-    $langcode = LANGUAGE_NONE;
+    foreach ($this->fields as $field_name => $field) {
 
-    foreach ($this->field_options as $cardinality => $field_types) {
-      foreach ($field_types as $type => $field_names) {
-        foreach ($field_names as $field_name => $options) {
-          $edit = array();
-          // A node requires a title
-          $edit["title"] = $this->randomName(8);
-          if ($cardinality === 'single') {
-            // Test single select.
-            $edit["{$field_name}[{$langcode}][select]"] = 'select_or_other';
-          }
-          else {
-            // Test multiple select.
-            $edit["{$field_name}[{$langcode}][select][]"] = array('select_or_other');
-          }
+      $other = rand(50, 100);
+      $this->setFieldValue($field_name, 'select_or_other', $other);
+      // Add the </div> because assertRaw fails for integer values.
 
-          $other = rand(50, 100);
-          switch ($type) {
-            case 'number_float':
-              $other = rand($other, $other * 2) / 1000;
-              break;
-
-            case 'number_decimal':
-              $other = rand($other, $other * 2) / 100;
-              break;
-          }
-          $edit["{$field_name}[{$langcode}][other]"] = $other;
-
-          // Create the node.
-          $this->drupalPost('node/add/page', $edit, t('Save'));
-
-          // Check if the value has been created.
-          // Add the </div> because assertRaw fails for integer values.
-          $this->assertRaw("{$other}</div>");
-          // Check if the 'select_or_other' option is not displayed.
-          $this->assertNoRaw('select_or_other');
-        }
+      if (in_array($field['field_settings']['type'], array(
+        'number_float',
+        'number_decimal'
+      ))) {
+        $this->assertRaw("{$other}.00</div>");
       }
+      else {
+        $this->assertRaw("{$other}</div>");
+      }
+      $this->assertNoRaw('select_or_other');
     }
   }
 
 
-  function testOtherSelectedWithPreExistingKey(){
-    $langcode = LANGUAGE_NONE;
+  function testOtherSelectedWithPreExistingKey() {
+    foreach ($this->fields as $field_name => $field) {
+      $options = $this->getAvailableOptions($field['instance_settings']);
+      $keys = array_keys($options);
+      $this->setFieldValue($field_name, 'select_or_other', $keys[0]);
+      // Add the </div> because assertRaw fails for integer values.
+      $this->assertRaw("{$keys[0]}</div>");
+      $this->assertNoRaw('select_or_other');
+      // Edit the node.
+      $this->clickLink(t('Edit'));
+      // Make sure the pre-existing option was selected.
+      if ($field['widget'] === 'select_or_other') {
+        // Select widgets have options which get selected.
+        $this->assertOptionSelected("edit-{$field_name}-und-select", $keys[0]);
+      }
+      else {
+        // Checkboxes and radios have options that get checked. They are checked
+        // by #id, which is why we need to remove the '.' from the key.
+        $key = str_replace('.', '', $keys[0]);
+        $this->assertFieldChecked("edit-{$field_name}-und-select-{$key}");
+      }
+    }
+  }
 
-    foreach ($this->field_options as $cardinality => $field_types) {
-      foreach ($field_types as $type => $field_names) {
-        foreach ($field_names as $field_name => $options) {
-          $edit = array();
-          // A node requires a title
-          $edit["title"] = $this->randomName(8);
+  protected function getAvailableOptions($instance_settings) {
+    $options = array();
 
-          $keys = array_keys($options);
-          $key = $keys[0];
-
-          if ($cardinality === 'single') {
-            // Test single select.
-            $edit["{$field_name}[{$langcode}][select]"] = 'select_or_other';
-          }
-          else {
-            // Test multiple select.
-            $edit["{$field_name}[{$langcode}][select][]"] = array('select_or_other');
-          }
-          $edit["{$field_name}[{$langcode}][other]"] = $key;
-
-          // Create the node.
-          $this->drupalPost('node/add/page', $edit, t('Save'));
-
-          // Check if the values have been created.
-          // Add the </div> because assertRaw fails for integer values.
-          $this->assertRaw("{$key}</div>");
-          // Check if the 'select_or_other' option is not displayed.
-          $this->assertNoRaw('select_or_other');
-
-          // Edit the node.
-          $this->clickLink(t('Edit'));
-          // Check if the other field is empty and if the select field has the correct
-          // selected value.
-          $this->assertFieldByName("{$field_name}[{$langcode}][other]", '');
-          $this->assertOptionSelected("edit-{$field_name}-und-select", $key);
-        }
+    $lines = explode("\r\n", $instance_settings['widget']['settings']['available_options']);
+    foreach ($lines as $line) {
+      $parts = explode('|', $line);
+      if (count($parts) > 1) {
+        $options[$parts[0]] = $parts[1];
       }
     }
 
+    return ($options);
   }
+
+  /**
+   * Make sure an empty option is present when relevant.
+   */
+  function testEmptyOption($other_option = '') {
+    parent::testEmptyOption(999);
+  }
+
 }

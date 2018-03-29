@@ -20,7 +20,7 @@ function paranoia_drush_sql_sync_sanitize($site) {
   // The intent is to remove things like API keys or credentials for services.
   drush_sql_register_post_sync_op('variable_keys',
     dt('Remove variables that contain names that indicate potential sensitive data.'),
-    "DELETE FROM variable WHERE name LIKE '%key%';");
+    "DELETE FROM variable WHERE name LIKE '%key%' OR name LIKE '%token%';");
   drush_sql_register_post_sync_op('history',
     dt('Remove history, which contains info on where users have browsed on a site.'),
     "TRUNCATE history;");
@@ -52,5 +52,26 @@ function paranoia_drush_sql_sync_sanitize($site) {
   drush_sql_register_post_sync_op('cron-key',
     dt('Reset cron key'),
     "UPDATE variable SET value = NULL WHERE name = 'cron_key';");
-  // @TODO truncate all cache* tables.
+
+  // Truncate core cache tables.
+  $cache_tables = array(
+    'cache',
+    'cache_page',
+    'cache_bootstrap',
+    'cache_field',
+    'cache_filter',
+    'cache_form',
+    'cache_menu',
+    'cache_path',
+  );
+  if (db_table_exists('cache_block')) {
+    $cache_tables[] = 'cache_block';
+  }
+  if (db_table_exists('cache_update')) {
+    $cache_tables[] = 'cache_update';
+  }
+  $trucate_caches_query = implode(';', preg_filter('/^/', 'TRUNCATE ', $cache_tables)) . ';';
+  drush_sql_register_post_sync_op('core_cache_tables',
+    dt('Truncate core cache tables.'),
+    $trucate_caches_query);
 }

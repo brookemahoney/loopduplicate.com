@@ -1,3 +1,13 @@
+Search API Autocomplete 1.5 (2017-07-18):
+-----------------------------------------
+- #2772143 by drunken monkey: Fixed missing language restriction on search
+  pages.
+- #1983442 by Rob230, drunken monkey: Fixed problems with multiple autocomplete
+  fields in one view.
+- #2572973 by drunken monkey: Fixed missing default value for suggester in new
+  settings.
+- #2564965 by drunken monkey: Fixed escaping of "Override used fields" options.
+
 Search API Autocomplete 1.4 (2015-08-29):
 -----------------------------------------
 - #2503607 by drunken monkey: Added support for custom autocomplete scripts.

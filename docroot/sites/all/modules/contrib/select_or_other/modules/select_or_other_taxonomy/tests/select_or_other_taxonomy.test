@@ -1,0 +1,159 @@
+<?php
+
+/**
+ * Tests the select or other taxonomy field based functionality
+ */
+class SelectOrOtherTaxonomyTestCase extends SelectOrOtherTestBase {
+  protected $vocabulary;
+  protected $terms;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Select or Other Taxonomy',
+      'description' => 'Ensure that Select or Other functions correctly while used in combination with taxonomy term reference fields.',
+      'group' => 'Select or Other Taxonomy',
+    );
+  }
+
+  protected function createTerm($parent = NULL, $name = '', $vocabulary_machine_name = '') {
+    if ($vocabulary_machine_name == '' && empty($this->vocabulary)) {
+      $this->vocabulary = $this->createVocabulary();
+    }
+
+    // Add initial term to vocabulary.
+    $term = (object) array(
+      'vid' => $this->vocabulary->vid,
+      'name' => $name !== '' ? $name : $this->randomName(),
+    );
+    if (isset($parent)) {
+      $term->parent = $parent;
+    }
+    taxonomy_term_save($term);
+
+    return $term;
+  }
+
+  protected function createVocabulary() {
+    // Create vocabularies.
+    $name = $this->randomName();
+    $vocab = (object) array(
+      'name' => $name,
+      'machine_name' => strtolower($name),
+    );
+
+    taxonomy_vocabulary_save($vocab);
+    return taxonomy_vocabulary_machine_name_load(strtolower($name));
+  }
+
+  public function setUp() {
+    parent::setUp(array('select_or_other_taxonomy'));
+    // Start with a clean slate.
+    $this->vocabulary = NULL;
+    // Create some terms.
+    $this->terms = array();
+    $this->terms[] = $this->createTerm();
+    $this->terms[] = $this->createTerm(reset($this->terms)->tid);
+
+    $widgets = array('select_or_other_taxonomy', 'select_or_other_taxonomy_buttons');
+    $field_settings = array(
+      'allowed_values' => array(
+        array(
+          'vocabulary' => $this->vocabulary->machine_name,
+          'parent' => '0',
+        ),
+      ),
+    );
+
+    $this->prepareTestFields('taxonomy_term_reference', $field_settings, $widgets, array(), 'taxonomy_term_reference_plain');
+    $this->drupalLogin($this->drupalCreateUser($this->defaultPermissions));
+  }
+
+  /**
+   * Tests Select or Other without "other" selected.
+   */
+  function testNoOtherSelected() {
+    foreach ($this->fields as $field_name => $field) {
+      $this->setFieldValue($field_name, $this->terms[0]->tid);
+      $this->assertText($this->terms[0]->name);
+      $this->assertNoRaw('select_or_other');
+    }
+  }
+
+  /**
+   * Test Select or Other with "other" selected.
+   */
+  function testOther() {
+    foreach ($this->fields as $field_name => $field) {
+      $other_value = $this->randomName();
+      $this->setFieldValue($field_name, 'select_or_other', $other_value);
+      $this->assertRaw($other_value);
+      $this->assertNoRaw('select_or_other');
+    }
+  }
+
+  /**
+   * Test Select or Other with "other" selected.
+   */
+  function testMultipleOther() {
+    foreach ($this->fields as $field_name => $field) {
+      $other_values = array($this->randomName());
+      $other_values[] = $this->randomName();
+      $other_values[] = $this->randomName();
+      $other_value = implode(', ', $other_values);
+      $this->setFieldValue($field_name, 'select_or_other', $other_value);
+
+      if ($field['cardinality'] === 1) {
+        // Multiple values should fail form validation.
+        $this->assertRaw(t('%name: this field cannot hold more than @count values.', array(
+          '%name' => $field_name,
+          '@count' => 1
+        )));
+      }
+      else {
+        // Check if the values have been created.
+        foreach ($other_values as $value) {
+          $this->assertRaw($value);
+        }
+        // Check if the 'select_or_other' option is not displayed.
+        $this->assertNoRaw('select_or_other');
+      }
+    }
+  }
+
+  /**
+   * Tests the selection of a term within a hierarchy.
+   */
+  function testTermHierarchySelect() {
+    foreach ($this->fields as $field_name => $field) {
+      $this->setFieldValue($field_name, $this->terms[1]->tid);
+      $this->assertText($this->terms[1]->name);
+      $this->assertNoRaw('select_or_other');
+    }
+  }
+
+  /**
+   * Make sure an empty option is present when relevant.
+   */
+  function testEmptyOption($other_option = '') {
+    parent::testEmptyOption('My cool new term');
+  }
+  /**
+   * Generate content types and fields for testing.
+   * @param string $field_type
+   *   The type of field to create.
+   * @param array $widgets
+   *   The types of widgets to use.
+   * @param array $widget_settings
+   *   The widget settings.
+   * @param $field_formatter
+   *   Machine name of the field formatter to use for display.
+   * @throws \Exception
+   * @throws \FieldException
+   */
+  protected function prepareTestFields($field_type, $field_settings, $widgets, $widget_settings, $field_formatter) {
+    // Add taxonomy permissions
+    parent::prepareTestFields($field_type, $field_settings, $widgets, $widget_settings, $field_formatter);
+    $this->defaultPermissions[] = 'edit terms in ' . $this->vocabulary->vid;
+  }
+
+}

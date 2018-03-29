@@ -192,6 +192,12 @@ class SearchApiFacetapiAdapter extends FacetapiAdapter {
    */
   public function getSearchKeys() {
     $search = $this->getCurrentSearch();
+
+    // If the search is empty then there's no reason to continue.
+    if (!$search) {
+      return NULL;
+    }
+
     $keys = $search[0]->getOriginalKeys();
     if (is_array($keys)) {
       // This will happen nearly never when displaying the search keys to the
@@ -298,7 +304,7 @@ class SearchApiFacetapiAdapter extends FacetapiAdapter {
     }
 
     // Add an "Exclude" option for terms.
-    if(!empty($facet['query types']) && in_array('term', $facet['query types'])) {
+    if (!empty($facet['query types']) && in_array('term', $facet['query types'])) {
       $form['global']['operator']['#weight'] = -2;
       unset($form['global']['operator']['#suffix']);
       $form['global']['exclude'] = array(

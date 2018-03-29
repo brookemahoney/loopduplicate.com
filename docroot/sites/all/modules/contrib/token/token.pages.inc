@@ -207,6 +207,7 @@ function _token_token_tree_format_row($token, array $token_info, $is_group = FAL
   }
   else {
     // This is a token.
+    $row['data']['token'] = array();
     $row['data']['token']['data'] = $token;
     $row['data']['token']['class'][] = 'token-key';
     if (isset($token_info['value'])) {

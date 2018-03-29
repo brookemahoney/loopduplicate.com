@@ -3,12 +3,13 @@ description = Allows one to alter the CSS and JS array.
 package = Advanced CSS/JS Aggregation
 core = 7.x
 dependencies[] = advagg
+recommends[] = libraries
 
 configure = admin/config/development/performance/advagg/mod
 
-; Information added by Drupal.org packaging script on 2016-03-29
-version = "7.x-2.18"
+; Information added by Drupal.org packaging script on 2018-03-20
+version = "7.x-2.33"
 core = "7.x"
 project = "advagg"
-datestamp = "1459291143"
+datestamp = "1521515592"
 

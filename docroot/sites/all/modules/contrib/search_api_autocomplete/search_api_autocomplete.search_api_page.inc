@@ -65,11 +65,32 @@ function search_api_autocomplete_pages_searches(SearchApiIndex $index) {
  */
 function search_api_autocomplete_pages_query(SearchApiAutocompleteSearch $search, $complete, $incomplete) {
   $page = search_api_page_load($search->options['custom']['page_id']);
+
   // Copied from search_api_page_search_execute().
-  $query = search_api_query($page->index_id, array('parse mode' => $page->options['mode']))
+  $options = array(
+    'search id' => 'search_api_page:' . $page->path,
+    'search_api_page id' => $page->machine_name,
+    'parse mode' => $page->options['mode'],
+  );
+  $query = search_api_query($page->index_id, $options)
     ->keys($complete);
   if (!empty($page->options['fields'])) {
     $query->fields($page->options['fields']);
   }
+  if (!empty($page->options['language_filter'])) {
+    module_load_include('pages.inc', 'search_api_page');
+    $languages = array_unique(array_map('_search_api_page_map_languages', $page->options['language_filter']));
+    if (count($languages) == 1) {
+      $query->condition('search_api_language', reset($languages));
+    }
+    else {
+      $filter = $query->createFilter('OR');
+      foreach ($languages as $lang) {
+        $filter->condition('search_api_language', $lang);
+      }
+      $query->filter($filter);
+    }
+  }
+
   return $query;
 }

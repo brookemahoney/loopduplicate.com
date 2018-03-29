@@ -62,6 +62,7 @@ function search_api_autocomplete_admin_overview(array $form, array &$form_state,
         unset($searches[$id]);
       }
       else {
+        reset($available_suggesters);
         $search += array(
           'machine_name' => $id,
           'index_id' => $index_id,
@@ -280,7 +281,7 @@ function search_api_autocomplete_admin_search_edit(array $form, array &$form_sta
     }
 
     // Add the suggester to the suggester options.
-    $form['suggester_id']['#options'][$suggester_id] = $suggester->label();
+    $form['suggester_id']['#options'][$suggester_id] = check_plain($suggester->label());
 
     // Then, also add the configuration form for the selected suggester.
     if ($suggester_id != $selected_suggester_id) {

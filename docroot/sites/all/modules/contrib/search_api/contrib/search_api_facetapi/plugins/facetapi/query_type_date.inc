@@ -76,7 +76,7 @@ class SearchApiFacetapiDate extends SearchApiFacetapiTerm implements FacetapiQue
    */
   protected function createRangeFilter($value) {
     // Ignore any filters passed directly from the server (range or missing).
-    if (!$value || $value == '!' || (!ctype_digit($value[0]) && preg_match('/^[\[(][^ ]+ [^ ]+[])]$/', $value))) {
+    if (!$value || $value == '!' || (!ctype_digit($value[0]) && preg_match('/^[\[(][^ ]+ TO [^ ]+[\])]$/', $value))) {
       return $value ? $value : NULL;
     }
 

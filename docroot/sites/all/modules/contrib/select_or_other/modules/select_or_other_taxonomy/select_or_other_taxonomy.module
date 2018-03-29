@@ -1,0 +1,216 @@
+<?php
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function select_or_other_taxonomy_field_widget_info() {
+  $field_types = array('taxonomy_term_reference');
+
+  $settings = array(
+    'other' => t('Other'),
+    'other_title' => '',
+    'other_size' => 60,
+    'sort_options' => FALSE,
+  );
+
+  $defaults = select_or_other_field_widget_defaults($field_types, $settings);
+
+  return array(
+    'select_or_other_taxonomy' => array('label' => t('Select (or other) list')) + $defaults,
+    'select_or_other_taxonomy_buttons' => array('label' => t('Select (or other) check boxes/radio buttons')) + $defaults,
+  );
+}
+
+/**
+ * Implements hook_field_widget_settings_form().
+ */
+function select_or_other_taxonomy_field_widget_settings_form($field, $instance) {
+  $settings = &$instance['widget']['settings'];
+
+  $form = array() + select_or_other_field_widget_other_options($settings);
+
+  $form['sort_options'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Sort options'),
+    '#description' => t("Sorts the options in the list alphabetically by value."),
+    '#default_value' => isset($settings['sort_options']) ? $settings['sort_options'] : FALSE,
+  );
+
+  return $form;
+}
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function select_or_other_taxonomy_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  $default_value = array();
+  // Also set some fake items to trick select_or_other_field_widget_form() into
+  // setting the correct #empty_option if applicable.
+  // @todo refactor further to be able to remove this hack.
+  $fake_items = array();
+  foreach ($items as $item) {
+    if ($item['tid'] !== 'autocreate') {
+      $default_value[] = $item['tid'];
+      $fake_items[] = array('value' => 'fake');
+    }
+  }
+
+  // Get the base widget form.
+  $element = $element + select_or_other_field_widget_form($form, $form_state, $field, $instance, $langcode, $fake_items, $delta, $element);
+
+  // Make sure the empty option is set.
+  // @todo refactor further to be able to remove this hack.
+  $empty_option = array();
+  if (isset($element['#options'][''])) {
+    $empty_option[''] = $element['#options'][''];
+  }
+  $options = module_exists('i18n_taxonomy') ? i18n_taxonomy_allowed_values($field) : taxonomy_allowed_values($field);
+  $element['#options'] = $empty_option + $options;
+
+  $element['#default_value'] = $field['cardinality'] != 1 ? $default_value : reset($default_value);
+  $element['#element_validate'][] = 'select_or_other_taxonomy_field_widget_validate';
+
+  // Set select type's.
+  switch ($instance['widget']['type']) {
+    case 'select_or_other_taxonomy':
+      $element['#select_type'] = 'select';
+      break;
+
+    case 'select_or_other_taxonomy_buttons':
+      $element['#select_type'] = $field['cardinality'] == 1 ? 'radios' : 'checkboxes';
+      break;
+  }
+
+  $element['#other_disable'] = !select_or_other_taxonomy_enable_other($instance, $field);
+  return $element;
+}
+
+
+/**
+ * Element validate callback for a Select (or other) field widget.
+ */
+function select_or_other_taxonomy_field_widget_validate($element, &$form_state) {
+  $value = select_or_other_fetch_value($element);
+  if (is_array($value)) {
+    $terms = array();
+    foreach ($value as $val) {
+      if (isset($val['value'])) {
+        $terms[] = $val['value'];
+      }
+    }
+    $element['#value'] = drupal_implode_tags($terms);
+  }
+  select_or_other_taxonomy_validate($element, $form_state);
+  return;
+}
+
+/**
+ * Form element validate handler for taxonomy term element.
+ */
+function select_or_other_taxonomy_validate($element, &$form_state) {
+  // Autocomplete widgets do not send their tids in the form, so we must detect
+  // them here and process them independently.
+  $terms = array();
+
+  // Get the selected tags and unset the select_or_other option.
+  $tags = drupal_map_assoc((array) $element['select']['#value']);
+  // Get the other value and prepare it for processing.
+  if (isset($tags['select_or_other'])) {
+    unset($tags['select_or_other']);
+    $tags += drupal_explode_tags($element['other']['#value']);
+  }
+  // Unset the _none value to prevent PDO exceptions.
+  unset($tags['_none']);
+
+  if ($tags) {
+    // Collect candidate vocabularies.
+    $field = field_widget_field($element, $form_state);
+    $vocabularies = array();
+    foreach ($field['settings']['allowed_values'] as $tree) {
+      $vocabularies[] = $tree['vocabulary'];
+    }
+    $efq = new EntityFieldQuery();
+    $result = $efq->entityCondition('entity_type', 'taxonomy_vocabulary')
+      ->propertyCondition('machine_name', $vocabularies)
+      ->execute();
+    $vocabularies = taxonomy_vocabulary_load_multiple(array_keys($result['taxonomy_vocabulary']));
+
+    // Collect possible taxonomy term ids.
+    $possible_tids = array();
+    foreach ($tags as $key => $tag) {
+      if (is_numeric($tag)) {
+        $possible_tids[] = $tag;
+        unset($tags[$key]);
+      }
+      // unset the empty value if present.
+      if ($tag == '') {
+        unset($tags[$key]);
+      }
+    }
+
+    // @todo Make sure adding the id of a term in another vocabulary to the other
+    // field adds that id as a new value to the allowed vocabulary.
+    if (!empty($possible_tids)) {
+      // Attempt to load all possible term ids at once.
+      $terms = taxonomy_term_load_multiple($possible_tids);
+      // Make sure all possible term ids could be loaded. Any ids that did not
+      // result in a loaded term object are considered a new (numeric) tag.
+      foreach ($possible_tids as $tid) {
+        if (!isset($terms[$tid])) {
+          $tags[] = $tid;
+        }
+      }
+    }
+
+    // If a tag is to be added, make sure it does not exist yet.
+    if (!empty($tags)) {
+      $efq = new EntityFieldQuery();
+      $result = $efq->entityCondition('entity_type', 'taxonomy_term')
+        ->propertyCondition('name', $tags)
+        ->propertyCondition('vid', array_keys($vocabularies))
+        ->execute();
+
+      // If matching terms were located, load them.
+      if (!empty($result)) {
+        $pre_existing_terms = taxonomy_term_load_multiple(array_keys($result['taxonomy_term']));
+        foreach ($pre_existing_terms as $term) {
+          foreach ($tags as $key => $tag) {
+            if (strtolower($tag) === strtolower($term->name)) {
+              unset($tags[$key]);
+            }
+          }
+          $terms[$term->tid] = $term;
+        }
+      }
+    }
+
+    // All remaining tags are to be appended to the vocabulary.
+    $vocabulary = reset($vocabularies);
+    foreach ($tags as $tag) {
+      $terms[] = array(
+        'tid' => 'autocreate',
+        'vid' => $vocabulary->vid,
+        'name' => $tag,
+        'vocabulary_machine_name' => $vocabulary->machine_name,
+      );
+    }
+
+    // Form values are supposed to be arrays so we convert all objects to array.
+    foreach ($terms as &$term) {
+      $term = (array) $term;
+    }
+  }
+
+  form_set_value($element, $terms, $form_state);
+
+}
+
+/**
+ * Check if "other" option should be enabled
+ */
+function select_or_other_taxonomy_enable_other($instance, $field) {
+  if ($field['type'] == 'taxonomy_term_reference') {
+    $vocabulary = taxonomy_vocabulary_machine_name_load($field['settings']['allowed_values'][0]['vocabulary']);
+    return user_access('edit terms in ' . $vocabulary->vid) || user_access('administer taxonomy') || (module_exists('taxonomy_access_fix') && user_access('add terms in ' . $vocabulary->machine_name));
+  }
+}

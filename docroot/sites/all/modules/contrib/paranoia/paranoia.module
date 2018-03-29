@@ -132,7 +132,7 @@ function paranoia_form_user_admin_permissions_alter(&$form, &$form_state) {
     }
     foreach ($form['checkboxes'] as $index => $elements) {
       if (isset($elements['#options'][$permission])) {
-        unset($form['checkboxes'][$index]['#options'][$permission]);
+        $form['checkboxes'][$index][$permission]['#access'] = FALSE;
       }
     }
   }
@@ -341,7 +341,7 @@ function paranoia_form_alter(&$form, &$form_state, $form_id) {
   $forms_to_disable = drupal_map_assoc($forms_to_disable);
   if (array_key_exists($form_id, $forms_to_disable)) {
     $form['#access'] = FALSE;
-    $form['#validate'] = 'paranoia_form_validate_always_fail';
+    $form['#validate'][] = 'paranoia_form_validate_always_fail';
     drupal_set_message(t('This form is disabled for security reasons. See <a href="https://www.drupal.org/node/2313945">details</a> on why this form is disabled.'), 'error');
   }
 }
@@ -360,4 +360,13 @@ function paranoia_form_validate_always_fail() {
  */
 function views_paranoia_risky_forms() {
   return array('views_ui_import_page');
+}
+
+/**
+ * Implements paranoia_risky_forms().
+ *
+ * On behalf of devel module.
+ */
+function devel_paranoia_risky_forms() {
+  return array('devel_execute_block_form');
 }

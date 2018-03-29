@@ -9,47 +9,83 @@
  * Settings form.
  */
 function reroute_email_settings() {
+  // In case of absence of the 'variable' module, the inc file should be loaded
+  // manually.
+  module_load_include('inc', 'reroute_email', 'reroute_email.variable');
+
+  // Getting titles and descriptions of variables. We will not use foreach()
+  // loop of $variables in the form below for better code readability.
+  // @see reroute_email_variable_info()
+  $variables = module_invoke('reroute_email', 'variable_info', array());
+
+  // Checkbox to enable or disable email rerouting.
   $form[REROUTE_EMAIL_ENABLE] = array(
-    '#type'          => 'checkbox',
-    '#title'         => t('Enable rerouting'),
+    '#type' => 'checkbox',
+    '#title' => $variables[REROUTE_EMAIL_ENABLE]['title'],
     '#default_value' => variable_get(REROUTE_EMAIL_ENABLE, 0),
-    '#description'   => t('Check this box if you want to enable email rerouting. Uncheck to disable rerouting.'),
+    '#description' => $variables[REROUTE_EMAIL_ENABLE]['description'],
   );
+
+  // Define #states to be used for visibility of all variables.
+  $states = array(
+    'visible' => array(':input[name=' . REROUTE_EMAIL_ENABLE . ']' => array('checked' => TRUE)),
+  );
+
+  // Text field for email rerouting targets.
   $form[REROUTE_EMAIL_ADDRESS] = array(
-    '#type'          => 'textfield',
-    '#title'         => t('Email addresses'),
+    '#type' => 'textfield',
+    '#title' => $variables[REROUTE_EMAIL_ADDRESS]['title'],
     '#default_value' => variable_get(REROUTE_EMAIL_ADDRESS, variable_get('site_mail', ini_get('sendmail_from'))),
-    '#description'   => t('Provide a space, comma, or semicolon-delimited list of email addresses to pass through. Every destination email address which is not on this list will be rerouted to the first address on the list.<br/> If the field is empty and no value is provided, <strong>all outgoing emails would be aborted</strong> and the email would be recorded in the <a href="@dblog">recent log entries</a>.', array('@dblog' => url('admin/reports/dblog'))),
-    '#states' => array(
-      'visible' => array(':input[name=reroute_email_enable]' => array('checked' => TRUE)),
-    ),
+    '#description' => $variables[REROUTE_EMAIL_ADDRESS]['description'],
+    '#states' => $states,
+    '#element_validate' => array('reroute_email_element_validate_addresses'),
   );
+
+  // Text field for email whitelisting.
+  $form[REROUTE_EMAIL_WHITELIST] = array(
+    '#type' => 'textfield',
+    '#title' => $variables[REROUTE_EMAIL_WHITELIST]['title'],
+    '#default_value' => variable_get(REROUTE_EMAIL_WHITELIST, ''),
+    '#description' => $variables[REROUTE_EMAIL_WHITELIST]['description'],
+    '#states' => $states,
+    '#element_validate' => array('reroute_email_element_validate_addresses'),
+  );
+
+  // Checkbox to enable additional information in email body message.
   $form[REROUTE_EMAIL_ENABLE_MESSAGE] = array(
     '#type' => 'checkbox',
-    '#title' => t('Show rerouting description in mail body'),
+    '#title' => $variables[REROUTE_EMAIL_ENABLE_MESSAGE]['title'],
     '#default_value' => variable_get(REROUTE_EMAIL_ENABLE_MESSAGE, 1),
-    '#description' => t('Check this box if you want a message to be inserted into the email body when the mail is being rerouted. Otherwise, SMTP headers will be used to describe the rerouting. If sending rich-text email, leave this unchecked so that the body of the email will not be disturbed.'),
-    '#states' => array(
-      'visible' => array(':input[name=reroute_email_enable]' => array('checked' => TRUE)),
-    ),
+    '#description' => $variables[REROUTE_EMAIL_ENABLE_MESSAGE]['description'],
+    '#states' => $states,
+  );
+
+  // Checkbox to enable the display of a Drupal message after rerouting email.
+  $form[REROUTE_EMAIL_ENABLE_DSM] = array(
+    '#type' => 'checkbox',
+    '#title' => $variables[REROUTE_EMAIL_ENABLE_DSM]['title'],
+    '#default_value' => variable_get(REROUTE_EMAIL_ENABLE_DSM, 1),
+    '#description' => $variables[REROUTE_EMAIL_ENABLE_DSM]['description'],
+    '#states' => $states,
+  );
+
+  $form['mail_keys'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Advanced settings'),
+    '#states' => $states,
+    '#collapsible' => TRUE,
+    '#collapsed' => variable_get(REROUTE_EMAIL_MAIL_KEYS, '') === '',
+  );
+
+  $form['mail_keys'][REROUTE_EMAIL_MAIL_KEYS] = array(
+    '#title' => $variables[REROUTE_EMAIL_MAIL_KEYS]['title'],
+    '#type' => 'textarea',
+    '#rows' => 3,
+    '#default_value' => variable_get(REROUTE_EMAIL_MAIL_KEYS, ''),
+    '#description' => $variables[REROUTE_EMAIL_MAIL_KEYS]['description'],
   );
 
   return system_settings_form($form);
-}
-
-/**
- * Validation callback for reroute_email_settings() form.
- */
-function reroute_email_settings_validate($form, $form_state) {
-  if ($form_state['values']['reroute_email_enable'] == TRUE) {
-    // Allow splitting emails by space, comma, semicolon.
-    $addresslist = preg_split(REROUTE_EMAIL_EMAIL_SPLIT_RE, $form_state['values']['reroute_email_address'], -1, PREG_SPLIT_NO_EMPTY);
-    foreach ($addresslist as $address) {
-      if (!valid_email_address($address)) {
-        form_set_error('reroute_email_address', t('@address is not a valid email address', array('@address' => $address)));
-      }
-    }
-  }
 }
 
 /**
@@ -82,6 +118,7 @@ function reroute_email_test_email_form() {
     'body' => array(
       '#type' => 'textarea',
       '#title' => t('Body'),
+      '#default_value' => t('Reroute Email Body'),
     ),
     'submit' => array(
       '#type' => 'submit',
@@ -99,6 +136,6 @@ function reroute_email_test_email_form_submit(&$form, &$form_state) {
   $params = array_intersect_key($form_state['values'], array_flip($param_keys));
   $message = drupal_mail('reroute_email', 'test_email_form', $to, language_default(), $params);
   if (!empty($message['result'])) {
-    drupal_set_message(t("Test email submitted for delivery."));
+    drupal_set_message(t('Test email submitted for delivery.'));
   }
 }

@@ -7,7 +7,7 @@ Paste into ~/.bash_profile:
 # Changes to the test directory and runs commands in behat.local.sh.
 alias loopduplicatebehatprepare='cd /Applications/MAMP/htdocs/loopduplicate/docroot/sites/default/tests/behat && source behat.local.sh'
 # Starts PhantomJS.
-alias phantomstart='phantomjs --webdriver=8643'
+alias phantomjsstart='phantomjs --webdriver=8643'
 ```
 
 ## To run the tests
@@ -15,7 +15,7 @@ alias phantomstart='phantomjs --webdriver=8643'
 Start PhantomJS:
 
 ```shell
-phantomstart
+phantomjsstart
 ```
 
 Prepare Behat:

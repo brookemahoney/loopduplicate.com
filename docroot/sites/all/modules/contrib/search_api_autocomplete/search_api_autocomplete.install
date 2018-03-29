@@ -186,3 +186,18 @@ function search_api_autocomplete_update_7103() {
   unset($spec['default']);
   db_change_field('search_api_autocomplete_search', 'suggester_id', 'suggester_id', $spec);
 }
+
+/**
+ * Fix the {search_api_autocomplete_search}.suggester_id field, where necessary.
+ */
+function search_api_autocomplete_update_7104() {
+  $or = db_or();
+  $or->condition('suggester_id', '');
+  $or->isNull('suggester_id');
+  db_update('search_api_autocomplete_search')
+    ->fields(array(
+      'suggester_id' => 'server',
+    ))
+    ->condition($or)
+    ->execute();
+}

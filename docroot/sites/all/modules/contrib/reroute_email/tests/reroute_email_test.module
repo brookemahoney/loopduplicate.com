@@ -32,7 +32,7 @@ function reroute_email_test_mail($key, &$message, $params) {
   if ($key != 'test_reroute_email') {
     return;
   }
-  $message['subject'] = "Reroute Email Test: Message body is a string, Cc and Bcc header keys have  a special case";
+  $message['subject'] = 'Reroute Email Test: Message body is a string, Cc and Bcc header keys have a special case';
 
   // Body is provided as a string.
   if (!empty($params['body'])) {

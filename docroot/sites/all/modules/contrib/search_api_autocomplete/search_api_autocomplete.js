@@ -108,87 +108,87 @@ if (typeof Drupal.jsAC != 'undefined') {
     });
     return true;
   };
-}
 
-/**
-* Performs a cached and delayed search.
-*/
-Drupal.ACDB.prototype.search = function (searchString) {
-  this.searchString = searchString;
+  /**
+   * Performs a cached and delayed search.
+   */
+  Drupal.ACDB.prototype.search = function (searchString) {
+    this.searchString = searchString;
 
-  // Check allowed length of string for autocomplete.
-  var data = $(this.owner.input).first().data('min-autocomplete-length');
-  if (data && searchString.length < data) {
-    return;
-  }
+    // Check allowed length of string for autocomplete.
+    var data = $(this.owner.input).first().data('min-autocomplete-length');
+    if (data && searchString.length < data) {
+      return;
+    }
 
-  // See if this string needs to be searched for anyway.
-  if (searchString.match(/^\s*$/)) {
-    return;
-  }
+    // See if this string needs to be searched for anyway.
+    if (searchString.match(/^\s*$/)) {
+      return;
+    }
 
-  // Prepare search string.
-  searchString = searchString.replace(/^\s+/, '');
-  searchString = searchString.replace(/\s+/g, ' ');
+    // Prepare search string.
+    searchString = searchString.replace(/^\s+/, '');
+    searchString = searchString.replace(/\s+/g, ' ');
 
-  // See if this key has been searched for before.
-  if (this.cache[searchString]) {
-    return this.owner.found(this.cache[searchString]);
-  }
+    // See if this key has been searched for before.
+    if (this.cache[searchString]) {
+      return this.owner.found(this.cache[searchString]);
+    }
 
-  var db = this;
-  this.searchString = searchString;
+    var db = this;
+    this.searchString = searchString;
 
-  // Initiate delayed search.
-  if (this.timer) {
-    clearTimeout(this.timer);
-  }
-  var sendAjaxRequest = function () {
-    db.owner.setStatus('begin');
+    // Initiate delayed search.
+    if (this.timer) {
+      clearTimeout(this.timer);
+    }
+    var sendAjaxRequest = function () {
+      db.owner.setStatus('begin');
 
-    var url;
+      var url;
 
-    // Allow custom Search API Autocomplete overrides for specific searches.
-    if (getSetting(db.owner.input, 'custom_path', false)) {
-      var queryChar = db.uri.indexOf('?') >= 0 ? '&' : '?';
-      url = db.uri + queryChar + 'search=' + encodeURIComponent(searchString);
+      // Allow custom Search API Autocomplete overrides for specific searches.
+      if (getSetting(db.owner.input, 'custom_path', false)) {
+        var queryChar = db.uri.indexOf('?') >= 0 ? '&' : '?';
+        url = db.uri + queryChar + 'search=' + encodeURIComponent(searchString);
+      }
+      else {
+        // We use Drupal.encodePath instead of encodeURIComponent to allow
+        // autocomplete search terms to contain slashes.
+        url = db.uri + '/' + Drupal.encodePath(searchString);
+      }
+
+      // Ajax GET request for autocompletion.
+      $.ajax({
+        type: 'GET',
+        url: url,
+        dataType: 'json',
+        success: function (matches) {
+          if (typeof matches.status == 'undefined' || matches.status != 0) {
+            db.cache[searchString] = matches;
+            // Verify if these are still the matches the user wants to see.
+            if (db.searchString == searchString) {
+              db.owner.found(matches);
+            }
+            db.owner.setStatus('found');
+          }
+        },
+        error: function (xmlhttp) {
+          if (xmlhttp.status) {
+            alert(Drupal.ajaxError(xmlhttp, db.uri));
+          }
+        }
+      });
+    };
+    // Make it possible to override the delay via a setting.
+    var delay = getSetting(this.owner.input, 'delay', this.delay);
+    if (delay > 0) {
+      this.timer = setTimeout(sendAjaxRequest, delay);
     }
     else {
-      // We use Drupal.encodePath instead of encodeURIComponent to allow
-      // autocomplete search terms to contain slashes.
-      url = db.uri + '/' + Drupal.encodePath(searchString);
+      sendAjaxRequest.apply();
     }
-
-    // Ajax GET request for autocompletion.
-    $.ajax({
-      type: 'GET',
-      url: url,
-      dataType: 'json',
-      success: function (matches) {
-        if (typeof matches.status == 'undefined' || matches.status != 0) {
-          db.cache[searchString] = matches;
-          // Verify if these are still the matches the user wants to see.
-          if (db.searchString == searchString) {
-            db.owner.found(matches);
-          }
-          db.owner.setStatus('found');
-        }
-      },
-      error: function (xmlhttp) {
-        if (xmlhttp.status) {
-          alert(Drupal.ajaxError(xmlhttp, db.uri));
-        }
-      }
-    });
   };
-  // Make it possible to override the delay via a setting.
-  var delay = getSetting(this.owner.input, 'delay', this.delay);
-  if (delay > 0) {
-    this.timer = setTimeout(sendAjaxRequest, delay);
-  }
-  else {
-    sendAjaxRequest.apply();
-  }
-};
+}
 
 })(jQuery);

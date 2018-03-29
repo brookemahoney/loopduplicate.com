@@ -30,21 +30,19 @@ function search_api_autocomplete_form_views_exposed_form_alter(array &$form, arr
   // Add the "Search: Fulltext search" filter as another text field.
   $fields[] = 'search_api_views_fulltext';
   drupal_alter('search_api_autocomplete_views_fulltext_fields', $fields, $search, $view);
-  // We need the _entity_views_field_identifier() function to translate Search
-  // API field names into Views identifiers.
-  module_load_include('views.inc', 'entity', 'views/entity');
-  foreach ($fields as $search_field) {
-    $field = _entity_views_field_identifier($search_field, array());
-    if (!empty($view->filter[$field]->options['expose']['identifier'])) {
-      $key = $view->filter[$field]->options['expose']['identifier'];
-      if (isset($form[$key]) && $form[$key]['#type'] == 'textfield') {
-        if ($field == 'search_api_views_fulltext') {
-          $fields = $view->filter[$field]->options['fields'];
+  foreach ($view->filter as $filter_name => $filter) {
+    if (in_array($filter->real_field, $fields)) {
+      if (!empty($filter->options['expose']['identifier'])) {
+        $key = $filter->options['expose']['identifier'];
+        if (isset($form[$key]) && $form[$key]['#type'] == 'textfield') {
+          if ($filter->real_field == 'search_api_views_fulltext') {
+            $autocomplete_fields = $filter->options['fields'];
+          }
+          else {
+            $autocomplete_fields = array($filter->real_field);
+          }
+          $search->alterElement($form[$key], $autocomplete_fields);
         }
-        else {
-          $fields = array($search_field);
-        }
-        $search->alterElement($form[$key], $fields);
       }
     }
   }

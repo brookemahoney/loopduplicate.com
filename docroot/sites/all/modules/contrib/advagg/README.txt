@@ -1,22 +1,356 @@
 
-----------------------------------
 ADVANCED CSS/JS AGGREGATION MODULE
-----------------------------------
+==================================
 
 
 CONTENTS OF THIS FILE
 ---------------------
 
+ - Introduction
+ - Requirements
+ - Recommended modules
+ - Installation
+ - How to get a high PageSpeed score
+ - JSMin PHP Extension
+ - Brotli PHP Extension
+ - Zopfli PHP Extension
+ - nginx Configuration
+ - JavaScript Bookmarklet
+ - Troubleshooting
  - Features & benefits
  - Configuration
  - Additional options for `drupal_add_css/js` functions
- - JSMin PHP Extension
- - JavaScript Bookmarklet
  - Technical Details & Hooks
- - How to get a high PageSpeed score
- - Settings that Drupal.org uses
- - nginx Configuration
- - Troubleshooting
+
+
+INTRODUCTION
+------------
+
+The Advanced CSS/JS Aggregation allows you to improve the frontend performance
+of your site. Be sure to do a before and after comparison by using Google's
+PageSpeed Insights and WebPagetest.org.
+https://developers.google.com/speed/pagespeed/insights/
+http://www.webpagetest.org/easy
+
+
+REQUIREMENTS
+------------
+
+No special requirements.
+
+
+RECOMMENDED MODULES
+-------------------
+
+ - Libraries (https://www.drupal.org/project/libraries)
+   Allows for 3rd party code for minification to be used by AdvAgg.
+
+
+INSTALLATION
+------------
+
+ - Install as you would normally install a contributed Drupal module. Visit:
+   https://drupal.org/documentation/install/modules-themes/modules-7
+   for further information.
+
+
+HOW TO GET A HIGH PAGESPEED SCORE
+---------------------------------
+
+Be sure to check the site after every section to make sure the change didn't
+mess up your site. The changes under AdvAgg Modifier are usually the most
+problematic but they offer the biggest improvements.
+
+#### Advanced CSS/JS Aggregation ####
+Go to `admin/config/development/performance/advagg`
+
+Select "Use recommended (optimized) settings"
+
+#### AdvAgg Compress Javascript ####
+Install AdvAgg Compress Javascript if not enabled and go to
+`admin/config/development/performance/advagg/js-compress`
+
+ - Select JSMin if available; otherwise select JSMin+
+ - Select Strip everything (smallest files)
+ - Save configuration
+ - Click the batch compress link to process these files at the top.
+
+#### AdvAgg Async Font Loader ####
+Install AdvAgg Async Font Loader if not enabled and go to
+`admin/config/development/performance/advagg/font`
+
+ - Select Local file included in aggregate (version: X.X.X). If this option is
+   not available follow the directions right below the options on how to install
+   it.
+
+Keep the 2 checkboxes checked.
+
+#### AdvAgg Bundler ####
+Install AdvAgg Bundler if not enabled and go to
+`admin/config/development/performance/advagg/bundler`
+
+If your server supports HTTP 2 then select "Use HTTP 2.0 settings"; otherwise
+leave it at the "Use HTTP 1.1 settings".
+
+#### AdvAgg Relocate ####
+Install AdvAgg Relocate if not enabled and go to
+`admin/config/development/performance/advagg/relocate`
+
+Select "Use recommended (optimized) settings"
+
+#### AdvAgg Modifier ####
+Install AdvAgg Modifier if not enabled and go to
+`admin/config/development/performance/advagg/mod`
+
+Select "Use recommended (optimized) settings"
+
+#### AdvAgg Critical CSS module ####
+Install AdvAgg Critical CSS if not enabled and go to
+`admin/config/development/performance/advagg/critical-css`
+
+These are the directions for the front page of your site.
+
+Under Add Critical CSS
+- Select the theme that is your front page; usually the default is correct.
+- User type should be set to 'anonymous' under most circumstances.
+- Type of lookup, select URL
+- Value to lookup, type in `<front>`
+- Critical CSS, paste in the generated CSS from running your homepage url
+through https://www.sitelocity.com/critical-path-css-generator which is inside
+of the 'Critical Path CSS' textarea on the sitelocity page.
+- Click Save Configuration.
+
+Other landing pages should have their critical CSS added as well. If you have
+Google Analytics this will show you how to find your top landing pages
+https://developers.google.com/analytics/devguides/reporting/core/v3/common-queries#top-landing-pages
+or for Piwik https://piwik.org/faq/how-to/faq_160/. You can also use this
+chrome browser plugin to generate critical CSS
+https://chrome.google.com/webstore/detail/critical-style-snapshot/gkoeffcejdhhojognlonafnijfkcepob?hl=en
+
+
+JSMIN PHP EXTENSION
+-------------------
+
+The AdvAgg JS Compress module can take advantage of jsmin.c. JavaScript parsing
+and minimizing will be done in C instead of PHP dramatically speeding up the
+process. If using PHP 5.3.10 or higher https://github.com/sqmk/pecl-jsmin is
+recommended. If using PHP 5.3.9 or lower
+http://www.ypass.net/software/php_jsmin/ is recommended.
+
+
+BROTLI PHP EXTENSION
+--------------------
+
+The AdvAgg module can take advantage of Brotli compression. Install this
+extension to take advantage of it. Should reduce CSS/JS files by 20%.
+https://github.com/kjdev/php-ext-brotli
+
+
+ZOPFLI PHP EXTENSION
+--------------------
+
+The AdvAgg module can take advantage of the Zopfli compression algorithm.
+Install this extension to take advantage of it. This gives higher gzip
+compression ratios compared to stock PHP.
+https://github.com/kjdev/php-ext-zopfli
+
+
+NGINX CONFIGURATION
+-------------------
+
+https://drupal.org/node/1116618
+Note that @drupal (last line of code below) might be @rewrite or @rewrites
+depending on your servers configuration. If there are image style rules in your
+Nginx configuration add this right below that. If you want to have brotli
+support https://github.com/google/ngx_brotli is how to install that; add
+`brotli_static on;` right above `gzip_static on;` in the configuration below.
+
+    ###
+    ### advagg_css and advagg_js support
+    ###
+    location ~* files/advagg_(?:css|js)/ {
+      gzip_static on;
+      access_log  off;
+      expires     max;
+      add_header  ETag "";
+      add_header  Cache-Control "max-age=31449600, no-transform, public";
+      try_files   $uri $uri/ @drupal;
+    }
+
+Also noted that some ready made nginx configurations add in a Last-Modified
+header inside the advagg directories. These should be removed.
+
+
+JAVASCRIPT BOOKMARKLET
+----------------------
+
+You can use this JS code as a bookmarklet for toggling the AdvAgg URL parameter.
+See http://en.wikipedia.org/wiki/Bookmarklet for more details.
+
+    javascript:(function(){var loc = document.location.href,qs = document.location.search,regex_off = /\&?advagg=-1/,goto = loc;if(qs.match(regex_off)) {goto = loc.replace(regex_off, '');} else {qs = qs ? qs + '&advagg=-1' : '?advagg=-1';goto = document.location.pathname + qs;}window.location = goto;})();
+
+
+TROUBLESHOOTING
+---------------
+
+If the core Fast 404 Pages functionality is enabled via settings.php, the
+settings must be changed in order for the on-demand file compilation to work.
+Change this:
+
+    $conf['404_fast_paths_exclude'] = '/\/(?:styles)\//';
+
+to this:
+
+    $conf['404_fast_paths_exclude'] = '/\/(?:styles|advagg_(cs|j)s)\//';
+
+Similarly, if the Fast_404 module is enabled, the 'fast_404_string_whitelisting'
+variable must be set inside of settings.php. Add this to your settings.php file:
+
+    $conf['fast_404_string_whitelisting'][] = '/advagg_';
+
+
+Modules like the Central Authentication Services https://drupal.org/project/cas
+will redirect all anonymous requests to a login page. Most of the time there is
+a setting that allows certain pages to be excluded from the redirect. You should
+add the following to those exclusions. Note that sites/default/files is the
+location of you public file system (public://) so you might have to adjust this
+to fit your setup. services/* is the default (`CAS_EXCLUDE`) and
+`httprl_async_function_callback` is needed if httprl will be used.
+
+    services/*
+    sites/default/files/advagg_css/*
+    sites/default/files/advagg_js/*
+    httprl_async_function_callback
+
+In the example of CAS this setting can be found on the `admin/config/people/cas`
+page and under Redirection there should be a setting called "Excluded Pages".
+
+
+If Far-Future headers are not being sent out and you are using Apache here are
+some tips to hopefully get it working. For Apache enable `mod_rewrite`,
+`mod_headers`, and `mod_expires`. Add the following code to the bottom of
+Drupal's core .htaccess file (located at the webroot level).
+
+    <FilesMatch "^(css|js)__[A-Za-z0-9-_]{43}__[A-Za-z0-9-_]{43}__[A-Za-z0-9-_]{43}.(css|js)(\.gz|\.br)?">
+      # No mod_headers. Apache module headers is not enabled.
+      <IfModule !mod_headers.c>
+        # No mod_expires. Apache module expires is not enabled.
+        <IfModule !mod_expires.c>
+          # Use ETags.
+          FileETag MTime Size
+        </IfModule>
+      </IfModule>
+
+      # Use Expires Directive if apache module expires is enabled.
+      <IfModule mod_expires.c>
+        # Do not use ETags.
+        FileETag None
+        # Enable expirations.
+        ExpiresActive On
+        # Cache all aggregated css/js files for 52 weeks after access (A).
+        ExpiresDefault A31449600
+      </IfModule>
+
+      # Use Headers Directive if apache module headers is enabled.
+      <IfModule mod_headers.c>
+        # Do not use etags for cache validation.
+        Header unset ETag
+        <IfModule !mod_expires.c>
+          # Set a far future Cache-Control header to 52 weeks.
+          Header set Cache-Control "max-age=31449600, no-transform, public"
+        </IfModule>
+        <IfModule mod_expires.c>
+          Header append Cache-Control "no-transform, public"
+        </IfModule>
+      </IfModule>
+    </FilesMatch>
+    # Force advagg .js file to have the type of application/javascript.
+    <FilesMatch "^js__[A-Za-z0-9-_]{43}__[A-Za-z0-9-_]{43}__[A-Za-z0-9-_]{43}.js(\.gz|\.br)?">
+      ForceType application/javascript
+    </FilesMatch>
+
+
+If pages on the site stop working correctly or looks broken after Advanced
+CSS/JS Aggregation is enabled, the first step should be to validate the
+individual CSS and/or JS files using the included `advagg_validator` module -
+something as simple as an errant unfinished comment in one file may cause entire
+aggregates of files to be ignored.
+
+
+If AdvAgg was installed via drush sometimes directory permissions need to be
+fixed. Using `chown -R` on the advagg directories usually solves this issue.
+
+
+If hosting on Pantheon, you might need to add this to your settings.php file if
+you get Numerous login prompts after enabling Adv Agg module on Pantheon Test
+and Live instances.
+
+    if (isset($_SERVER['PANTHEON_ENVIRONMENT'])) {
+      // NO trailing slash when setting the $base_url variable.
+      switch ($_SERVER['PANTHEON_ENVIRONMENT']) {
+        case 'dev':
+          $base_url = 'http://dev-sitename.gotpantheon.com';
+          break;
+
+        case 'test':
+          $base_url = 'http://test-sitename.gotpantheon.com';
+          break;
+
+        case 'live':
+          $base_url = 'http://www.domain.tld';
+          break;
+      }
+      // Remove a trailing slash if one was added.
+      if (!empty($base_url)) {
+        $base_url = rtrim($base_url, '/');
+      }
+    }
+
+
+If you're getting the "HTTP requests to advagg are not getting though" error,
+you can try to fix it by making sure the `$base_url` is correctly set for
+production and not production environments.
+
+
+If you're getting mixed content error for CSS JS files over HTTPS then you can
+try to redirect all http traffic to be https.
+
+    RewriteCond %{HTTPS} off
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+
+If brotli compression is not working and you are using Apache here are some tips
+to hopefully get it working. For Apache enable `mod_rewrite`, `mod_headers`, and
+`mod_expires`. Add the following code right above this line `# Rules to
+correctly serve gzip compressed CSS and JS files.`
+
+      <IfModule mod_headers.c>
+        # Serve brotli compressed CSS if they exist and the client accepts br.
+        RewriteCond %{HTTP:Accept-encoding} br
+        RewriteCond %{REQUEST_FILENAME}\.br -s
+        RewriteRule ^(.*)\.css $1\.css\.br [QSA]
+        RewriteRule \.css\.br$ - [T=text/css,E=no-gzip:1]
+
+        # Serve brotli compressed JS if they exist and the client accepts br.
+        RewriteCond %{HTTP:Accept-encoding} br
+        RewriteCond %{REQUEST_FILENAME}\.br -s
+        RewriteRule ^(.*)\.js $1\.js\.br [QSA]
+        RewriteRule \.js\.br$ - [T=application/javascript,E=no-gzip:1]
+
+        <FilesMatch "(\.js\.br|\.css\.br)$">
+          # Serve correct encoding type.
+          Header set Content-Encoding br
+          # Force proxies to cache compressed and non-compressed css/js files
+          # separately.
+          Header append Vary Accept-Encoding
+        </FilesMatch>
+      </IfModule>
+
+
+If you are having 5 minute or longer timeouts on the admin/reports/status page
+then you might need to use an alternative to drupal_httP_request(). The cURL
+HTTP Request module https://www.drupal.org/project/chr might fix this issue.
 
 
 FEATURES & BENEFITS
@@ -67,6 +401,7 @@ FEATURES & BENEFITS
    - Force preprocessing for all CSS/JS.
    - Move JS to footer.
    - Add defer tag to all JS.
+   - Defer loading of CSS.
    - Inline all CSS/JS for given paths.
    - Use a shared directory for a unified multisite.
  - `advagg_validator`:
@@ -85,10 +420,6 @@ Settings page is located at:
  - Enable Advanced Aggregation: Check this to start using this module. You can
    also quickly disable the module here. For testing purposes, this has the same
    effect as placing `?advagg=-1` in the URL. Disabled by default.
- - Create .gz files: Check this by default as it will improve your performance.
-   For every Aggregated file generated, this will create a gzip version of file
-   and then only serve it out if the browser accepts gzip files compression.
-   Enabled by default.
  - Use Cores Grouping Logic: Leave this checkbox enabled until you are ready to
    begin exploring the AdvAgg Bundler sub-module which overrides Core's
    functionality. This groups files just like Core does so should just work.
@@ -106,6 +437,49 @@ Settings page is located at:
    if your inline css/js changes based off of a variable then the aggressive
    cache hit ratio will be low; if that is the case consider using
    Drupal.settings for a better cache hit ratio.
+
+**Resource Hints**
+
+Preemptively get resources (CSS/JS & sub requests). This will set tags in the
+document head telling the browser to open up connections before they are needed.
+
+ - DNS Prefetch: Start the DNS lookup for external CSS and JavaScript files as
+   soon as possible.
+ - Preconnect: Start the connection to external resources before an HTTP request
+   is actually sent to the server. On HTTPS this can have a dramatic effect.
+ - Location of resource hints: This only needs to be changed if the above
+   settings are not working.
+ - Preload link http headers: If your server supports HTTP/2 push then this
+   allows for resources to be sent before the browser knows it needs it.
+
+**Cron Options**
+
+Adjusting the frequency of how often something happens on cron.
+
+**Obscure Options**
+
+ - Create .gz files: Check this by default as it will improve your performance.
+   For every Aggregated file generated, this will create a gzip version of file
+   and then only serve it out if the browser accepts gzip files compression.
+   Enabled by default.
+ - Create .br files: Check this by default as it will improve your performance.
+   For every Aggregated file generated, this will create a brotli version of
+   file and then only serve it out if the browser accepts gzip files
+   compression. Enabled by default IF the Brotli Extension for PHP is installed.
+   See https://github.com/kjdev/php-ext-brotli
+ - Run advagg_ajax_render_alter(): Turn this off if you're having issues with
+   ajax. Also keep in mind that the max_input_vars setting can cause issues if
+   you are submitting a lot of data.
+ - Include the base_url variable in the hooks hash array: Enabled only if you
+   know you need it.
+ - Convert absolute paths to be self references: Turn on unless pages are used
+   inside of an iframe.
+ - Convert absolute paths to be protocol relative paths: Safe to use unless you
+   need to support IE6.
+ - Convert http:// to https://: Usually not needed, but here in case you do.
+ - Do not run CSS url() values through file_create_url(): Usually not needed,
+   but here in case you do.
+
 
 **CSS Options & JS Options**
 
@@ -136,6 +510,8 @@ located at `admin/config/development/performance/advagg/info`. This page
 provides debugging information. There are no configuration options here.
 
  - Hook Theme Info: Displays the `process_html` order. Used for debugging.
+ - Hook Render Info: Displays the scripts and styles render callbakcs. Used for
+   debugging.
  - CSS files: Displays how often a file has changed.
  - JS files: Displays how often a file has changed.
  - Modules implementing AdvAgg CSS/JS hooks: Lets you know what modules are
@@ -166,20 +542,35 @@ the Smart Cache Flush. There are no configuration options here.
       session. It acts almost the same as adding `?advagg=0` to every URL.
 
  - Cron Maintenance Tasks
-   - Remove All Stale Files: Scan all files in the `advagg_css/js` directories and
-     remove the ones that have not been accessed in the last 30 days.
+   - Clear All Stale Files: Scan all files in the `advagg_css/js` directories
+     and remove the ones that have not been accessed in the last 30 days.
+   - Delete Orphaned Aggregates: Scan CSS/JS advagg dir and remove file if
+     there is no associated db record.
    - Clear Missing Files From the Database: Scan for missing files and remove
      the associated entries in the database.
    - Delete Unused Aggregates from Database: Delete aggregates that have not
      been accessed in the last 6 weeks.
    - Delete orphaned/expired advagg locks from the semaphore database table.
+   - Delete leftover temporary files: Delete old temporary files from the
+     filesystem.
 
  - Drastic Measures
    - Clear All Caches: Remove all data stored in the advagg cache bins.
-   - Remove All Generated Files. Remove all files in the `advagg_css/js`
-     directories.
-   - Increment Global Counter: Force the creation of all new aggregates by
-     incrementing a global counter.
+   - Clear All Files: Remove All Generated Files. Remove all files in the
+     `advagg_(css|js)` directories.
+   - Force New Aggregates: Increment Global Counter. Force the creation of all
+     new aggregates by incrementing a global counter.
+   - Rescan All Files: Force rescan all files and clear the cache. Useful if a
+     css/js change from a deployment did not work.
+   - Remove deleted files in the advagg_files table: Remove entries in the
+     advagg_files table that have a filesize of 0 and delete the
+     javascript_parsed variable. This gets around the grace period that the
+     cron cleanup does.
+   - Reset the AdvAgg Files table: Truncate the advagg_files table and delete
+     the javascript_parsed variable. This may cause some 404s for CSS/JS assets
+     for a short amount of time (seconds). Useful if you really want to reset
+     some stuff. Might be best to put the site into maintenance mode before
+     doing this.
 
 **Hidden Settings**
 
@@ -263,6 +654,22 @@ current defaults are shown.
     // hash doesn't match.
     $conf['advagg_file_read_failure_timeout'] = 3600;
 
+    // If FALSE mtime of files will only trigger a change if they are in the
+    // future.
+    $conf['advagg_strict_mtime_check'] = TRUE;
+
+    // Skip 304 check on status page.
+    $conf['advagg_skip_304_check'] = FALSE;
+
+    // Control how many bytes can be inlined.
+    $conf['advagg_mod_css_defer_inline_size_limit'] = 12288;
+
+    // Control how many bytes the preload header can use.
+    $conf['advagg_resource_hints_preload_max_size'] = 3072;
+
+    // If TRUE, only verify 1st hash instead of all 3 of the filename.
+    $conf['advagg_weak_file_verification'] = FALSE;
+
 
 ADDITIONAL OPTIONS FOR DRUPAL_ADD_CSS/JS FUNCTIONS
 --------------------------------------------------
@@ -282,25 +689,7 @@ Both `drupal_add_js` + `drupal_add_css` - additional keys for $options.
 
  - `scope_lock`: TRUE - Make sure the scope of this will not ever change.
  - `movable`: FALSE - Make sure the ordering of this will not ever change.
-
-
-JSMIN PHP EXTENSION
--------------------
-
-The AdvAgg JS Compress module can take advantage of jsmin.c. JavaScript parsing
-and minimizing will be done in C instead of PHP dramatically speeding up the
-process. If using PHP 5.3.10 or higher https://github.com/sqmk/pecl-jsmin is
-recommended. If using PHP 5.3.9 or lower
-http://www.ypass.net/software/php_jsmin/ is recommended.
-
-
-JAVASCRIPT BOOKMARKLET
-----------------------
-
-You can use this JS code as a bookmarklet for toggling the AdvAgg URL parameter.
-See http://en.wikipedia.org/wiki/Bookmarklet for more details.
-
-    javascript:(function(){var loc = document.location.href,qs = document.location.search,regex_off = /\&?advagg=-1/,goto = loc;if(qs.match(regex_off)) {goto = loc.replace(regex_off, '');} else {qs = qs ? qs + '&advagg=-1' : '?advagg=-1';goto = document.location.pathname + qs;}window.location = goto;})();
+ - `preprocess_lock`: TRUE - Make sure the preprocess key will not ever change.
 
 
 TECHNICAL DETAILS & HOOKS
@@ -337,10 +726,16 @@ TECHNICAL DETAILS & HOOKS
  - Aggressive Cache Setting: This will fully cache the rendered html generated
    by AdvAgg. The cache ID is set by this code:
 
+        // CSS.
         $hooks_hash = advagg_get_current_hooks_hash();
-        $css_cache_id_full = 'advagg:css:full:' . $hooks_hash . ':' . drupal_hash_base64(serialize($full_css));
+        $css_cache_id_full =
+          'advagg:css:full:' . $hooks_hash . ':' .
+          drupal_hash_base64(serialize($full_css));
+        // JS.
         $hooks_hash = advagg_get_current_hooks_hash();
-        $js_cache_id_full = 'advagg:js:full:' . $hooks_hash . ':' . drupal_hash_base64(serialize($js_scope_array));
+        $js_cache_id_full =
+          'advagg:js:full:' . $hooks_hash . ':' .
+          drupal_hash_base64(serialize($js_scope_array));
 
    The second and final hash value in this cache id is the css/js_hash value.
    This takes the input from `drupal_add_css/js()` and creates a hash value from
@@ -382,7 +777,8 @@ Modify file names and aggregate bundles:
 
  - `advagg_current_hooks_hash_array_alter`. Add in your own settings and hooks
    allowing one to modify the 3rd base64 hash in a filename.
- - `advagg_build_aggregate_plans_alter`. Regroup files into different aggregates.
+ - `advagg_build_aggregate_plans_alter`. Regroup files into different
+   aggregates.
  - `advagg_css_groups_alter`. Allow other modules to modify `$css_groups` right
    before it is processed.
  - `advagg_js_groups_alter`. Allow other modules to modify `$js_groups` right
@@ -408,246 +804,3 @@ Others:
    information on generation.
  - `advagg_bundler_analysis`. If the bundler module is installed allow for other
    modules to change the bundler analysis.
-
-
-HOW TO GET A HIGH PAGESPEED SCORE
----------------------------------
-
-Go to `admin/config/development/performance/advagg`
-
- - uncheck "Use cores grouping logic"
- - check "Combine CSS files by using media queries"
-
-Install AdvAgg Modifier if not enabled and go to
-`admin/config/development/performance/advagg/mod`
-
- - Under "Move JS to the footer" Select "All"
- - set "Enable preprocess on all JS/CSS"
- - set "Move JavaScript added by `drupal_add_html_head()` into `drupal_add_js()`"
- - set "Move CSS added by `drupal_add_html_head()` into `drupal_add_css()`"
- - Enable every checkbox under "Optimize JavaScript/CSS Ordering"
-
-Install AdvAgg Compress Javascript if not enabled and go to
-`admin/config/development/performance/advagg/js-compress`
-
- - Select JSMin if available; otherwise select JSMin+
-
-**Other things to consider**
-
-On the `admin/config/development/performance/advagg/mod` page there is the
-setting "Remove unused JavaScript tags if possible". This is a backport of D8
-where it will not add any JS to the page if it is not being used.
-https://drupal.org/node/1279226
-
-The AdvAgg Bundler module on the
-`admin/config/development/performance/advagg/bundler` page. The bundler provides
-intelligent bundling of CSS and JS files by grouping files that belong together.
-This does what core tried to do; group CSS & JS files together that get used
-together. Using this will make your pagespeed score go down as there will be
-more css/js files to download but if different css/js files are used on
-different pages of your site this will be a net win as a new full aggregate will
-not have to be downloaded, instead a smaller aggregate can be downloaded,
-ideally with only the css/js that is different on that page. You can select how
-many bundles to create and the bundler will do it's best to meet that goal; if
-using browser css/js conditionals (js browser conditionals backported from D8
-https://drupal.org/node/865536) then the bundler might not meet your set value.
-
-
-SETTINGS THAT DRUPAL.ORG USES
------------------------------
-
-Issue: https://www.drupal.org/node/2493801
-These will not give you the best PageSpeed score but they will give the best
-real world performance on slower connections. To expand on this, fourkitchens
-has an excellent article on inlining critical css:
-https://fourword.fourkitchens.com/article/use-grunt-and-advagg-inline-critical-css-drupal-7-theme
-
-Configuration:
-
- - Enable advanced aggregation: Checked
- - Use DNS Prefetch for external CSS/JS: Enabled, below charset=utf-8
- - AdvAgg Cache Settings: Aggressive Render Cache ~ 10ms
- - Combine CSS files by using media queries: Checked
- - Fix improperly set type: Checked
- - Cron Options: Default
- - Obscure Options: Default
-
-Bundler:
-
- - Bundler is Active: Checked
- - Target Number Of CSS Bundles Per Page: 2
- - Target Number Of JS Bundles Per Page: 5
- - Grouping logic: File size
-
-JS Compression:
-
- - File Compression: Select a Compressor: JSMin (~2ms)
- - Inline Compression: Select a Compressor: JSMin (~2ms)
- - Inline Compression: Use even if this page is not cacheable: Checked
-
-Modifications:
-
- - Remove ajaxPageState CSS and JS data if ajax.js is not used on this page:
-   Checked
- - Move all external scripts to the top of the execution order: Checked
- - Move all inline scripts to the bottom of the execution order: Checked
- - Move Google Analytics analytics.js code from inline to be a file: Checked
- - Prefetch stats.g.doubleclick.net/robots.txt: Checked
- - Move JS to the footer: All but what is in the `$all_in_footer_list`
- - Deferred JavaScript Execution: Add The defer Tag To All Script Tags: All but
-   external scripts
- - Deferred inline JavaScript Execution: Put a wrapper around inline JS so it
-   runs from a setTimeout call: Checked
-
-
-NGINX CONFIGURATION
--------------------
-
-http://drupal.org/node/1116618
-Note that @drupal (last line of code below) might be @rewrite or @rewrites
-depending on your servers configuration.
-
-    ###
-    ### advagg_css and advagg_js support
-    ###
-    location ~* files/advagg_(?:css|js)/ {
-      gzip_static on;
-      access_log  off;
-      expires     max;
-      add_header  ETag "";
-      add_header  Cache-Control "max-age=31449600, no-transform, public";
-      try_files   $uri @drupal;
-    }
-
-Also noted that some ready made nginx configurations add in a Last-Modified
-header inside the advagg directories. These should be removed.
-
-
-TROUBLESHOOTING
----------------
-
-If the core Fast 404 Pages functionality is enabled via settings.php, the
-settings must be changed in order for the on-demand file compilation to work.
-Change this:
-
-    $conf['404_fast_paths_exclude'] = '/\/(?:styles)\//';
-
-to this:
-
-    $conf['404_fast_paths_exclude'] = '/\/(?:styles|advagg_(cs|j)s)\//';
-
-Similarly, if the Fast_404 module is enabled, the 'fast_404_string_whitelisting'
-variable must be set inside of settings.php. Add this to your settings.php file:
-
-    $conf['fast_404_string_whitelisting'][] = '/advagg_';
-
-
-Modules like the Central Authentication Services https://drupal.org/project/cas
-will redirect all anonymous requests to a login page. Most of the time there is
-a setting that allows certain pages to be excluded from the redirect. You should
-add the following to those exclusions. Note that sites/default/files is the
-location of you public file system (public://) so you might have to adjust this
-to fit your setup. services/* is the default (`CAS_EXCLUDE`) and
-`httprl_async_function_callback` is needed if httprl will be used.
-
-    services/*
-    sites/default/files/advagg_css/*
-    sites/default/files/advagg_js/*
-    httprl_async_function_callback
-
-In the example of CAS this setting can be found on the `admin/config/people/cas`
-page and under Redirection there should be a setting called "Excluded Pages".
-
-
-If Far-Future headers are not being sent out and you are using Apache here are
-some tips to hopefully get it working. For Apache enable `mod_rewrite`,
-`mod_headers`, and `mod_expires`. Add the following code to the bottom of
-Drupal's core .htaccess file (located at the webroot level).
-
-    <FilesMatch "^(css|js)__[A-Za-z0-9-_]{43}__[A-Za-z0-9-_]{43}__[A-Za-z0-9-_]{43}.(css|js)(\.gz)?">
-      # No mod_headers. Apache module headers is not enabled.
-      <IfModule !mod_headers.c>
-        # No mod_expires. Apache module expires is not enabled.
-        <IfModule !mod_expires.c>
-          # Use ETags.
-          FileETag MTime Size
-        </IfModule>
-      </IfModule>
-
-      # Use Expires Directive if apache module expires is enabled.
-      <IfModule mod_expires.c>
-        # Do not use ETags.
-        FileETag None
-        # Enable expirations.
-        ExpiresActive On
-        # Cache all aggregated css/js files for 52 weeks after access (A).
-        ExpiresDefault A31449600
-      </IfModule>
-
-      # Use Headers Directive if apache module headers is enabled.
-      <IfModule mod_headers.c>
-        # Do not use etags for cache validation.
-        Header unset ETag
-        <IfModule !mod_expires.c>
-          # Set a far future Cache-Control header to 52 weeks.
-          Header set Cache-Control "max-age=31449600, no-transform, public"
-        </IfModule>
-        <IfModule mod_expires.c>
-          Header append Cache-Control "no-transform, public"
-        </IfModule>
-      </IfModule>
-    </FilesMatch>
-    # Force advagg .js file to have the type of application/javascript.
-    <FilesMatch "^js__[A-Za-z0-9-_]{43}__[A-Za-z0-9-_]{43}__[A-Za-z0-9-_]{43}.js(\.gz)?">
-      ForceType application/javascript
-    </FilesMatch>
-
-
-If pages on the site stop working correctly or looks broken after Advanced
-CSS/JS Aggregation is enabled, the first step should be to validate the
-individual CSS and/or JS files using the included `advagg_validator` module -
-something as simple as an errant unfinished comment in one file may cause entire
-aggregates of files to be ignored.
-
-
-If AdvAgg was installed via drush sometimes directory permissions need to be
-fixed. Using `chown -R` on the advagg directories usually solves this issue.
-
-
-If hosting on Pantheon, you might need to add this to your settings.php file if
-you get Numerous login prompts after enabling Adv Agg module on Pantheon Test
-and Live instances.
-
-    if (isset($_SERVER['PANTHEON_ENVIRONMENT'])) {
-      // NO trailing slash when setting the $base_url variable.
-      switch ($_SERVER['PANTHEON_ENVIRONMENT']) {
-        case 'dev':
-          $base_url = 'http://dev-sitename.gotpantheon.com';
-          break;
-
-        case 'test':
-          $base_url = 'http://test-sitename.gotpantheon.com';
-          break;
-
-        case 'live':
-          $base_url = 'http://www.domain.tld';
-          break;
-      }
-      // Remove a trailing slash if one was added.
-      if (!empty($base_url)) {
-        $base_url = rtrim($base_url, '/');
-      }
-    }
-
-
-If you're getting the "HTTP requests to advagg are not getting though" error,
-you can try to fix it by making sure the `$base_url` is correctly set for
-production and not production environments.
-
-
-If you're getting mixed content error for CSS JS files over HTTPS then you can
-try to redirect all http traffic to be https.
-
-    RewriteCond %{HTTPS} off
-    RewriteCond %{HTTP:X-Forwarded-Proto} !https
-    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]

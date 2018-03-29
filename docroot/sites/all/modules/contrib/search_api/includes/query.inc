@@ -1071,6 +1071,10 @@ class SearchApiQueryFilter implements SearchApiQueryFilterInterface {
    * {@inheritdoc}
    */
   public function &getTags() {
+    // Tags can sometimes be NULL for old serialized query filter objects.
+    if (!isset($this->tags)) {
+      $this->tags = array();
+    }
     return $this->tags;
   }
 

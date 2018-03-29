@@ -187,8 +187,6 @@ class SearchApiAutocompleteSearch extends Entity {
 
       $module_path = drupal_get_path('module', 'search_api_autocomplete');
       $autocomplete_path = 'search_api_autocomplete/' . $this->machine_name . '/' . $fields_string;
-      $element['#attached']['css'][] = $module_path . '/search_api_autocomplete.css';
-      $element['#attached']['js'][] = $module_path . '/search_api_autocomplete.js';
 
       $js_settings = array();
       if ($options['submit_button_selector'] != ':submit') {
@@ -215,6 +213,8 @@ class SearchApiAutocompleteSearch extends Entity {
         $js_settings['custom_path'] = TRUE;
       }
 
+      $element['#attached']['css'][] = $module_path . '/search_api_autocomplete.css';
+      $element['#attached']['js'][] = $module_path . '/search_api_autocomplete.js';
       if ($js_settings) {
         $element['#attached']['js'][] = array(
           'type' => 'setting',
