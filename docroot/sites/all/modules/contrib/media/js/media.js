@@ -18,12 +18,14 @@ Drupal.behaviors.mediaElement = {
     var elements;
 
     function initMediaBrowser(selector) {
-      $context.find(selector)
-        .once('media-browser-launch')
-        .siblings('.browse').show()
-        .siblings('.upload').hide()
-        .siblings('.attach').hide()
-        .siblings('.browse').bind('click', {configuration: settings.media.elements[selector]}, Drupal.media.openBrowser);
+      var widget=$context.find(selector).once('media-browser-launch');
+      var browse=widget.siblings('.browse').add(widget.find('.browse'));
+      var upload=browse.siblings('.upload').add(widget.find('.upload'));
+      var attach=upload.siblings('.attach').add(widget.find('.attach'));
+      browse.show();
+      upload.hide();
+      attach.hide();
+      browse.bind('click', {configuration: settings.media.elements[selector]}, Drupal.media.openBrowser);
     }
 
     if (settings.media && settings.media.elements) {
@@ -91,19 +93,29 @@ Drupal.media.openBrowser = function (event) {
       return;
     }
 
-    // Grab the first of the selected media files.
-    var mediaFile = mediaFiles[0];
+    var mediaFileValue;
+    // Process the value based on multiselect.
+    if (mediaFiles.length > 1) {
+      // Concatenate the array into a comma separated string.
+      mediaFileValue = mediaFiles.map(function(file) {
+        return file.fid;
+      }).join(',');
+    }
+    else {
+      // Grab the first of the selected media files.
+      mediaFileValue = mediaFiles[0].fid;
+
+      // Display a preview of the file using the selected media file's display.
+      previewField.html(mediaFileValue.preview);
+    }
 
     // Set the value of the hidden file ID field and trigger a change.
-    uploadField.val(mediaFile.fid);
+    uploadField.val(mediaFileValue);
     uploadField.trigger('change');
 
     // Find the attach button and automatically trigger it.
     var attachButton = uploadField.siblings('.attach');
     attachButton.trigger('mousedown');
-
-    // Display a preview of the file using the selected media file's display.
-    previewField.html(mediaFile.preview);
   }, configuration);
 
   return false;

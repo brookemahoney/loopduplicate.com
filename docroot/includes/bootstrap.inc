@@ -8,7 +8,7 @@
 /**
  * The current system version.
  */
-define('VERSION', '7.50');
+define('VERSION', '7.58');
 
 /**
  * Core API compatibility.
@@ -254,8 +254,13 @@ define('DRUPAL_PHP_FUNCTION_PATTERN', '[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*'
  * http://tools.ietf.org/html/rfc7231#section-7.1.1.1
  *
  * Example: Sun, 06 Nov 1994 08:49:37 GMT
+ *
+ * This constant was introduced in PHP 7.0.19 and PHP 7.1.5 but needs to be
+ * defined by Drupal for earlier PHP versions.
  */
-define('DATE_RFC7231', 'D, d M Y H:i:s \G\M\T');
+if (!defined('DATE_RFC7231')) {
+  define('DATE_RFC7231', 'D, d M Y H:i:s \G\M\T');
+}
 
 /**
  * Provides a caching wrapper to be used in place of large array structures.
@@ -719,6 +724,16 @@ function drupal_valid_http_host($host) {
 }
 
 /**
+ * Checks whether an HTTPS request is being served.
+ *
+ * @return bool
+ *   TRUE if the request is HTTPS, FALSE otherwise.
+ */
+function drupal_is_https() {
+  return isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on';
+}
+
+/**
  * Sets the base URL, cookie domain, and session name from configuration.
  */
 function drupal_settings_initialize() {
@@ -731,7 +746,7 @@ function drupal_settings_initialize() {
   if (file_exists(DRUPAL_ROOT . '/' . conf_path() . '/settings.php')) {
     include_once DRUPAL_ROOT . '/' . conf_path() . '/settings.php';
   }
-  $is_https = isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on';
+  $is_https = drupal_is_https();
 
   if (isset($base_url)) {
     // Parse fixed base URL from settings.php.
@@ -1072,8 +1087,8 @@ function _drupal_get_filename_perform_file_scan($type, $name) {
  */
 function _drupal_get_filename_fallback_trigger_error($type, $name, $error_type) {
   // Hide messages due to known bugs that will appear on a lot of sites.
-  // @todo Remove this in https://www.drupal.org/node/2762241
-  if (empty($name) || ($type == 'module' && $name == 'default')) {
+  // @todo Remove this in https://www.drupal.org/node/2383823
+  if (empty($name)) {
     return;
   }
 
@@ -1085,7 +1100,7 @@ function _drupal_get_filename_fallback_trigger_error($type, $name, $error_type) 
     // triggered during low-level operations that cannot necessarily be
     // interrupted by a watchdog() call.
     if ($error_type == 'missing') {
-      _drupal_trigger_error_with_delayed_logging(format_string('The following @type is missing from the file system: %name. In order to fix this, put the @type back in its original location. For more information, see <a href="@documentation">the documentation page</a>.', array('@type' => $type, '%name' => $name, '@documentation' => 'https://www.drupal.org/node/2487215')), E_USER_WARNING);
+      _drupal_trigger_error_with_delayed_logging(format_string('The following @type is missing from the file system: %name. For information about how to fix this, see <a href="@documentation">the documentation page</a>.', array('@type' => $type, '%name' => $name, '@documentation' => 'https://www.drupal.org/node/2487215')), E_USER_WARNING);
     }
     elseif ($error_type == 'moved') {
       _drupal_trigger_error_with_delayed_logging(format_string('The following @type has moved within the file system: %name. In order to fix this, clear caches or put the @type back in its original location. For more information, see <a href="@documentation">the documentation page</a>.', array('@type' => $type, '%name' => $name, '@documentation' => 'https://www.drupal.org/node/2487215')), E_USER_WARNING);
@@ -2617,6 +2632,10 @@ function _drupal_bootstrap_configuration() {
   timer_start('page');
   // Initialize the configuration, including variables from settings.php.
   drupal_settings_initialize();
+
+  // Sanitize unsafe keys from the request.
+  require_once DRUPAL_ROOT . '/includes/request-sanitizer.inc';
+  DrupalRequestSanitizer::sanitize();
 }
 
 /**
