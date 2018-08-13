@@ -8,9 +8,8 @@ files[] = tests/select_or_other_number.test
 files[] = tests/select_or_other_text.test
 files[] = tests/SelectOrOtherTestBase.test
 
-; Information added by Drupal.org packaging script on 2017-12-05
-version = "7.x-3.0-alpha2"
+; Information added by Drupal.org packaging script on 2018-07-25
+version = "7.x-3.0-alpha3"
 core = "7.x"
 project = "select_or_other"
-datestamp = "1512480188"
-
+datestamp = "1532510891"
