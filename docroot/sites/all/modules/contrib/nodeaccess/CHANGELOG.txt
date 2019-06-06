@@ -1,5 +1,22 @@
+Nodeaccess 7.x-1.6
+==================
+Corrected issues surrounding security advisory SA-CONTRIB-2019-009
+Addressed compatibility issues with SQL queries regarding PostgreSQL
+Rebuilding of node permissions required after update.
+
 Nodeaccess 7.x-1.x
 ===================
+Issue #2427345 by trigdog: fix Database Error - nodeaccess_author duplicate entry
+
+Nodeaccess 7.x-1.5
+===================
+Add SimpleTest automated testing.
+Issue #2037899 by vlad.pavlovic: Expose operations as API.
+Issue #2334555 by joelpittet: Casting consistency (boolean) to (bool).
+Issue #2342327 by willzyx: node_access_write_grants should not be called directly.
+Issue #2228713 by willzyx: Unpublished nodes are visible.
+Issue #2140819 by justdave: "Preserve hidden grants" setting ignored.
+Issue #2364463 by nathanweeks, vlad.pavlovic: Incorrect SQL list quoting causes PostgreSQL error.
 
 Nodeaccess 7.x-1.4
 ===================

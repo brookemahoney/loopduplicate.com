@@ -32,3 +32,27 @@
      ),
    );
  }
+
+/**
+ * Alters the action before it is performed.
+ *
+ * @param $action
+ *   The action that will be performed. The following constants and values are
+ *   recognized:
+ *   - RABBIT_HOLE_ACCESS_DENIED: Return 403.
+ *   - RABBIT_HOLE_PAGE_NOT_FOUND:
+ *   - RABBIT_HOLE_PAGE_REDIRECT
+ *   - NULL or FALSE to skip the action.
+ * @param $context
+ *   An associative array containing:
+ *   - entity_type: The type of $entity; for example, 'node' or 'user'.
+ *   - entity: The entity that is being viewed.
+ */
+function hook_rabbit_hole_execute_alter(&$action, $context) {
+  if ($context['entity_type'] === 'user' && isset($_GET['token'])) {
+    $user = $context['entity'];
+    if (drupal_valid_token($_GET['token'], "override_rh:user:$user->uid")) {
+      $action = FALSE;
+    }
+  }
+}

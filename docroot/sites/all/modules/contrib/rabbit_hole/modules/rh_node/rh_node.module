@@ -116,3 +116,20 @@ function rh_node_node_type_delete($type) {
   // Delete variables connected to this content type.
   rabbit_hole_delete_variables('node', $type->type);
 }
+
+/**
+ * Implements hook_rabbit_hole_execute_alter() on behalf of colorbox_node.
+ */
+function colorbox_node_rabbit_hole_execute_alter(&$action, $context) {
+  if ($context['entity_type'] === 'node') {
+    // Version 7.x-3.x
+    $access = function_exists('colorbox_node_is_active') && colorbox_node_is_active();
+    // Version 7.x-3.5 and below.
+    $path = drupal_static('colorbox_original_q');
+    $access = $access || ($path && arg(0, $path) === 'colorbox');
+
+    if ($access) {
+      $action = FALSE;
+    }
+  }
+}

@@ -1,3 +1,9 @@
+Search API Autocomplete 1.6 (2018-09-17):
+-----------------------------------------
+- #2977790 by drunken monkey, semanthis: Fixed auto-submit in AJAX views.
+- #2431111 by dagomar, drunken monkey, judapriest: Added support for
+  transliteration.
+
 Search API Autocomplete 1.5 (2017-07-18):
 -----------------------------------------
 - #2772143 by drunken monkey: Fixed missing language restriction on search

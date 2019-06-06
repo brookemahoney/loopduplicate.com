@@ -4,9 +4,8 @@ core = 7.x
 package = Testing
 hidden = TRUE
 
-; Information added by Drupal.org packaging script on 2017-12-15
-version = "7.x-1.3"
+; Information added by Drupal.org packaging script on 2019-02-20
+version = "7.x-1.4"
 core = "7.x"
 project = "reroute_email"
-datestamp = "1513342693"
-
+datestamp = "1550657892"

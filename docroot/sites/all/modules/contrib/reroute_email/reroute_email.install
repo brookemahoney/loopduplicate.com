@@ -38,12 +38,10 @@ function reroute_email_requirements($phase) {
  * Implements hook_uninstall().
  */
 function reroute_email_uninstall() {
-  variable_del(REROUTE_EMAIL_ENABLE);
-  variable_del(REROUTE_EMAIL_ADDRESS);
-  variable_del(REROUTE_EMAIL_WHITELIST);
-  variable_del(REROUTE_EMAIL_ENABLE_MESSAGE);
-  variable_del(REROUTE_EMAIL_ENABLE_DSM);
-  variable_del(REROUTE_EMAIL_MAIL_KEYS);
+  // Remove all the configuration variables added by the module.
+  db_delete('variable')
+    ->condition('name', 'reroute_email_%', 'LIKE')
+    ->execute();
 }
 
 /**
@@ -54,6 +52,8 @@ function reroute_email_uninstall() {
  * to the first email from `Rerouting email addresses`.
  */
 function reroute_email_update_7001() {
+  module_load_include('module', 'reroute_email');
+
   // Do not update values if the user sets them manually already.
   // `Whitelisted addresses` is a new variable, so it couldn't exist before.
   if (NULL !== variable_get(REROUTE_EMAIL_WHITELIST)) {

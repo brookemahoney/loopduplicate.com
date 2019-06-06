@@ -1,0 +1,178 @@
+<?php
+
+/**
+ * @file
+ * Tests for the nodeaccess module.
+ */
+
+/**
+ * Tests the functionality of the nodeaccess module.
+ */
+class NodeaccesssPublishTestCase extends DrupalWebTestCase {
+
+  // Nodes.
+  protected $authored_node;
+  protected $published_node;
+  protected $unpublished_node;
+
+  // Users.
+  protected $admin_user;
+  protected $author_user;
+  protected $basic_user;
+
+  // Default Grant.
+  protected $grant;
+
+  /**
+   * Enable the nodeaccess module. Add type grant for pages. Rebuild perms.
+   */
+  public function setUp() {
+    parent::setUp('nodeaccess');
+
+    user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, array('access content'));
+
+    nodeaccess_add_type_grant('page');
+
+    // Let's create a sample authenticated user with basic permissions.
+    $this->basic_user = $this->drupalCreateUser(array('access content'));
+
+    // Let's create a sample author-type user.
+    $this->author_user = $this->drupalCreateUser(array('access content', 'view own unpublished content'));
+
+    // Let's create a more admin-type user.
+    $this->admin_user = $this->drupalCreateUser(array('access content', 'bypass node access'));
+
+    // Create a published page node, authored by admin.
+    $this->published_node = $this->drupalCreateNode(array('type' => 'page', 'uid' => 1));
+
+    // Create an unpublished page node, authored by admin.
+    $this->unpublished_node = $this->drupalCreateNode(array('type' => 'page', 'uid' => 1, 'status' => 0));
+
+    // Create an unpublished page node, authored by author.
+    $this->authored_node = $this->drupalCreateNode(array('type' => 'page', 'uid' => $this->author_user->uid, 'status' => 0));
+
+    $this->grant = array(
+      array(
+        'gid' => DRUPAL_ANONYMOUS_RID,
+        'realm' => 'nodeaccess_rid',
+        'grant_view' => 1,
+        'grant_update' => 0,
+        'grant_delete' => 0,
+      ),
+      array(
+        'gid' => DRUPAL_AUTHENTICATED_RID,
+        'realm' => 'nodeaccess_rid',
+        'grant_view' => 1,
+        'grant_update' => 0,
+        'grant_delete' => 0,
+      ),
+    );
+
+    node_access_rebuild();
+  }
+
+  /**
+   * Provide some information about this test case.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Nodeaccess node status based tests.',
+      'description' => 'Tests nodes are correctly hidden based on node published status.',
+      'group' => 'Nodeaccess',
+    );
+  }
+
+  /**
+   * Test standard, published node visibility.
+   */
+  public function testPublishedView() {
+
+    nodeaccess_set_grants($this->published_node, $this->grant);
+
+    // Baseline, should be visible by all users, including anon.
+    $this->drupalGet("node/{$this->published_node->nid}");
+    $this->assertResponse(200, 'Anonymous user is allowed to view the content.');
+
+    // Authenticated User
+    $this->drupalLogin($this->basic_user);
+    $this->drupalGet("node/{$this->published_node->nid}");
+    $this->assertResponse(200, 'Authenticated user is allowed to view the content.');
+    $this->drupalLogout();
+
+    // Author User
+    $this->drupalLogin($this->author_user);
+    $this->drupalGet("node/{$this->published_node->nid}");
+    $this->assertResponse(200, 'Author user is allowed to view the content.');
+    $this->drupalLogout();
+
+    // Admin User
+    $this->drupalLogin($this->admin_user);
+    $this->drupalGet("node/{$this->published_node->nid}");
+    $this->assertResponse(200, 'Admin user is allowed to view the content.');
+    $this->drupalLogout();
+
+  }
+
+  /**
+   * Test unpublished node visibility.
+   */
+  public function testUnpublishedView() {
+    nodeaccess_set_grants($this->unpublished_node, $this->grant);
+
+    // Anonymous users should NOT see the content.
+    $this->drupalGet("node/{$this->unpublished_node->nid}");
+    $this->assertResponse(403, 'Anonymous user is not allowed to view the unpublished content.');
+
+    // Authenticated User, should NOT see content.
+    $this->drupalLogin($this->basic_user);
+    $this->drupalGet("node/{$this->unpublished_node->nid}");
+    $this->assertResponse(403, 'Authenticated user is not allowed to view the unpublished content.');
+    $this->drupalLogout();
+
+    // Author User, should NOT see the content, not author of this node.
+    $this->drupalLogin($this->author_user);
+    $this->drupalGet("node/{$this->unpublished_node->nid}");
+    $this->assertResponse(403, 'Author user is not allowed to view the unpublished content.');
+    $this->drupalLogout();
+
+    // Admin User should see content, has administer content permission.
+    $this->drupalLogin($this->admin_user);
+    $this->drupalGet("node/{$this->unpublished_node->nid}");
+    $this->assertResponse(200, 'Admin user is allowed to view the unpublished content (bypass).');
+    $this->drupalLogout();
+
+  }
+
+/**
+   * Test unpublished node visibility.
+   */
+  public function testAuthoredView() {
+    nodeaccess_set_grants($this->authored_node, $this->grant);
+
+    // Anonymous users should NOT see the content.
+    $this->drupalGet("node/{$this->authored_node->nid}");
+    $this->assertResponse(403, 'Anonymous user is not allowed to view the unpublished content.');
+
+    // Authenticated User, should NOT see content.
+    $this->drupalLogin($this->basic_user);
+    $this->drupalGet("node/{$this->authored_node->nid}");
+    $this->assertResponse(403, 'Authenticated user is not allowed to view the unpublished content.');
+    $this->drupalLogout();
+
+    // Author User, should NOT see the content, not author of this node.
+    $this->drupalLogin($this->author_user);
+    $this->drupalGet("node/{$this->authored_node->nid}");
+    $this->assertResponse(200, 'Author user is allowed to view their own unpublished content.');
+    $this->drupalLogout();
+
+    // Admin User should see content, has administer content permission.
+    $this->drupalLogin($this->admin_user);
+    $this->drupalGet("node/{$this->authored_node->nid}");
+    $this->assertResponse(200, 'Admin user is allowed to view the unpublished content (bypass).');
+    $this->drupalLogout();
+
+  }
+
+
+
+}

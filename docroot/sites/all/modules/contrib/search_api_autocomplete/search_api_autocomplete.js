@@ -28,6 +28,7 @@ if (typeof Drupal.jsAC != 'undefined') {
       $input.attr('role', 'combobox');
       $input.parent().attr('role', 'search');
     }
+    this.inSelect = false;
     oldJsAC.call(this, $input, db);
   };
   Drupal.jsAC.prototype = oldJsAC.prototype;
@@ -75,10 +76,17 @@ if (typeof Drupal.jsAC != 'undefined') {
   };
 
   Drupal.jsAC.prototype.select = function(node) {
+    // Protect against an (potentially infinite) recursion.
+    if (this.inSelect) {
+      return false;
+    }
+    this.inSelect = true;
+
     var autocompleteValue = $(node).data('autocompleteValue');
     // Check whether this is not a suggestion but a "link".
     if (autocompleteValue.charAt(0) == ' ') {
       window.location.href = autocompleteValue.substr(1);
+      this.inSelect = false;
       return false;
     }
     this.input.value = autocompleteValue;
@@ -92,8 +100,10 @@ if (typeof Drupal.jsAC != 'undefined') {
         var selector = getSetting(this.input, 'selector', ':submit');
         $(selector, this.input.form).trigger('click');
       }
+      this.inSelect = false;
       return true;
     }
+    this.inSelect = false;
   };
 
   /**

@@ -44,6 +44,7 @@ function reroute_email_permission() {
     'administer reroute email' => array(
       'title' => t('Administer Reroute Email'),
       'description' => t('Administer the Reroute Email module.'),
+      'restrict access' => TRUE,
     ),
   );
 }
@@ -198,7 +199,9 @@ function reroute_email_mail_alter(&$message) {
     ));
 
     // Let users know email has been aborted, but logged.
-    drupal_set_message(t('<em>@message_id</em> was aborted by reroute email; site administrators can check the recent log entries for complete details on the rerouted email.', array('@message_id' => $message['id'])));
+    if (variable_get(REROUTE_EMAIL_ENABLE_DSM, 1)) {
+      drupal_set_message(t('<em>@message_id</em> was aborted by reroute email; site administrators can check the recent log entries for complete details on the rerouted email.', array('@message_id' => $message['id'])));
+    }
   }
   elseif (variable_get(REROUTE_EMAIL_ENABLE_DSM, 1)) {
 

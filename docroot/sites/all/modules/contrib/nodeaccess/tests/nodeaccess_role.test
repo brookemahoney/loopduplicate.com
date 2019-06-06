@@ -1,0 +1,236 @@
+<?php
+
+/**
+ * @file
+ * Tests for the nodeaccess module.
+ */
+
+/**
+ * Tests the functionality of the nodeaccess module.
+ */
+class NodeaccesssRoleTestCase extends DrupalWebTestCase {
+
+  protected $node;
+
+  protected $user;
+
+  /**
+   * Enable the nodeaccess module. Add type grant for pages. Rebuild perms.
+   */
+  public function setUp() {
+    parent::setUp('nodeaccess');
+
+    user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, array('access content'));
+
+    nodeaccess_add_type_grant('page');
+
+    // Create a page node, authored by admin.
+    $this->node = $this->drupalCreateNode(array('type' => 'page', 'uid' => 1));
+
+    // Let's create a sample authenticated user with basic permissions.
+    $this->user = $this->drupalCreateUser(array('access content'));
+
+    node_access_rebuild();
+  }
+
+  /**
+   * Provide some information about this test case.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Nodeaccess Role-based node visibility',
+      'description' => 'Tests nodes are correctly hidden based on user roles.',
+      'group' => 'Nodeaccess',
+    );
+  }
+
+  /**
+   * Test node access when there should be no access whatsoever.
+   */
+  public function testRoleNodeVisibilityNoAccess() {
+    $grants = array(
+      array(
+        'gid' => DRUPAL_ANONYMOUS_RID,
+        'realm' => 'nodeaccess_rid',
+        'grant_view' => 0,
+        'grant_update' => 0,
+        'grant_delete' => 0,
+      ),
+      array(
+        'gid' => DRUPAL_AUTHENTICATED_RID,
+        'realm' => 'nodeaccess_rid',
+        'grant_view' => 0,
+        'grant_update' => 0,
+        'grant_delete' => 0,
+      ),
+    );
+
+    $this->checkRoleGrantAccesses($grants);
+
+  }
+
+  /**
+   * Test node access when only Authenticated users should have view access.
+   */
+  public function testRoleNodeVisibilityViewAuthenticatedOnly() {
+    $grants = array(
+      array(
+        'gid' => DRUPAL_ANONYMOUS_RID,
+        'realm' => 'nodeaccess_rid',
+        'grant_view' => 0,
+        'grant_update' => 0,
+        'grant_delete' => 0,
+      ),
+      array(
+        'gid' => DRUPAL_AUTHENTICATED_RID,
+        'realm' => 'nodeaccess_rid',
+        'grant_view' => 1,
+        'grant_update' => 0,
+        'grant_delete' => 0,
+      ),
+    );
+
+    nodeaccess_set_grants($this->node, $grants);
+
+    // Run all tests from grant.
+    $this->checkRoleGrantAccesses($grants);
+
+  }
+
+  /**
+   * Test node access when authenticated only should have view/edit perms.
+   */
+  public function testRoleNodeVisibilityViewEditAuthenticatedOnly() {
+    $grants = array(
+      array(
+        'gid' => DRUPAL_ANONYMOUS_RID,
+        'realm' => 'nodeaccess_rid',
+        'grant_view' => 0,
+        'grant_update' => 0,
+        'grant_delete' => 0,
+      ),
+      array(
+        'gid' => DRUPAL_AUTHENTICATED_RID,
+        'realm' => 'nodeaccess_rid',
+        'grant_view' => 1,
+        'grant_update' => 1,
+        'grant_delete' => 0,
+      ),
+    );
+
+    nodeaccess_set_grants($this->node, $grants);
+
+    // Run all tests from grant.
+    $this->checkRoleGrantAccesses($grants);
+
+  }
+
+  /**
+   * Test node access when authenticated only should have full access.
+   */
+  public function testRoleNodeVisibilityAllAuthenticatedOnly() {
+    $grants = array(
+      array(
+        'gid' => DRUPAL_ANONYMOUS_RID,
+        'realm' => 'nodeaccess_rid',
+        'grant_view' => 0,
+        'grant_update' => 0,
+        'grant_delete' => 0,
+      ),
+      array(
+        'gid' => DRUPAL_AUTHENTICATED_RID,
+        'realm' => 'nodeaccess_rid',
+        'grant_view' => 1,
+        'grant_update' => 1,
+        'grant_delete' => 1,
+      ),
+    );
+
+    nodeaccess_set_grants($this->node, $grants);
+
+    // Run all tests from grant.
+    $this->checkRoleGrantAccesses($grants);
+
+  }
+
+  /**
+   * Test node access when anon and authenticated users should have full access.
+   */
+  public function testRoleNodeVisibilityFullAccess() {
+    $grants = array(
+      array(
+        'gid' => DRUPAL_ANONYMOUS_RID,
+        'realm' => 'nodeaccess_rid',
+        'grant_view' => 1,
+        'grant_update' => 1,
+        'grant_delete' => 1,
+      ),
+      array(
+        'gid' => DRUPAL_AUTHENTICATED_RID,
+        'realm' => 'nodeaccess_rid',
+        'grant_view' => 1,
+        'grant_update' => 1,
+        'grant_delete' => 1,
+      ),
+    );
+
+    nodeaccess_set_grants($this->node, $grants);
+
+    // Run all tests from grant.
+    $this->checkRoleGrantAccesses($grants);
+
+
+  }
+
+  /**
+   * This method will check the access for the node based on grants supplied.
+   *
+   * @param array $grants
+   *  Array of role grants to check.
+   */
+  protected function checkRoleGrantAccesses($grants = array()) {
+    // Anonymous user should not be able to access this regular node.
+
+    foreach ($grants as $grant) {
+      $logout = FALSE;
+      if (!empty($grant['realm']) && $grant['realm'] == 'nodeaccess_rid') {
+        if (isset($grant['gid']) && $grant['gid'] == DRUPAL_AUTHENTICATED_RID) {
+          $this->drupalLogin($this->user);
+          $logout = TRUE;
+        }
+
+        // Check View Access
+        $this->drupalGet("node/{$this->node->nid}");
+        if (!empty($grant['grant_view']) && $grant['grant_view']) {
+          $this->assertResponse(200, 'User is allowed to view the content.');
+        }
+        else {
+          $this->assertResponse(403, 'User is not allowed to view the content.');
+        }
+
+        // Check Edit Access
+        $this->drupalGet("node/{$this->node->nid}/edit");
+        if (!empty($grant['grant_update']) && $grant['grant_update']) {
+          $this->assertResponse(200, 'User is allowed to edit the content.');
+        }
+        else {
+          $this->assertResponse(403, 'User is not allowed to edit the content.');
+        }
+
+        // Check Delete Access
+        $this->drupalGet("node/{$this->node->nid}/delete");
+        if (!empty($grant['grant_delete']) && $grant['grant_delete']) {
+          $this->assertResponse(200, 'User is allowed to delete the content.');
+        }
+        else {
+          $this->assertResponse(403, 'User is not allowed to delete the content.');
+        }
+
+        if ($logout) {
+          $this->drupalLogout();
+        }
+      }
+    }
+  }
+
+}

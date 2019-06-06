@@ -20,6 +20,10 @@ function search_api_autocomplete_autocomplete(SearchApiAutocompleteSearch $searc
   $ret = array();
   try {
     if ($search->supportsAutocompletion()) {
+      // Transliterate keys if applicable.
+      if (_search_api_autocomplete_index_uses_translation($search->index())) {
+        $keys = transliteration_get($keys);
+      }
       list($complete, $incomplete) = $search->splitKeys($keys);
       $query = $search->getQuery($complete, $incomplete);
       if ($query) {
@@ -118,6 +122,23 @@ function search_api_autocomplete_autocomplete(SearchApiAutocompleteSearch $searc
   }
 
   drupal_json_output($ret);
+}
+
+/**
+ * Determines if the "Transliteration" processor is enabled for the given index.
+ *
+ * @param SearchApiIndex $index
+ *   The index to check.
+ *
+ * @return bool
+ *   TRUE if transliteration is enabled, FALSE otherwise.
+ */
+function _search_api_autocomplete_index_uses_translation(SearchApiIndex $index) {
+  if (module_exists('transliteration')) {
+    $processors = $index->options['processors'];
+    return !empty($processors['search_api_transliteration']['status']);
+  }
+  return FALSE;
 }
 
 /**

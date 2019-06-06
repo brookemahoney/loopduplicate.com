@@ -164,3 +164,10 @@ function nodeaccess_uninstall() {
   // Remove tables.
   drupal_uninstall_schema('nodeaccess');
 }
+
+/**
+ * Flag nodeaccess permissions as needing a rebuild. Rebuild permissions from the status page.
+ */
+function nodeaccess_update_7105() {
+  node_access_needs_rebuild();
+}

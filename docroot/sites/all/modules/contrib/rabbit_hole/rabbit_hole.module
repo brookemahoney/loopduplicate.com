@@ -294,12 +294,14 @@ function rabbit_hole_form_validate($form, &$form_state) {
  *   something is done, this function will redirect the user immediately.
  */
 function rabbit_hole_execute($entity_type, $entity) {
-  // Exit early if the request is being loaded via AJAX.
-  if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-    return;
-  }
+  $action = rabbit_hole_get_action($entity_type, $entity);
+  $context = array(
+    'entity_type' => $entity_type,
+    'entity' => $entity
+  );
+  drupal_alter('rabbit_hole_execute', $action, $context);
 
-  switch (rabbit_hole_get_action($entity_type, $entity)) {
+  switch ($action) {
     case RABBIT_HOLE_ACCESS_DENIED:
       // Deliver a 403, and exit.
       drupal_access_denied();
