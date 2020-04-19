@@ -220,9 +220,11 @@ function nodeaccess_grant_tab($node) {
  * @return mixed
  */
 function nodeaccess_grants_form($form, &$form_state, $node) {
-  $form_values = $form_state['values'];
+  if (isset($form_state['values'])) {
+    $form_values = $form_state['values'];
+  }
 
-  if (!$form_values) {
+  if (!isset($form_values)) {
     $form_values = array();
     $grants = nodeaccess_get_grants($node);
     $form_values['rid'] = isset($grants['rid']) ? $grants['rid'] : array();
@@ -230,13 +232,13 @@ function nodeaccess_grants_form($form, &$form_state, $node) {
   }
   elseif ($form_values['keys']) {
     $name = preg_replace('!\*+!', '%', $form_values['keys']);
-    $uid = array_keys($form_values['uid']);
 
     $query = db_select('users', 'u')
       ->fields('u', array('uid', 'name'))
       ->condition('name', $name, "LIKE");
 
     if (isset($form_values['uid']) && count($form_values['uid'])) {
+      $uid = array_keys($form_values['uid']);
       $query->condition('uid', $uid, 'NOT IN');
     }
 
@@ -835,7 +837,7 @@ function nodeaccess_node_type_insert($info) {
 function nodeaccess_get_role_aliases() {
   $aliases = array();
   $query = db_select('role', 'r');
-  $query->join('nodeaccess_role_alias', 'a', 'r.rid = a.rid');
+  $query->leftJoin('nodeaccess_role_alias', 'a', 'r.rid = a.rid');
   $query->fields('r', array('rid', 'name'));
   $query->addField('a', 'name', 'alias');
   $query->addField('a', 'weight');
@@ -939,26 +941,23 @@ function nodeaccess_get_grants($node) {
   $grants = array();
 
   // Load grants by roles.
-  $query = db_select('nodeaccess', 'na');
-  $query->join('role', 'r', 'r.rid = na.gid');
-  $query->join('nodeaccess_role_alias', 'nra', 'nra.rid = r.rid');
-  $query->fields('r', array('rid', 'name'));
+  $query = db_select('role', 'r');
+  $query->leftJoin('nodeaccess_role_alias', 'nra', 'nra.rid = r.rid');
+  $query->leftJoin('node_access', 'na', 'na.gid = r.rid AND na.realm = :realm AND na.nid = :nid', array(':realm' => 'nodeaccess_rid', ':nid' => $node->nid));
+  $query->fields('r', array('rid'));
+  $query->fields('nra', array('name'));
   $query->fields('na', array('grant_view', 'grant_update', 'grant_delete'));
-  $query->condition('na.realm', 'nodeaccess_rid', '=');
-  $query->condition('na.nid', $node->nid, '=');
   $query->orderBy('nra.weight');
   $query->orderBy('nra.name');
   $result = $query->execute();
 
   while ($grant = $result->fetch()) {
-    if ($grant->name) {
-      $grants['rid'][$grant->rid] = array(
-        'name' => $grant->name,
-        'grant_view' => (bool) $grant->grant_view,
-        'grant_update' => (bool) $grant->grant_update,
-        'grant_delete' => (bool) $grant->grant_delete,
-      );
-    }
+    $grants['rid'][$grant->rid] = array(
+      'name' => empty($grant->name) ? '' : check_plain($grant->name),
+      'grant_view' => (bool) $grant->grant_view,
+      'grant_update' => (bool) $grant->grant_update,
+      'grant_delete' => (bool) $grant->grant_delete,
+    );
   }
   // Load grants by users
   $query = db_select('node_access', 'na');

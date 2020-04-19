@@ -8,8 +8,8 @@ files[] = tests/nodeaccess_grant.test
 files[] = tests/nodeaccess_role.test
 files[] = tests/nodeaccess_publish.test
 
-; Information added by Drupal.org packaging script on 2019-02-09
-version = "7.x-1.6"
+; Information added by Drupal.org packaging script on 2019-08-15
+version = "7.x-1.7"
 core = "7.x"
 project = "nodeaccess"
-datestamp = "1549753983"
+datestamp = "1565834591"
