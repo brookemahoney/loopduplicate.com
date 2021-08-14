@@ -95,3 +95,16 @@ function rh_taxonomy_taxonomy_vocabulary_delete($vocabulary) {
   // Delete variables connected to this vocabulary.
   rabbit_hole_delete_variables('taxonomy_term', $vocabulary->machine_name);
 }
+
+/**
+ * Implements hook_features_pipe_COMPONENT_alter().
+ */
+function rh_taxonomy_features_pipe_taxonomy_alter(&$pipe, $data, $export) {
+  if (!empty($data)) {
+    foreach ($data as $vocabulary_name) {
+      foreach (rabbit_hole_get_variables('taxonomy_term', $vocabulary_name) as $rh_variable) {
+        $pipe['variable'][] = $rh_variable;
+      }
+    }
+  }
+}

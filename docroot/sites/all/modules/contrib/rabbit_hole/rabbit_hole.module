@@ -213,6 +213,7 @@ function rabbit_hole_form(&$attach, $entity_type, $bundle, $module, $entity = NU
     '#description' => '<p>' . implode('</p><p>', $description) . '</p>',
     '#attributes' => array('class' => array('rabbit-hole-redirect-setting')),
     '#rows' => substr_count($redirect_default_value, "\r\n") + 2,
+    '#maxlength' => 2000,
   );
   // Display a list of tokens if the Token module is enabled.
   if (module_exists('token')) {
@@ -294,6 +295,7 @@ function rabbit_hole_form_validate($form, &$form_state) {
  *   something is done, this function will redirect the user immediately.
  */
 function rabbit_hole_execute($entity_type, $entity) {
+  global $language;
   $action = rabbit_hole_get_action($entity_type, $entity);
   $context = array(
     'entity_type' => $entity_type,
@@ -309,6 +311,7 @@ function rabbit_hole_execute($entity_type, $entity) {
 
     case RABBIT_HOLE_PAGE_NOT_FOUND:
       // Deliver a 404, and exit.
+      drupal_set_title(t('Page not found'));
       drupal_not_found();
       drupal_exit();
 
@@ -354,7 +357,7 @@ function rabbit_hole_execute($entity_type, $entity) {
       // Replace any tokens with real values.
       $entity_info = entity_get_info($entity_type);
       $token_data = isset($entity_info['token type']) ? array($entity_info['token type'] => $entity) : array();
-      $redirect = token_replace($redirect, $token_data, array('clear' => TRUE));
+      $redirect = token_replace($redirect, $token_data, array('language' => $language, 'clear' => TRUE));
 
       // Parse the supplied redirect path in order to get the details.
       $redirect_data = drupal_parse_url($redirect);
@@ -433,7 +436,7 @@ function rabbit_hole_access_php($module) {
 function rabbit_hole_menu_local_tasks_alter(&$data, $router_item, $root_path) {
   $primary = &$data['tabs'][0];
 
-  if (!is_array($primary['output'])) {
+  if (empty($primary['output']) || !is_array($primary['output'])) {
     // There are no tabs present, exit early.
     return;
   }
@@ -601,9 +604,24 @@ function rabbit_hole_get_redirect_response_entity($entity_type, $entity) {
  * This should be executed when a module in uninstalled or a bundle is deleted.
  */
 function rabbit_hole_delete_variables($entity_type, $bundle) {
-  variable_del('rh_' . $entity_type . '_action_' . $bundle);
-  variable_del('rh_' . $entity_type . '_redirect_' . $bundle);
-  variable_del('rh_' . $entity_type . '_redirect_response_' . $bundle);
+  foreach (rabbit_hole_get_variables($entity_type, $bundle) as $rh_variable) {
+    variable_del($rh_variable);
+  }
+}
+
+/**
+ * Returns array of available Rabbit Hole variables for given entity bundle.
+ *
+ * @return array
+ *   A list of Rabbit Hole variable names.
+ */
+function rabbit_hole_get_variables($entity_type, $bundle) {
+  return array(
+    'rh_' . $entity_type . '_override_' . $bundle,
+    'rh_' . $entity_type . '_action_' . $bundle,
+    'rh_' . $entity_type . '_redirect_' . $bundle,
+    'rh_' . $entity_type . '_redirect_response_' . $bundle,
+  );
 }
 
 /**
@@ -679,7 +697,7 @@ function rabbit_hole_modules_uninstalled($modules) {
     // Hole fields from the base table of the entity type that this module is
     // altering. We need to include the .module file manually, since the module
     // hsa been uninstalled and therefore, isn't reachable the normal way.
-    require_once DRUPAL_ROOT . '/' . drupal_get_path('module', $module) . '/' . $module . '.module';
+    module_load_include('module', $module);
     $function = $module . '_rabbit_hole';
     if (function_exists($function)) {
       // Gather info about the module, entity and get the Rabbit Hole fields.

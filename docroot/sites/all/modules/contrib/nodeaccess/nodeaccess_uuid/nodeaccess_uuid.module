@@ -1,0 +1,136 @@
+<?php
+/**
+ * @file
+ * Adds UUID functionality to the nodeaccess module.
+ */
+
+/**
+ * Implements hook_entity_uuid_load().
+ */
+function nodeaccess_uuid_entity_uuid_load(&$entities, $entity_type) {
+  if ($entity_type !== 'node') {
+    return;
+  }
+
+  foreach ($entities as &$entity) {
+    // Load the information.
+    $query = db_select('node_access', 'na');
+    $query->fields('na');
+    $query->addField('r', 'name', 'role_name');
+    $query->addField('u', 'uuid', 'user_uuid');
+    $query->addExpression("CONCAT(na.nid, '-', na.gid, '-', na.realm)", 'unique_key');
+    $query->leftJoin('role', 'r', "na.realm='nodeaccess_rid' AND r.rid=na.gid");
+    $query->leftJoin('users', 'u', "na.realm='nodeaccess_uid' AND u.uid=na.gid");
+    $query->condition('na.nid', $entity->nid);
+
+    $results = $query->execute()
+      ->fetchAllAssoc('unique_key');
+
+    $entity->nodeaccess = $results;
+  }
+}
+
+/**
+ * Implements hook_entity_uuid_save().
+ */
+function nodeaccess_uuid_entity_uuid_save($entity, $entity_type) {
+  if ($entity_type !== 'node' || empty($entity->nodeaccess)) {
+    return;
+  }
+
+  $nid = entity_get_id_by_uuid($entity_type, array($entity->uuid));
+
+  if (empty($nid)) {
+    return;
+  }
+
+  $values['nid'] = reset($nid);
+
+  // Store the roles and users so that we don't have to continually load them.
+  $roles = drupal_static(__FUNCTION__ . '_roles', array());
+  $users = drupal_static(__FUNCTION__ . '_users', array());
+
+  foreach ($entity->nodeaccess as $nodeaccess) {
+    switch ($nodeaccess['realm']) {
+      case 'nodeaccess_rid':
+        $role_name = $nodeaccess['role_name'];
+
+        if (empty($roles[$role_name])) {
+          $role = user_role_load_by_name($role_name);
+
+          if (!empty($role)) {
+            $roles[$role_name] = $role->rid;
+          }
+          // Note: assumed to be TRUE, but local settings can exclude the action
+          // in which case the grant would end up being skipped.
+          elseif(variable_get('nodeaccess_uuid_create_missing_roles', TRUE)) {
+            // Lets create the role.
+            $role = new stdClass();
+            $role->name = $role_name;
+            user_role_save($role);
+            $roles[$role_name] = $role->rid;
+          }
+          else {
+            break;
+          }
+        }
+
+        $nodeaccess['gid'] = $roles[$role_name];
+        $values['rid'][$nodeaccess['gid']] = $nodeaccess;
+        break;
+
+      case 'nodeaccess_uid':
+        if (empty($users[$nodeaccess['user_uuid']])) {
+          $user = entity_get_id_by_uuid('user', array($nodeaccess['user_uuid']));
+
+          if (empty($user[$nodeaccess['user_uuid']])) {
+            break;
+          }
+
+          $users[$nodeaccess['user_uuid']] = $user[$nodeaccess['user_uuid']];
+        }
+
+        $nodeaccess['gid'] = $users[$nodeaccess['user_uuid']];
+        $values['uid'][$nodeaccess['gid']] = $nodeaccess;
+        break;
+    }
+  }
+
+  $form_state = array(
+    'values' => $values,
+  );
+
+  _nodeaccess_grants_form_submit(array(), $form_state);
+}
+
+/**
+ * Implements hook_entity_dependencies().
+ */
+function nodeaccess_uuid_entity_dependencies($entity, $entity_type) {
+  if ($entity_type !== 'node') {
+    return;
+  }
+
+  $query = db_select('node_access', 'na')
+    ->condition('na.nid', $entity->nid)
+    ->condition('na.realm', 'nodeaccess_uid');
+  $join_alias = $query->join('users', 'u', '(na.gid = u.uid AND na.realm = :realm)', array(':realm' => 'nodeaccess_uid'));
+  $query->fields($join_alias);
+
+  $results = $query
+    ->execute()
+    ->fetchAllAssoc('uid');
+
+  $dependencies = array();
+
+  if (!empty($results)) {
+    foreach ($results as $result) {
+      $dependencies[] = array(
+        'type' => 'user',
+        'id' => $result->uid,
+      );
+    }
+  }
+
+  return $dependencies;
+}

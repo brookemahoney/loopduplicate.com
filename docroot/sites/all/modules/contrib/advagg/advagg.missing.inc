@@ -45,7 +45,7 @@ function advagg_missing_aggregate($input = '') {
             $trueversion = '2.1.4';
             break;
         }
-        $url = "https://cdn.rawgit.com/jquery/jquery/$trueversion/jquery.min.map";
+        $url = "https://cdn.jsdelivr.net/gh/jquery/jquery@$trueversion/jquery.min.map";
         drupal_goto($url, array('external' => TRUE), 301);
       }
     }
@@ -869,7 +869,7 @@ function advagg_get_css_aggregate_contents(array $files, array $aggregate_settin
             $info_on_files['advagg:file:' . $row->filename_hash]['content_hash'] = $row->content_hash;
           }
         }
-        if ($info_on_files[$cid]['content_hash'] !== $file_contents_hash) {
+        if (isset($info_on_files[$cid]) == FALSE || $info_on_files[$cid]['content_hash'] !== $file_contents_hash) {
           // If the content hash doesn't match don't write the file.
           $write_aggregate = advagg_missing_file_not_readable($file, $aggregate_filename, FALSE);
         }
@@ -1408,8 +1408,7 @@ function advagg_save_data($uri, $data, $overwrite = FALSE) {
  *
  * @param string $string
  *   Input data to be sized in bytes.
- *
- * @link http://stackoverflow.com/a/3511239/231914
+ *   @link http://stackoverflow.com/a/3511239/231914.
  *
  * @return int
  *   Number of bytes this string uses.
@@ -1440,9 +1439,15 @@ function advagg_rename($source, $destination) {
   $real_destination = drupal_realpath($destination);
   $real_destination = $real_destination ? $real_destination : $destination;
 
+  // Try php rename.
   if (!@rename($real_source, $real_destination)) {
+    // Try drupal move.
     if (!file_unmanaged_move($source, $destination)) {
-      return FALSE;
+      // Try file scheme's rename method if it exists.
+      $fs_wrapper = file_stream_wrapper_get_instance_by_scheme(file_uri_scheme($source));
+      if (!$fs_wrapper || !method_exists($fs_wrapper, 'rename') || !$fs_wrapper->rename($source, $destination)) {
+        return FALSE;
+      }
     }
   }
 

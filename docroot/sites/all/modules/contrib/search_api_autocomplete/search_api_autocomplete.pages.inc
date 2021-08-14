@@ -37,7 +37,6 @@ function search_api_autocomplete_autocomplete(SearchApiAutocompleteSearch $searc
           $fields = explode(' ', $fields);
           $query->fields($fields);
         }
-        $query->preExecute();
         $suggestions = $search->getSuggester()->getAutocompleteSuggestions($query, $incomplete, $keys);
         if ($suggestions) {
           foreach ($suggestions as $suggestion) {

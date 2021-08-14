@@ -1,3 +1,11 @@
+Search API Autocomplete 1.7 (2021-07-19):
+-----------------------------------------
+- #2580217 by drunken monkey: Fixed bugs in "Live results" suggester.
+- #1567234 by mlamothe, piggito, drunken monkey: Added a "Live results"
+  suggester.
+- #3003098 by Andreas Radloff, drunken monkey: Fixed compatibility with other
+  autocomplete fields on the same page.
+
 Search API Autocomplete 1.6 (2018-09-17):
 -----------------------------------------
 - #2977790 by drunken monkey, semanthis: Fixed auto-submit in AJAX views.

@@ -1,0 +1,12 @@
+name = Nodeaccess UUID
+description = Add UUID support to nodeaccess module.
+core = 7.x
+
+dependencies[] = nodeaccess
+dependencies[] = uuid
+
+; Information added by Drupal.org packaging script on 2020-05-20
+version = "7.x-1.8"
+core = "7.x"
+project = "nodeaccess"
+datestamp = "1589975058"

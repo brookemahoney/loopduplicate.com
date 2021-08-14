@@ -45,11 +45,7 @@ class SearchApiFacetapiAdapter extends FacetapiAdapter {
    * Overrides FacetapiAdapter::getSearchPath().
    */
   public function getSearchPath() {
-    $search = $this->getCurrentSearch();
-    if ($search && $search[0]->getOption('search_api_base_path')) {
-      return $search[0]->getOption('search_api_base_path');
-    }
-    return $_GET['q'];
+    return search_api_facetapi_current_search_path();
   }
 
   /**
@@ -284,9 +280,6 @@ class SearchApiFacetapiAdapter extends FacetapiAdapter {
         '#options' => $granularity_options,
         '#default_value' => isset($options['date_granularity']) ? $options['date_granularity'] : FACETAPI_DATE_MINUTE,
       );
-
-      // Date facets don't support the "OR" operator (for now).
-      $form['global']['operator']['#access'] = FALSE;
 
       $default_value = FACETAPI_DATE_YEAR;
       if (isset($options['date_granularity_min'])) {

@@ -1,3 +1,10 @@
+Nodeaccess 7.x-1.7
+==================
+Fixed bug in #3032070: grants_form empty, Undefined index: values in nodeaccess_grants_form()
+Fixed bug in #3032449: Change to nodeaccess_get_role_aliases() prevents adding new allowed roles
+Fixed bug in #3033131: Searching for user produces notice/warning
+
+
 Nodeaccess 7.x-1.6
 ==================
 Corrected issues surrounding security advisory SA-CONTRIB-2019-009

@@ -75,7 +75,14 @@ if (typeof Drupal.jsAC != 'undefined') {
     }
   };
 
+  var default_select = Drupal.jsAC.prototype.select;
   Drupal.jsAC.prototype.select = function(node) {
+    // Check if this is a Search API autocomplete field
+    if (!$(this.input).data('search-api-autocomplete-search')) {
+      // Not a Search API field
+      return default_select.call(this, node);
+    }
+
     // Protect against an (potentially infinite) recursion.
     if (this.inSelect) {
       return false;

@@ -48,6 +48,12 @@ function search_api_autocomplete_search_api_autocomplete_suggester_info() {
     'class' => 'SearchApiAutocompleteServerSuggester',
   );
 
+  $suggesters['live_results'] = array(
+    'label' => t('Retrieve live results'),
+    'description' => t('Return Live results.'),
+    'class' => 'SearchApiAutocompleteLiveResultsSuggester',
+  );
+
   return $suggesters;
 }
 
@@ -137,6 +143,20 @@ function search_api_autocomplete_entity_info() {
   );
 
   return $info;
+}
+
+/**
+* Implements hook_entity_info_alter().
+*/
+function search_api_autocomplete_entity_info_alter(&$entity_info) {
+  foreach($entity_info as $entity_type => $info) {
+    if(!empty($info['view modes'])){
+      $entity_info[$entity_type]['view modes']['live_results_search'] = array(
+        'label' => t('Live results search'),
+        'custom settings' => TRUE,
+      );
+    }
+  }
 }
 
 /**

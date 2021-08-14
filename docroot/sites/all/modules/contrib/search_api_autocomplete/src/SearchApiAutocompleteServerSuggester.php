@@ -75,6 +75,7 @@ class SearchApiAutocompleteServerSuggester extends SearchApiAutocompleteSuggeste
     if ($this->configuration['fields']) {
       $query->fields($this->configuration['fields']);
     }
+    $query->preExecute();
     return $query->getIndex()->server()->getAutocompleteSuggestions($query, $this->getSearch(), $incomplete_key, $user_input);
   }
 

@@ -197,6 +197,10 @@ class SearchApiViewsQuery extends views_plugin_query {
       'parse_mode' => array(
         'default' => 'terms',
       ),
+      'preserve_facet_query_args' => array(
+        'default' => FALSE,
+        'bool' => TRUE,
+      ),
     );
   }
 
@@ -242,6 +246,14 @@ class SearchApiViewsQuery extends views_plugin_query {
           '#states' => $states,
         );
       }
+    }
+    if (module_exists('facetapi')) {
+      $form['preserve_facet_query_args'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Preserve facets while using filters'),
+        '#description' => t('By default, changing an exposed filter would reset all selected facets. This option allows you to prevent this behavior.'),
+        '#default_value' => $this->options['preserve_facet_query_args'],
+      );
     }
   }
 
@@ -307,11 +319,8 @@ class SearchApiViewsQuery extends views_plugin_query {
       $this->query->setOption('search_api_bypass_access', TRUE);
     }
 
-    // If the View and the Panel conspire to provide an overridden path then
-    // pass that through as the base path.
-    if (!empty($this->view->override_path) && strpos(current_path(), $this->view->override_path) !== 0) {
-      $this->query->setOption('search_api_base_path', $this->view->override_path);
-    }
+    // Store the Views base path.
+    $this->query->setOption('search_api_base_path', $this->view->get_path());
 
     // Save query information for Views UI.
     $view->build_info['query'] = (string) $this->query;

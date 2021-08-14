@@ -105,11 +105,18 @@ function blockify_block_view($delta = '') {
  * Provides individual block content.
  */
 function blockify_get_content($delta) {
+  global $theme_key;
   $variables = array();
 
   switch ($delta) {
     case 'blockify-logo':
       $variables['logo_path'] = theme_get_setting('logo');
+      if (empty($variables['logo_path'])) {
+        $variables['logo_path'] = theme_get_setting('logo_path');
+        if (empty($variables['logo_path']) || theme_get_setting('default_logo')) {
+          $variables['logo_path'] = drupal_get_path('theme', $theme_key) . '/logo.png';
+        }
+      }
       return theme('blockify_logo', $variables);
 
     case 'blockify-site-name':
@@ -125,11 +132,14 @@ function blockify_get_content($delta) {
       return theme('blockify_page_title', $variables);
 
     case 'blockify-breadcrumb':
+      if (function_exists('path_breadcrumbs_set_breadcrumb')) {
+        path_breadcrumbs_set_breadcrumb();
+      }
       $variables['breadcrumb'] = drupal_get_breadcrumb();
       return theme('blockify_breadcrumb', $variables);
 
     case 'blockify-messages':
-      return theme('status_messages');
+      return array('#theme' => 'status_messages');
 
     case 'blockify-tabs':
       $variables['primary'] = menu_primary_local_tasks();
